@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,22 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_SUPERADMIN = 'superadmin';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_MANAGER_HR = 'manager_hr';
+    public const ROLE_IT = 'it';
+    public const ROLE_TRAINER = 'trainer';
+    public const ROLE_STUDENT = 'student';
+
+    public const ROLES = [
+        self::ROLE_SUPERADMIN,
+        self::ROLE_ADMIN,
+        self::ROLE_MANAGER_HR,
+        self::ROLE_IT,
+        self::ROLE_TRAINER,
+        self::ROLE_STUDENT,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +37,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role',
+        'is_active',
         'password',
     ];
 
@@ -42,7 +61,38 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function roleOptions(): array
+    {
+        return [
+            self::ROLE_SUPERADMIN => 'Super Admin',
+            self::ROLE_ADMIN => 'Admin',
+            self::ROLE_MANAGER_HR => 'Manager / HR',
+            self::ROLE_IT => 'IT',
+            self::ROLE_TRAINER => 'Teacher / Trainer',
+            self::ROLE_STUDENT => 'Student / User',
+        ];
+    }
+
+    public function coursesCreated(): HasMany
+    {
+        return $this->hasMany(Course::class, 'created_by');
+    }
+
+    public function enrollmentsAsStudent(): HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class, 'student_id');
+    }
+
+    public function enrollmentsAsTrainer(): HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class, 'trainer_id');
     }
 }
