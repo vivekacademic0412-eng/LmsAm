@@ -58,7 +58,9 @@ class CourseDayController extends Controller
             'resource_type' => ['nullable', 'string', Rule::in(['video', 'ppt', 'video_or_ppt'])],
             'content' => ['nullable', 'string', 'max:2000'],
             'resource_url' => ['nullable', 'url', 'max:500'],
-            'resource_file' => ['nullable', 'file', 'mimes:mp4,mov,avi,mkv,pdf,ppt,pptx', 'max:307200'],
+            'resource_file' => $item->item_type === CourseDayItem::TYPE_TASK
+                ? ['nullable', 'file', 'max:307200']
+                : ['nullable', 'file', 'mimes:mp4,mov,avi,mkv,pdf,ppt,pptx,doc,docx,xls,xlsx', 'max:307200'],
         ]);
 
         $updateData = [

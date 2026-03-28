@@ -25,7 +25,4 @@
         <button class="btn" type="submit">Login</button>
     </form>
 
-    <p class="muted mt-14 m-0">
-        Default seeded password: <strong>password</strong>
-    </p>
 @endsection

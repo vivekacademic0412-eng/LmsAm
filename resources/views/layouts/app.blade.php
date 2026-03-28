@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'LMS' }}</title>
+    <title>{{ $title ?? 'Academic Mantra' }}</title>
+    <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
+    <link rel="shortcut icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.webp') }}">
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -96,14 +99,14 @@
         .app {
             min-height: 100vh;
             display: grid;
-            grid-template-columns: 250px 1fr;
+            grid-template-columns: 260px minmax(0, 1fr);
         }
 
         .sidebar {
             background: linear-gradient(165deg, var(--sidebar), var(--sidebar-2));
             color: var(--sidebar-text);
             border-right: 1px solid var(--sidebar-border);
-            padding: 12px 12px 16px;
+            padding: 0 12px 16px;
             display: grid;
             grid-template-rows: 1fr auto;
             gap: 12px;
@@ -112,18 +115,22 @@
             height: 100vh;
             overflow-y: auto;
             margin-top: 0;
+            width: 260px;
         }
 
         .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 9px;
+            display: grid;
+            gap: 0;
             margin: 0 0 12px;
-            padding: 7px 9px;
-            border: 1px solid var(--sidebar-brand-border);
-            border-radius: 12px;
-            background: var(--sidebar-brand-bg);
-            box-shadow: 0 8px 18px rgba(14, 44, 90, 0.08);
+            padding: 14px;
+            border: 1px solid color-mix(in srgb, var(--sidebar-brand-border) 82%, #ffffff 18%);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 200, 120, 0.22), rgba(255, 200, 120, 0) 34%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(241, 247, 255, 0.96));
+            box-shadow:
+                0 18px 34px rgba(14, 44, 90, 0.11),
+                inset 0 1px 0 rgba(255, 255, 255, 0.98);
         }
 
         .menu {
@@ -267,6 +274,33 @@
             grid-template-rows: auto 1fr auto;
             min-height: 100vh;
             margin-top: 0;
+            min-width: 0;
+        }
+
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                border-right: 0;
+                border-bottom: 1px solid var(--sidebar-border);
+            }
+            .topbar {
+                position: sticky;
+            }
+            .sidebar-brand {
+                margin-bottom: 10px;
+            }
+            .brand-mark-shell {
+                min-height: 90px;
+                padding: 14px 16px;
+            }
+            .brand-mark {
+                max-width: 200px;
+            }
         }
 
         .topbar {
@@ -275,7 +309,8 @@
             background: var(--topbar-bg);
             backdrop-filter: blur(6px);
             box-shadow: 0 4px 10px rgba(15, 38, 73, 0.04);
-            padding: 10px 16px;
+            padding: 0 16px;
+            min-height: 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -292,7 +327,11 @@
             min-width: 0;
         }
 
-        .topbar-title { min-width: 0; }
+        .topbar-title {
+            min-width: 0;
+            display: grid;
+            gap: 1px;
+        }
 
         .topbar-title h2 {
             font-size: 16px;
@@ -303,7 +342,7 @@
         }
 
         .topbar-title p {
-            margin-top: 2px;
+            margin-top: 0;
             font-size: 12px;
             color: var(--muted);
         }
@@ -319,31 +358,31 @@
 
         .view-site-link:hover { color: var(--primary); }
 
-        .brand-logo {
-            width: 36px;
-            height: 36px;
-            border-radius: 11px;
-            background: linear-gradient(140deg, #0f4fb9, #1a73d9);
-            color: #fff;
-            display: grid;
-            place-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            box-shadow: 0 8px 20px rgba(19, 80, 174, 0.35);
-            flex-shrink: 0;
+        .brand-mark-shell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 20px;
+            background:
+                radial-gradient(circle at left top, rgba(255, 194, 96, 0.2), rgba(255, 194, 96, 0) 30%),
+                linear-gradient(180deg, #ffffff, #fbfdff);
+            border: 1px solid rgba(210, 223, 242, 0.92);
+            padding: 16px 18px;
+            box-shadow:
+                0 16px 28px rgba(15, 45, 89, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.98);
+            min-height: 104px;
         }
 
-        .brand-copy h1 {
-            font-size: 14px;
-            color: var(--sidebar-title);
-            line-height: 1.15;
-        }
-
-        .brand-copy p {
-            margin-top: 2px;
-            color: var(--sidebar-subtitle);
-            font-size: 11px;
+        .brand-mark {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 220px;
+            margin: 0 auto;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 18px rgba(20, 51, 93, 0.08));
         }
 
         .profile-top {
@@ -351,6 +390,38 @@
             align-items: center;
             gap: 10px;
             position: relative;
+        }
+
+        .notification-shell {
+            position: relative;
+        }
+
+        .notification-trigger {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: #d93c3c;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 18px;
+            padding: 0 5px;
+            box-shadow: 0 6px 14px rgba(217, 60, 60, 0.28);
+        }
+
+        .notification-trigger.has-unread {
+            border-color: rgba(20, 95, 209, 0.32);
+            background:
+                radial-gradient(circle at top, rgba(20, 95, 209, 0.18), rgba(20, 95, 209, 0) 62%),
+                var(--card);
+            box-shadow: 0 10px 20px rgba(20, 95, 209, 0.12);
         }
 
         .profile-trigger {
@@ -380,6 +451,14 @@
             place-content: center;
             font-size: 12px;
             font-weight: 700;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .avatar.small {
@@ -414,6 +493,299 @@
         .profile-popup.open {
             display: grid;
             gap: 12px;
+        }
+
+        .notification-popup {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: min(392px, 94vw);
+            background:
+                radial-gradient(circle at top right, rgba(20, 95, 209, 0.12), rgba(20, 95, 209, 0) 36%),
+                linear-gradient(180deg, color-mix(in srgb, var(--card) 96%, #ffffff 4%), var(--card));
+            border: 1px solid color-mix(in srgb, var(--line) 84%, #bfd3ef 16%);
+            border-radius: 18px;
+            box-shadow: 0 24px 42px rgba(7, 18, 36, 0.22);
+            padding: 16px;
+            display: none;
+            z-index: 100;
+        }
+
+        .notification-popup.open {
+            display: grid;
+            gap: 12px;
+        }
+
+        .notification-popup-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line-soft);
+        }
+
+        .notification-popup-copy {
+            display: grid;
+            gap: 5px;
+        }
+
+        .notification-popup-kicker {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: 4px 9px;
+            background: color-mix(in srgb, var(--primary-soft) 70%, #ffffff 30%);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .notification-popup-head strong {
+            font-size: 16px;
+            line-height: 1.2;
+        }
+
+        .notification-popup-head span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .notification-popup-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .notification-popup-pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: color-mix(in srgb, var(--primary-soft) 72%, #ffffff 28%);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .notification-popup-pill.is-muted {
+            background: color-mix(in srgb, var(--field-bg) 90%, #ffffff 10%);
+            color: var(--muted);
+        }
+
+        .notification-popup-list {
+            display: grid;
+            gap: 14px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .notification-popup-group {
+            display: grid;
+            gap: 10px;
+        }
+
+        .notification-popup-group-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .notification-popup-group-head strong {
+            font-size: 12px;
+            color: var(--text);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .notification-popup-group-head span {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .notification-popup-item {
+            display: grid;
+            gap: 7px;
+            padding: 13px;
+            border: 1px solid color-mix(in srgb, var(--line-soft) 88%, #d9e7fb 12%);
+            border-radius: 15px;
+            background:
+                linear-gradient(180deg, color-mix(in srgb, var(--card) 95%, #ffffff 5%), color-mix(in srgb, var(--card) 98%, var(--primary-soft) 2%));
+            text-decoration: none;
+            color: inherit;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .notification-popup-item.is-unread {
+            border-color: #b8d0f5;
+            background:
+                radial-gradient(circle at top right, rgba(20, 95, 209, 0.14), rgba(20, 95, 209, 0) 36%),
+                linear-gradient(180deg, color-mix(in srgb, var(--primary-soft) 84%, #ffffff 16%), var(--card));
+        }
+
+        .notification-popup-item-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .notification-popup-item-body {
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .notification-popup-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 13px;
+            background: linear-gradient(145deg, #e9f2ff 0%, #d7e8ff 100%);
+            color: var(--primary);
+            display: grid;
+            place-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            flex: 0 0 auto;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .notification-popup-copy {
+            display: grid;
+            gap: 7px;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .notification-popup-item strong {
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .notification-popup-item p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .notification-state-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #2a79da 0%, #39bbae 100%);
+            box-shadow: 0 0 0 4px rgba(42, 121, 218, 0.12);
+            flex: 0 0 auto;
+            margin-top: 4px;
+        }
+
+        .notification-popup-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .notification-popup-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .notification-popup-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 8px;
+            background: color-mix(in srgb, var(--primary-soft) 72%, #ffffff 28%);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .notification-popup-tag.is-soft {
+            background: color-mix(in srgb, var(--field-bg) 90%, #ffffff 10%);
+            color: var(--muted);
+        }
+
+        .notification-popup-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .notification-popup-inline-btn {
+            border: 1px solid color-mix(in srgb, var(--line) 82%, #c0d4ef 18%);
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--card) 92%, #ffffff 8%);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 5px 9px;
+            cursor: pointer;
+        }
+
+        .notification-popup-inline-btn:hover {
+            background: var(--primary-soft);
+            border-color: #aac6ed;
+        }
+
+        .notification-popup-empty {
+            border: 1px dashed color-mix(in srgb, var(--line) 76%, #b9ceeb 24%);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            background: color-mix(in srgb, var(--field-bg) 72%, #ffffff 28%);
+        }
+
+        .notification-popup-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding-top: 4px;
+            border-top: 1px solid var(--line-soft);
+        }
+
+        .notification-link {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .notification-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-text {
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .btn-text:hover {
+            text-decoration: underline;
         }
 
         .profile-popup-head {
@@ -467,7 +839,7 @@
             max-width: 1260px;
             width: 100%;
             margin: 0 auto;
-            padding: 14px 16px 0;
+            padding: 0 16px 0;
         }
 
         .content-stack {
@@ -692,6 +1064,69 @@
         .tag.ok { background: rgba(18, 131, 76, 0.14); color: var(--ok); }
         .tag.no { background: rgba(197, 58, 58, 0.12); color: var(--danger); }
 
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-row select {
+            max-width: 260px;
+            background: var(--card);
+        }
+        .filter-row select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .filter-wrap {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            background: #1a73e8;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 10px 18px rgba(26, 115, 232, 0.18);
+        }
+        .filter-btn svg { width: 16px; height: 16px; stroke: #fff; }
+        .filter-panel {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            width: min(360px, calc(100vw - 32px));
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 18px 34px rgba(10, 28, 56, 0.18);
+            padding: 14px;
+            display: none;
+            z-index: 80;
+            margin-top: 0;
+        }
+        .filter-panel.open { display: block; }
+        .filter-field { display: grid; gap: 6px; margin-bottom: 10px; }
+        .filter-field label { font-size: 12px; font-weight: 700; text-transform: none; }
+        .filter-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+        .filter-actions .btn { padding: 8px 12px; }
+
+        @media (max-width: 640px) {
+            .filter-panel {
+                left: 0;
+                right: auto;
+                width: min(320px, calc(100vw - 32px));
+            }
+        }
+
         .footer {
             max-width: 1260px;
             width: 100%;
@@ -705,6 +1140,42 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+
+        .pagination {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .pagination .page-item { display: inline-flex; }
+        .pagination .page-link,
+        .pagination .page-item > span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 10px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .pagination .page-item.active > span {
+            background: var(--primary-soft);
+            border-color: #bcd3f7;
+            color: var(--primary);
+        }
+        .pagination .page-item.disabled > span {
+            color: var(--muted);
+            background: #f3f6fb;
+        }
+        .pagination .page-link:hover { background: #eef3f9; }
 
         @media (max-width: 980px) {
             .app { grid-template-columns: 1fr; }
@@ -726,17 +1197,61 @@
     $user = auth()->user();
     $roleLabels = \App\Models\User::roleOptions();
     $path = request()->path();
-    $menu = [
-        ['label' => 'Dashboard', 'route' => 'dashboard', 'show' => true],
-        ['label' => 'Course Categories', 'route' => 'course-categories.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_MANAGER_HR, \App\Models\User::ROLE_IT], true)],
-        ['label' => 'Courses', 'route' => 'courses.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_MANAGER_HR, \App\Models\User::ROLE_IT], true)],
-        ['label' => 'Enrollments', 'route' => 'enrollments.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
-        ['label' => 'User Control', 'route' => 'users.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
-        ['label' => 'Manage Profile', 'route' => 'profile.edit', 'show' => true],
-        ['label' => 'My Panel', 'route' => 'panel.' . $user->role, 'show' => $user->role !== \App\Models\User::ROLE_SUPERADMIN],
-        ['label' => 'Trainer Tracking', 'route' => 'trainer.progress', 'show' => $user->role === \App\Models\User::ROLE_TRAINER],
-        ['label' => 'My Courses', 'route' => 'student.courses', 'show' => $user->role === \App\Models\User::ROLE_STUDENT],
-    ];
+    $avatarUrl = $user->avatar_url;
+    $brandLogo = asset('images/logo.webp');
+    $notificationsAvailable = \Illuminate\Support\Facades\Schema::hasTable('notifications');
+    $topbarNotifications = collect();
+    $topbarUnreadCount = 0;
+    $topbarUnreadNotifications = collect();
+    $topbarSeenNotifications = collect();
+    if ($notificationsAvailable) {
+        $topbarNotifications = $user->notifications()->latest()->take(6)->get();
+        $topbarUnreadCount = $user->unreadNotifications()->count();
+        $topbarUnreadNotifications = $topbarNotifications->filter(fn ($notification) => is_null($notification->read_at))->values();
+        $topbarSeenNotifications = $topbarNotifications->reject(fn ($notification) => is_null($notification->read_at))->values();
+    }
+    if ($user->role === \App\Models\User::ROLE_STUDENT) {
+        $menu = [
+            ['label' => 'Dashboard', 'route' => 'dashboard', 'show' => true],
+            ['label' => 'My Courses', 'route' => 'student.courses', 'show' => true],
+            ['label' => 'History', 'route' => 'student.history', 'show' => true],
+            ['label' => 'Certificates', 'route' => 'student.certificates', 'show' => true],
+            ['label' => 'My Profile', 'route' => 'profile.edit', 'show' => true],
+        ];
+    } else {
+        if ($user->role === \App\Models\User::ROLE_DEMO) {
+            $menu = [
+                ['label' => 'Dashboard', 'route' => 'dashboard', 'show' => true],
+            ];
+        } elseif ($user->role === \App\Models\User::ROLE_TRAINER) {
+            $menu = [
+                ['label' => 'Dashboard', 'route' => 'dashboard', 'show' => true],
+                ['label' => 'Review Queue', 'route' => 'trainer.submissions', 'show' => true],
+                ['label' => 'All Courses', 'route' => 'trainer.courses', 'show' => true],
+                ['label' => 'Assigned Students', 'route' => 'trainer.assigned-students', 'show' => true],
+                ['label' => 'Trainer Tracking', 'route' => 'trainer.progress', 'show' => true],
+                ['label' => 'My Profile', 'route' => 'profile.edit', 'show' => true],
+            ];
+        } else {
+            $menu = [
+                ['label' => 'Dashboard', 'route' => 'dashboard', 'show' => true],
+                ['label' => 'HR Panel', 'route' => 'panel.manager_hr', 'show' => $user->role === \App\Models\User::ROLE_MANAGER_HR],
+                ['label' => 'IT Panel', 'route' => 'panel.it', 'show' => $user->role === \App\Models\User::ROLE_IT],
+                ['label' => 'Course Categories', 'route' => 'course-categories.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_MANAGER_HR, \App\Models\User::ROLE_IT], true)],
+                ['label' => 'Courses', 'route' => 'courses.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_MANAGER_HR, \App\Models\User::ROLE_IT], true)],
+                ['label' => 'Enrollments', 'route' => 'enrollments.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Submission Review', 'route' => 'submissions.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Activity Logs', 'route' => 'activity-logs.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'User Control', 'route' => 'users.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Broadcast Notifications', 'route' => 'broadcast-notifications.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Create Demo Task', 'route' => 'demo-tasks.create-page', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Assign Demo Task', 'route' => 'demo-tasks.assign-page', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Demo Feature Video', 'route' => 'demo-feature-video.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'Reviews', 'route' => 'demo-review-videos.index', 'show' => in_array($user->role, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)],
+                ['label' => 'My Profile', 'route' => 'profile.edit', 'show' => true],
+            ];
+        }
+    }
     $initials = strtoupper(substr($user->name, 0, 1) . substr(strrchr(' ' . $user->name, ' '), 1, 1));
 @endphp
 
@@ -744,10 +1259,8 @@
     <aside class="sidebar">
         <div>
             <div class="sidebar-brand">
-                <div class="brand-logo">LMS</div>
-                <div class="brand-copy">
-                    <h1>LMS Control Center</h1>
-                    <p>Premium Workspace</p>
+                <div class="brand-mark-shell">
+                    <img src="{{ $brandLogo }}" alt="Academic Mantra" class="brand-mark">
                 </div>
             </div>
             <nav class="menu">
@@ -763,7 +1276,13 @@
         </div>
         <div class="sidebar-bottom">
             <div class="sidebar-user">
-                <div class="avatar small">{{ $initials }}</div>
+                <div class="avatar small">
+                    @if ($avatarUrl)
+                        <img src="{{ $avatarUrl }}" alt="{{ $user->name }}">
+                    @else
+                        {{ $initials }}
+                    @endif
+                </div>
                 <div class="sidebar-user-meta">
                     <strong>{{ $user->name }}</strong>
                     <span>{{ $roleLabels[$user->role] ?? $user->role }}</span>
@@ -787,7 +1306,7 @@
         <header class="topbar">
             <div class="topbar-left">
                 <div class="topbar-title">
-                    <h2>Academy Learning Club</h2>
+                    <h2>Control Panel</h2>
                     <p>{{ $roleLabels[$user->role] ?? $user->role }} Panel</p>
                 </div>
                 <a class="view-site-link" href="{{ route('dashboard') }}">View site ↗</a>
@@ -795,6 +1314,138 @@
 
             <div class="profile-top">
                 <div class="icon-actions">
+                    <div class="notification-shell">
+                        <button type="button" class="icon-btn notification-trigger {{ $topbarUnreadCount > 0 ? 'has-unread' : '' }}" id="notificationToggle" aria-label="Notifications" title="Notifications">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
+                                <path d="M9 17a3 3 0 0 0 6 0"></path>
+                            </svg>
+                            @if ($topbarUnreadCount > 0)
+                                <span class="notification-badge">{{ min($topbarUnreadCount, 99) }}</span>
+                            @endif
+                        </button>
+
+                        <div class="notification-popup" id="notificationPopup">
+                            <div class="notification-popup-head">
+                                <div class="notification-popup-copy">
+                                    <span class="notification-popup-kicker">Updates</span>
+                                    <strong>Notifications</strong>
+                                    <div class="notification-popup-summary">
+                                        <span class="notification-popup-pill">{{ $topbarUnreadCount > 0 ? $topbarUnreadCount.' unread' : 'All read' }}</span>
+                                        <span class="notification-popup-pill is-muted">{{ $topbarNotifications->count() }} shown</span>
+                                    </div>
+                                </div>
+                                <a href="{{ route('dashboard') }}" class="notification-link">Open Dashboard</a>
+                            </div>
+
+                            @if ($topbarNotifications->isNotEmpty())
+                                <div class="notification-popup-list">
+                                    @if ($topbarUnreadNotifications->isNotEmpty())
+                                        <section class="notification-popup-group">
+                                            <div class="notification-popup-group-head">
+                                                <strong>New</strong>
+                                                <span>{{ $topbarUnreadNotifications->count() }} unread</span>
+                                            </div>
+                                            @foreach ($topbarUnreadNotifications as $notification)
+                                                @php
+                                                    $notificationAudience = $notification->data['audience'] ?? null;
+                                                    $notificationSender = $notification->data['sender_name'] ?? 'System';
+                                                    $notificationTitle = $notification->data['title'] ?? 'Update';
+                                                    $notificationMessage = $notification->data['message'] ?? 'A new update is available.';
+                                                    $notificationMonogram = \Illuminate\Support\Str::upper(
+                                                        \Illuminate\Support\Str::substr(\Illuminate\Support\Str::replace(' ', '', $notificationTitle), 0, 2)
+                                                    ) ?: 'UP';
+                                                @endphp
+                                                <article class="notification-popup-item is-unread">
+                                                    <div class="notification-popup-item-body">
+                                                        <div class="notification-popup-avatar">{{ $notificationMonogram }}</div>
+                                                        <div class="notification-popup-copy">
+                                                            <div class="notification-popup-item-head">
+                                                                <strong>{{ $notificationTitle }}</strong>
+                                                                <span class="notification-state-dot" aria-hidden="true"></span>
+                                                            </div>
+                                                            <p>{{ $notificationMessage }}</p>
+                                                            <div class="notification-popup-meta">
+                                                                <div class="notification-popup-tags">
+                                                                    <span class="notification-popup-tag">{{ $notificationSender }}</span>
+                                                                    @if ($notificationAudience)
+                                                                        <span class="notification-popup-tag is-soft">{{ \Illuminate\Support\Str::headline((string) $notificationAudience) }}</span>
+                                                                    @endif
+                                                                </div>
+                                                                <span>{{ $notification->created_at->diffForHumans() }}</span>
+                                                            </div>
+                                                            <div class="notification-popup-actions">
+                                                                <span class="muted" style="font-size: 11px;">New and unread</span>
+                                                                <form method="POST" action="{{ route('notifications.read', $notification) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="notification-popup-inline-btn">Mark Read</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            @endforeach
+                                        </section>
+                                    @endif
+
+                                    @if ($topbarSeenNotifications->isNotEmpty())
+                                        <section class="notification-popup-group">
+                                            <div class="notification-popup-group-head">
+                                                <strong>Earlier</strong>
+                                                <span>{{ $topbarSeenNotifications->count() }} seen</span>
+                                            </div>
+                                            @foreach ($topbarSeenNotifications as $notification)
+                                                @php
+                                                    $notificationAudience = $notification->data['audience'] ?? null;
+                                                    $notificationSender = $notification->data['sender_name'] ?? 'System';
+                                                    $notificationTitle = $notification->data['title'] ?? 'Update';
+                                                    $notificationMessage = $notification->data['message'] ?? 'A new update is available.';
+                                                    $notificationMonogram = \Illuminate\Support\Str::upper(
+                                                        \Illuminate\Support\Str::substr(\Illuminate\Support\Str::replace(' ', '', $notificationTitle), 0, 2)
+                                                    ) ?: 'UP';
+                                                @endphp
+                                                <article class="notification-popup-item">
+                                                    <div class="notification-popup-item-body">
+                                                        <div class="notification-popup-avatar">{{ $notificationMonogram }}</div>
+                                                        <div class="notification-popup-copy">
+                                                            <div class="notification-popup-item-head">
+                                                                <strong>{{ $notificationTitle }}</strong>
+                                                            </div>
+                                                            <p>{{ $notificationMessage }}</p>
+                                                            <div class="notification-popup-meta">
+                                                                <div class="notification-popup-tags">
+                                                                    <span class="notification-popup-tag">{{ $notificationSender }}</span>
+                                                                    @if ($notificationAudience)
+                                                                        <span class="notification-popup-tag is-soft">{{ \Illuminate\Support\Str::headline((string) $notificationAudience) }}</span>
+                                                                    @endif
+                                                                </div>
+                                                                <span>{{ $notification->created_at->diffForHumans() }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            @endforeach
+                                        </section>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="notification-popup-empty">
+                                    No notifications yet.
+                                </div>
+                            @endif
+
+                            @if ($topbarUnreadCount > 0)
+                                <div class="notification-popup-footer">
+                                    <span class="muted" style="font-size: 12px;">Unread updates stay at the top until you mark them read.</span>
+                                    <form method="POST" action="{{ route('notifications.read-all') }}">
+                                        @csrf
+                                        <button type="submit" class="btn-text">Mark All As Read</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <button type="button" class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
                         <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="5"></circle>
@@ -812,14 +1463,26 @@
                         </svg>
                     </button>
                     <button type="button" class="profile-trigger" id="profileToggle" title="Profile" aria-label="Profile">
-                        <div class="avatar">{{ $initials }}</div>
+                        <div class="avatar">
+                            @if ($avatarUrl)
+                                <img src="{{ $avatarUrl }}" alt="{{ $user->name }}">
+                            @else
+                                {{ $initials }}
+                            @endif
+                        </div>
                     </button>
                 </div>
 
                 <div class="profile-popup" id="profilePopup">
                     <div class="profile-popup-head">
                         <a href="{{ route('profile.edit') }}" class="profile-popup-head-link">
-                            <div class="avatar">{{ $initials }}</div>
+                            <div class="avatar">
+                                @if ($avatarUrl)
+                                    <img src="{{ $avatarUrl }}" alt="{{ $user->name }}">
+                                @else
+                                    {{ $initials }}
+                                @endif
+                            </div>
                             <div class="profile-meta">
                                 <strong>{{ $user->name }}</strong>
                                 <span>{{ $roleLabels[$user->role] ?? $user->role }}</span>
@@ -871,7 +1534,7 @@
         </div>
 
         <footer class="footer">
-            <span>LMS Control Center</span>
+            <span>Academic Mantra</span>
             <span>{{ now()->format('Y') }} | {{ $roleLabels[$user->role] ?? $user->role }}</span>
         </footer>
     </main>

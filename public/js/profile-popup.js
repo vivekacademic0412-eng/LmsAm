@@ -1,28 +1,52 @@
-﻿(function () {
+(function () {
     document.addEventListener('DOMContentLoaded', function () {
-        var toggle = document.getElementById('profileToggle');
-        var popup = document.getElementById('profilePopup');
+        var pairs = [
+            {
+                toggle: document.getElementById('notificationToggle'),
+                popup: document.getElementById('notificationPopup')
+            },
+            {
+                toggle: document.getElementById('profileToggle'),
+                popup: document.getElementById('profilePopup')
+            }
+        ].filter(function (pair) {
+            return pair.toggle && pair.popup;
+        });
 
-        if (!toggle || !popup) {
+        if (!pairs.length) {
             return;
         }
 
-        toggle.addEventListener('click', function (event) {
-            event.stopPropagation();
-            popup.classList.toggle('open');
-        });
+        function closeAll() {
+            pairs.forEach(function (pair) {
+                pair.popup.classList.remove('open');
+            });
+        }
 
-        popup.addEventListener('click', function (event) {
-            event.stopPropagation();
+        pairs.forEach(function (pair) {
+            pair.toggle.addEventListener('click', function (event) {
+                var shouldOpen = !pair.popup.classList.contains('open');
+
+                event.stopPropagation();
+                closeAll();
+
+                if (shouldOpen) {
+                    pair.popup.classList.add('open');
+                }
+            });
+
+            pair.popup.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
         });
 
         document.addEventListener('click', function () {
-            popup.classList.remove('open');
+            closeAll();
         });
 
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
-                popup.classList.remove('open');
+                closeAll();
             }
         });
     });

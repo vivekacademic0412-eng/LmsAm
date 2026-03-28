@@ -30,11 +30,21 @@ class CourseSessionItem extends Model
         'resource_type',
         'content',
         'resource_url',
+        'is_live',
+        'live_at',
         'cloudinary_public_id',
         'cloudinary_resource_type',
         'cloudinary_format',
         'cloudinary_delivery_type',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_live' => 'boolean',
+            'live_at' => 'datetime',
+        ];
+    }
 
     public function hasPrivateCloudinaryAsset(): bool
     {
@@ -51,5 +61,10 @@ class CourseSessionItem extends Model
     public function progress(): HasMany
     {
         return $this->hasMany(CourseProgress::class, 'course_session_item_id');
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(CourseItemSubmission::class, 'course_session_item_id');
     }
 }

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseSessionItem;
 use App\Models\CourseEnrollment;
+use App\Models\CourseProgress;
 use App\Models\User;
 use App\Services\CloudinaryPrivateMediaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -18,113 +18,231 @@ class CourseMediaController extends Controller
     public function view(Request $request, CourseSessionItem $item): View
     {
         $this->authorizeItemAccess($request, $item);
-        abort_unless($item->hasPrivateCloudinaryAsset(), 404, 'Secure media not available for this item.');
+        $this->markProgressIfStudent($request, $item);
+        $allowDownload = in_array($item->item_type, [CourseSessionItem::TYPE_TASK, CourseSessionItem::TYPE_QUIZ], true);
+        if ($item->hasPrivateCloudinaryAsset()) {
+            $format = Str::lower((string) $item->cloudinary_format);
+            $isVideo = $item->cloudinary_resource_type === 'video';
+            $isPdf = $format === 'pdf';
+            $isDocx = $format === 'docx';
+            $isPpt = $format === 'ppt';
+            $isPptx = $format === 'pptx';
+            $isOfficeDoc = in_array($format, ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], true);
+            $isImage = in_array($format, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'], true);
+            $isAudio = in_array($format, ['mp3', 'wav', 'ogg', 'm4a', 'aac'], true);
 
-        $cloudinary = app(CloudinaryPrivateMediaService::class);
-        abort_unless($cloudinary->isConfigured(), 500, 'Cloudinary is not configured.');
+            $deliveryFormat = $item->cloudinary_resource_type === 'video'
+                ? 'mp4'
+                : $item->cloudinary_format;
 
-        $format = Str::lower((string) $item->cloudinary_format);
-        $isVideo = $item->cloudinary_resource_type === 'video';
-        $isPdf = $format === 'pdf';
+            $cloudinary = app(CloudinaryPrivateMediaService::class);
+            abort_unless($cloudinary->isConfigured(), 500, 'Cloudinary is not configured.');
 
-        $deliveryFormat = $item->cloudinary_resource_type === 'video'
-            ? 'mp4'
-            : $item->cloudinary_format;
+            $directUrl = $cloudinary->accessUrl(
+                $item->cloudinary_public_id,
+                $deliveryFormat,
+                $item->cloudinary_resource_type,
+                $item->cloudinary_delivery_type ?: 'upload'
+            );
+            $downloadUrl = $allowDownload
+                ? route('course-session-items.media.download', $item)
+                : null;
+            $documentViewerUrl = $isOfficeDoc
+                ? 'https://docs.google.com/gview?embedded=1&url='.urlencode($directUrl)
+                : null;
+        } elseif (! empty($item->resource_url)) {
+            return redirect()->away($item->resource_url);
+        } else {
+            abort(404, 'Secure media not available for this item.');
+        }
 
-        $directUrl = $cloudinary->temporaryAccessUrl(
-            $item->cloudinary_public_id,
-            $deliveryFormat,
-            $item->cloudinary_resource_type,
-            $item->cloudinary_delivery_type ?: 'authenticated'
-        );
+        $viewName = $request->boolean('embed')
+            ? 'courses.secure-media-viewer-embed'
+            : 'courses.secure-media-viewer';
 
-        return view('courses.secure-media-viewer', [
+        return view($viewName, [
             'item' => $item,
             'streamUrl' => route('course-session-items.media.stream', $item),
             'directUrl' => $directUrl,
+            'downloadUrl' => $downloadUrl ?? null,
+            'allowDownload' => $allowDownload,
             'isVideo' => $isVideo,
             'isPdf' => $isPdf,
+            'isDocx' => $isDocx ?? false,
+            'isPpt' => $isPpt ?? false,
+            'isPptx' => $isPptx ?? false,
+            'isImage' => $isImage ?? false,
+            'isAudio' => $isAudio ?? false,
+            'videoStream' => $isVideo ? route('course-session-items.media.stream', $item) : null,
+            'isOfficeDoc' => $isOfficeDoc ?? false,
+            'documentViewerUrl' => $documentViewerUrl ?? null,
         ]);
     }
 
     public function stream(Request $request, CourseSessionItem $item): Response|StreamedResponse
     {
         $this->authorizeItemAccess($request, $item);
-        abort_unless($item->hasPrivateCloudinaryAsset(), 404, 'Secure media not available for this item.');
+        $this->markProgressIfStudent($request, $item);
+        if ($item->hasPrivateCloudinaryAsset()) {
+            $cloudinary = app(CloudinaryPrivateMediaService::class);
+            abort_unless($cloudinary->isConfigured(), 500, 'Cloudinary is not configured.');
 
-        $cloudinary = app(CloudinaryPrivateMediaService::class);
-        abort_unless($cloudinary->isConfigured(), 500, 'Cloudinary is not configured.');
+            $deliveryFormat = $item->cloudinary_resource_type === 'video'
+                ? 'mp4'
+                : $item->cloudinary_format;
 
-        $deliveryFormat = $item->cloudinary_resource_type === 'video'
-            ? 'mp4'
-            : $item->cloudinary_format;
+            $directUrl = $cloudinary->accessUrl(
+                $item->cloudinary_public_id,
+                $deliveryFormat,
+                $item->cloudinary_resource_type,
+                $item->cloudinary_delivery_type ?: 'upload'
+            );
 
-        $signedUrl = $cloudinary->temporaryAccessUrl(
-            $item->cloudinary_public_id,
-            $deliveryFormat,
-            $item->cloudinary_resource_type,
-            $item->cloudinary_delivery_type ?: 'authenticated'
-        );
+            $format = Str::lower((string) $item->cloudinary_format);
+            if ($item->cloudinary_resource_type === 'raw' && $format === 'pdf') {
+                return $this->proxyInlineStream($request, $directUrl, 'application/pdf', $this->streamFilename($item), true);
+            }
 
-        $forwardHeaders = [];
-        if ($request->hasHeader('Range')) {
-            $forwardHeaders['Range'] = (string) $request->header('Range');
+            if ($item->cloudinary_resource_type === 'raw' && $format === 'docx') {
+                return $this->proxyInlineStream(
+                    $request,
+                    $directUrl,
+                    $this->contentTypeForFormat($format),
+                    $this->streamFilename($item),
+                    false
+                );
+            }
+
+            if ($item->cloudinary_resource_type === 'raw' && $format === 'pptx') {
+                return $this->proxyInlineStream(
+                    $request,
+                    $directUrl,
+                    $this->contentTypeForFormat($format),
+                    $this->streamFilename($item),
+                    false
+                );
+            }
+
+            if ($item->cloudinary_resource_type === 'video') {
+                return $this->proxyInlineStream($request, $directUrl, 'video/mp4', $this->streamFilename($item), true);
+            }
+
+            return redirect()->away($directUrl);
         }
 
-        try {
-            $upstream = Http::withOptions([
-                'stream' => true,
-                'http_errors' => false,
-                'connect_timeout' => 10,
-                'timeout' => 120,
-            ])->withHeaders($forwardHeaders)->get($signedUrl);
-        } catch (\Throwable $e) {
-            return redirect()->away($signedUrl);
+        if (! empty($item->resource_url)) {
+            return redirect()->away($item->resource_url);
         }
 
-        $status = $upstream->status();
-        if (in_array($status, [401, 403, 404], true)) {
-            abort(404, 'File is unavailable.');
-        }
-        if ($status >= 400) {
-            abort(502, 'Unable to load secure media right now.');
-        }
+        abort(404, 'Secure media not available for this item.');
+    }
 
-        $contentType = (string) ($upstream->header('Content-Type') ?: 'application/octet-stream');
-        $contentLength = $upstream->header('Content-Length');
-        $contentRange = $upstream->header('Content-Range');
-        $acceptRanges = $upstream->header('Accept-Ranges');
-        $filename = $this->streamFilename($item);
-        $disposition = $request->boolean('download')
-            ? 'attachment'
-            : 'inline';
+    public function download(Request $request, CourseSessionItem $item)
+    {
+        $this->authorizeItemAccess($request, $item);
+        abort_unless(in_array($item->item_type, [CourseSessionItem::TYPE_TASK, CourseSessionItem::TYPE_QUIZ], true), 403);
 
-        $headers = [
-            'Content-Type' => $contentType,
-            'Content-Disposition' => $disposition.'; filename="'.$filename.'"',
-            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
-            'Pragma' => 'no-cache',
-            'Expires' => '0',
-        ];
+        if ($item->hasPrivateCloudinaryAsset()) {
+            $cloudinary = app(CloudinaryPrivateMediaService::class);
+            abort_unless($cloudinary->isConfigured(), 500, 'Cloudinary is not configured.');
 
-        if ($contentLength) {
-            $headers['Content-Length'] = $contentLength;
-        }
-        if ($contentRange) {
-            $headers['Content-Range'] = $contentRange;
-        }
-        if ($acceptRanges) {
-            $headers['Accept-Ranges'] = $acceptRanges;
+            $format = $item->cloudinary_format ?: 'bin';
+            $downloadUrl = $cloudinary->temporaryDownloadUrl(
+                $item->cloudinary_public_id,
+                $format,
+                $item->cloudinary_resource_type ?: 'raw',
+                $item->cloudinary_delivery_type ?: 'upload'
+            );
+
+            return $this->proxyDownload(
+                $downloadUrl,
+                $this->downloadFilename($item),
+                $this->contentTypeForFormat($format)
+            );
         }
 
-        $psrBody = $upstream->toPsrResponse()->getBody();
+        if (! empty($item->resource_url)) {
+            return redirect()->away($item->resource_url);
+        }
 
-        return response()->stream(function () use ($psrBody): void {
-            while (! $psrBody->eof()) {
-                echo $psrBody->read(8192);
+        abort(404, 'Secure media not available for this item.');
+    }
+
+
+    private function downloadFilename(CourseSessionItem $item): string
+    {
+        $base = Str::slug($item->title ?: 'course-file');
+        $extension = Str::lower((string) $item->cloudinary_format);
+        $extension = preg_replace('/[^a-z0-9]/', '', $extension) ?: 'bin';
+
+        return $base.'.'.$extension;
+    }
+
+    private function contentTypeForFormat(string $format): string
+    {
+        return match (Str::lower($format)) {
+            'pdf' => 'application/pdf',
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+            '7z' => 'application/x-7z-compressed',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt' => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'mp4' => 'video/mp4',
+            'mp3' => 'audio/mpeg',
+            default => 'application/octet-stream',
+        };
+    }
+
+    private function proxyDownload(string $url, string $filename, string $contentType): StreamedResponse
+    {
+        return response()->stream(function () use ($url): void {
+            if (function_exists('curl_init')) {
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_BUFFERSIZE, 1024 * 1024);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 0);
+                curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data): int {
+                    echo $data;
+                    flush();
+                    return strlen($data);
+                });
+                curl_exec($ch);
+                curl_close($ch);
+                return;
+            }
+
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 60,
+                ],
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                ],
+            ]);
+
+            $handle = @fopen($url, 'rb', false, $context);
+            if ($handle === false) {
+                return;
+            }
+
+            while (! feof($handle)) {
+                echo fread($handle, 1024 * 1024);
                 flush();
             }
-        }, $status, $headers);
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 
     private function authorizeItemAccess(Request $request, CourseSessionItem $item): void
@@ -160,6 +278,37 @@ class CourseMediaController extends Controller
         abort(403);
     }
 
+    private function markProgressIfStudent(Request $request, CourseSessionItem $item): void
+    {
+        $user = $request->user();
+        if (! $user || $user->role !== User::ROLE_STUDENT) {
+            return;
+        }
+
+        $courseId = (int) optional(optional($item->session)->week)->course_id;
+        if ($courseId <= 0) {
+            return;
+        }
+
+        $enrollment = CourseEnrollment::where('course_id', $courseId)
+            ->where('student_id', $user->id)
+            ->first();
+
+        if (! $enrollment) {
+            return;
+        }
+
+        CourseProgress::updateOrCreate(
+            [
+                'course_enrollment_id' => $enrollment->id,
+                'course_session_item_id' => $item->id,
+            ],
+            [
+                'completed_at' => now(),
+            ]
+        );
+    }
+
     private function streamFilename(CourseSessionItem $item): string
     {
         $base = Str::slug($item->title ?: 'course-resource');
@@ -167,5 +316,139 @@ class CourseMediaController extends Controller
         $extension = preg_replace('/[^a-z0-9]/', '', $extension) ?: 'bin';
 
         return $base.'.'.$extension;
+    }
+
+    private function proxyInlineStream(Request $request, string $url, string $contentType, string $filename, bool $acceptRanges): StreamedResponse
+    {
+        $rangeHeader = $request->header('Range');
+        $totalSize = $acceptRanges ? $this->fetchContentLength($url) : null;
+        $range = $acceptRanges ? $this->parseRange($rangeHeader, $totalSize) : null;
+
+        $status = 200;
+        $headers = [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
+        if ($acceptRanges) {
+            $headers['Accept-Ranges'] = 'bytes';
+        }
+
+        if ($range && $totalSize !== null) {
+            $start = $range['start'];
+            $end = $range['end'];
+            $length = $end - $start + 1;
+            $headers['Content-Range'] = "bytes {$start}-{$end}/{$totalSize}";
+            $headers['Content-Length'] = (string) $length;
+            $status = 206;
+        } elseif ($totalSize !== null) {
+            $headers['Content-Length'] = (string) $totalSize;
+        }
+
+        return response()->stream(function () use ($url, $range): void {
+            if (function_exists('curl_init')) {
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_BUFFERSIZE, 1024 * 1024);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 0);
+                if ($range) {
+                    curl_setopt($ch, CURLOPT_RANGE, $range['start'].'-'.$range['end']);
+                }
+                curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data): int {
+                    echo $data;
+                    flush();
+                    return strlen($data);
+                });
+                curl_exec($ch);
+                curl_close($ch);
+                return;
+            }
+
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 60,
+                    'header' => $range ? "Range: bytes={$range['start']}-{$range['end']}\r\n" : '',
+                ],
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                ],
+            ]);
+
+            $handle = @fopen($url, 'rb', false, $context);
+            if ($handle === false) {
+                return;
+            }
+
+            while (! feof($handle)) {
+                echo fread($handle, 1024 * 1024);
+                flush();
+            }
+
+            fclose($handle);
+        }, $status, $headers);
+    }
+
+    private function fetchContentLength(string $url): ?int
+    {
+        if (! function_exists('curl_init')) {
+            return null;
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_exec($ch);
+        $length = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+        curl_close($ch);
+
+        if ($length === -1.0 || $length === false) {
+            return null;
+        }
+
+        return (int) $length;
+    }
+
+    /**
+     * @return array{start:int,end:int}|null
+     */
+    private function parseRange(?string $rangeHeader, ?int $totalSize): ?array
+    {
+        if (! $rangeHeader || ! $totalSize) {
+            return null;
+        }
+
+        if (! preg_match('/bytes=(\d*)-(\d*)/i', $rangeHeader, $matches)) {
+            return null;
+        }
+
+        $start = $matches[1] === '' ? null : (int) $matches[1];
+        $end = $matches[2] === '' ? null : (int) $matches[2];
+
+        if ($start === null && $end === null) {
+            return null;
+        }
+
+        if ($start === null) {
+            $start = max(0, $totalSize - $end);
+            $end = $totalSize - 1;
+        } elseif ($end === null || $end >= $totalSize) {
+            $end = $totalSize - 1;
+        }
+
+        if ($start > $end) {
+            return null;
+        }
+
+        return [
+            'start' => $start,
+            'end' => $end,
+        ];
     }
 }

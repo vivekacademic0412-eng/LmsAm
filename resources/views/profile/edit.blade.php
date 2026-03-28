@@ -35,10 +35,20 @@
             <div class="page-head">
                 <h2>Update Profile</h2>
             </div>
-            <form method="POST" action="{{ route('profile.update') }}" class="stack">
+            <form method="POST" action="{{ route('profile.update') }}" class="stack" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="form-grid">
+                    <div class="field">
+                        <label>Current Photo</label>
+                        <div class="avatar" style="width:64px;height:64px;">
+                            @if ($user->avatar_url)
+                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
+                            @else
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            @endif
+                        </div>
+                    </div>
                     <div class="field">
                         <label>Name</label>
                         <input type="text" name="name" value="{{ $user->name }}" required>
@@ -46,6 +56,10 @@
                     <div class="field">
                         <label>Email</label>
                         <input type="email" name="email" value="{{ $user->email }}" required>
+                    </div>
+                    <div class="field">
+                        <label>Profile Photo</label>
+                        <input type="file" name="avatar" accept="image/*">
                     </div>
                     <div class="field">
                         <label>New Password (optional)</label>

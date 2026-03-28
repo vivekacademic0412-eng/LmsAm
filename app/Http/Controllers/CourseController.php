@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\CourseEnrollment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,24 +20,53 @@ class CourseController extends Controller
     {
         $this->ensureCanView($request);
 
+        $categoryId = $request->query('category_id');
+        $subcategoryId = $request->query('subcategory_id');
+
+        $coursesQuery = Course::with(['category', 'subcategory', 'creator'])
+            ->when($categoryId, fn ($q) => $q->where('category_id', $categoryId))
+            ->when($subcategoryId, fn ($q) => $q->where('subcategory_id', $subcategoryId))
+            ->latest();
+
+        $isTrainer = $this->isTrainer($request);
+        $assignedCourseIds = $isTrainer
+            ? CourseEnrollment::where('trainer_id', $request->user()->id)->pluck('course_id')->all()
+            : [];
+
         return view('courses.index', [
-            'courses' => Course::with(['category', 'subcategory', 'creator'])->latest()->get(),
+            'courses' => $coursesQuery->paginate(8)->withQueryString(),
             'categories' => CourseCategory::with('children:id,name,parent_id')
                 ->whereNull('parent_id')
                 ->orderBy('name')
                 ->get(['id', 'name']),
             'canManage' => $this->canManage($request),
+            'isTrainer' => $isTrainer,
+            'assignedCourseIds' => $assignedCourseIds,
+            'activeCategoryId' => $categoryId,
+            'activeSubcategoryId' => $subcategoryId,
         ]);
     }
 
-    public function show(Request $request, Course $course): View
+    public function show(Request $request, Course $course): View|RedirectResponse
     {
         $this->ensureCanView($request);
+        $assignmentBlock = $this->ensureTrainerAssigned($request, $course);
+        if ($assignmentBlock instanceof RedirectResponse) {
+            return $assignmentBlock;
+        }
 
-        $course->load(['category', 'subcategory', 'weeks.sessions.items', 'enrollments.student', 'enrollments.trainer']);
+        $course->load(['category', 'subcategory', 'weeks.sessions.items']);
+
+        $enrollments = CourseEnrollment::query()
+            ->with(['student', 'trainer'])
+            ->where('course_id', $course->id)
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('courses.show', [
             'course' => $course,
+            'enrollments' => $enrollments,
             'canManage' => $this->canManage($request),
         ]);
     }
@@ -178,10 +208,39 @@ class CourseController extends Controller
     private function ensureCanView(Request $request): void
     {
         abort_unless(
-            in_array($request->user()?->role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_MANAGER_HR, User::ROLE_IT], true),
+            in_array($request->user()?->role, [
+                User::ROLE_SUPERADMIN,
+                User::ROLE_ADMIN,
+                User::ROLE_MANAGER_HR,
+                User::ROLE_IT,
+                User::ROLE_TRAINER,
+            ], true),
             403,
             'You do not have access to this page.'
         );
+    }
+
+    private function ensureTrainerAssigned(Request $request, Course $course): ?RedirectResponse
+    {
+        if (! $this->isTrainer($request)) {
+            return null;
+        }
+
+        $assigned = CourseEnrollment::where('course_id', $course->id)
+            ->where('trainer_id', $request->user()->id)
+            ->exists();
+
+        if (! $assigned) {
+            return redirect()->route('courses.index')
+                ->withErrors('You can only view assigned courses.');
+        }
+
+        return null;
+    }
+
+    private function isTrainer(Request $request): bool
+    {
+        return $request->user()?->role === User::ROLE_TRAINER;
     }
 
     private function canManage(Request $request): bool

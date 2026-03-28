@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'active' => \App\Http\Middleware\ActiveUserMiddleware::class,
+            'activity.log' => \App\Http\Middleware\LogActivity::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'secure.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
         ]);

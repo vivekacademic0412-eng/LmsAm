@@ -39,6 +39,8 @@ return [
         'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
         'api_key' => env('CLOUDINARY_API_KEY'),
         'api_secret' => env('CLOUDINARY_API_SECRET'),
+        'auth_token_key' => env('CLOUDINARY_AUTH_TOKEN_KEY'),
+        'auth_token_ttl' => env('CLOUDINARY_AUTH_TOKEN_TTL', 600),
     ],
 
 ];

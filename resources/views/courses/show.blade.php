@@ -10,11 +10,131 @@
         ];
     @endphp
     <style>
+        .course-hero {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1.6fr 0.8fr;
+            align-items: center;
+        }
+        .course-hero h1 { margin: 0 0 6px; font-size: 30px; }
+        .course-desc { margin: 0; color: var(--muted); font-size: 13px; }
+        .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid var(--line);
+        }
+        .course-thumb {
+            width: 100%;
+            height: 160px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid var(--line-soft);
+        }
+        .course-thumb.placeholder {
+            display: grid;
+            place-content: center;
+            background: linear-gradient(135deg, rgba(20, 95, 209, 0.15), rgba(20, 95, 209, 0));
+            color: var(--muted);
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+        .course-layout {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: minmax(0, 1fr) 300px;
+        }
+        .course-aside {
+            position: sticky;
+            top: 90px;
+            align-self: start;
+            display: grid;
+            gap: 12px;
+        }
+        .aside-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--card);
+            padding: 14px;
+            box-shadow: var(--shadow);
+        }
+        .aside-card h4 { margin: 0 0 8px; font-size: 16px; }
+        .aside-list { display: grid; gap: 8px; }
+        .aside-link {
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--line-soft);
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: #f8fbff;
+            font-size: 12px;
+        }
+        .aside-link:hover { border-color: #bcd3f7; background: #eef4ff; }
+        .aside-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .aside-kpi div { border: 1px solid var(--line-soft); border-radius: 10px; padding: 10px; background: #f8fbff; }
+        .aside-kpi b { display: block; font-size: 18px; }
         .day-card {
             border: 1px solid var(--line-soft);
             border-radius: 14px;
             background: linear-gradient(180deg, rgba(20, 95, 209, 0.03), rgba(20, 95, 209, 0));
             padding: 14px;
+        }
+        .week-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .session-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: var(--card);
+            padding: 12px;
+        }
+        .day-card {
+            position: relative;
+        }
+        .day-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(180deg, #1f5fcc, #5bb6ff);
+            border-radius: 14px 0 0 14px;
+        }
+        .day-card > * { position: relative; }
+        .session-title { margin: 0 0 8px; font-size: 16px; }
+        .item-table thead th {
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #5b6a82;
+            background: #f5f7fb;
+        }
+        .item-table td { vertical-align: top; }
+        .btn {
+            background: #0f59c7;
+            color: #fff;
+            border: 1px solid #0f59c7;
+        }
+        .btn:hover { filter: brightness(0.95); }
+        .btn.btn-soft {
+            background: #eef4ff;
+            color: #1f4fa3;
+            border-color: #c6d8ff;
+        }
+        @media (max-width: 980px) {
+            .course-layout { grid-template-columns: 1fr; }
+            .course-aside { position: static; }
         }
         .item-type-chip {
             display: inline-block;
@@ -119,21 +239,23 @@
 
     <div class="stack">
         <section class="card">
-            <div class="page-head">
+            <div class="course-hero">
                 <div>
                     <h1>{{ $course->title }}</h1>
-                    <p>
-                        Category: {{ $course->category?->name }}
+                    <div class="meta-row">
+                        <span class="meta-chip">Category: {{ $course->category?->name ?? 'N/A' }}</span>
                         @if ($course->subcategory)
-                            | Subcategory: {{ $course->subcategory->name }}
+                            <span class="meta-chip">Subcategory: {{ $course->subcategory->name }}</span>
                         @endif
-                        | Duration: {{ $course->duration_hours }}h
-                        | Language: {{ $course->language ?: 'N/A' }}
-                    </p>
-                    <p>{{ $course->short_description ?: ($course->description ?: '-') }}</p>
+                        <span class="meta-chip">Duration: {{ $course->duration_hours }}h</span>
+                        <span class="meta-chip">Language: {{ $course->language ?: 'N/A' }}</span>
+                    </div>
+                    <p class="course-desc">{{ $course->short_description ?: ($course->description ?: '-') }}</p>
                 </div>
                 @if ($course->thumbnail_url)
-                    <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" style="width:140px;height:90px;border-radius:12px;object-fit:cover;border:1px solid var(--line-soft);">
+                    <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="course-thumb">
+                @else
+                    <div class="course-thumb placeholder">NO IMAGE</div>
                 @endif
             </div>
             @if ($canManage)
@@ -143,13 +265,15 @@
             @endif
         </section>
 
-    <section class="card">
-        <div class="page-head">
-            <h2>Course Weeks</h2>
-        </div>
-        @forelse ($course->weeks as $week)
-            <article class="day-card mb-8">
-                <div class="page-head">
+    <div class="course-layout">
+        <div class="course-main">
+        <section class="card">
+            <div class="page-head">
+                <h2>Course Weeks</h2>
+            </div>
+            @forelse ($course->weeks as $week)
+            <article class="day-card mb-8" id="week-{{ $week->id }}">
+                <div class="week-head">
                     <h3 class="mt-0">Week {{ $week->week_number }}: {{ $week->title }}</h3>
                     @if ($canManage)
                         <div class="row-actions">
@@ -164,9 +288,9 @@
                 @endif
 
                 @forelse ($week->sessions as $session)
-                    <div class="mt-10">
+                    <div class="mt-10 session-card">
                         <div class="page-head">
-                            <h4 class="mt-0">Session {{ $session->session_number }}: {{ $session->title }}</h4>
+                            <h4 class="session-title">Session {{ $session->session_number }}: {{ $session->title }}</h4>
                             @if ($canManage)
                                 <div class="row-actions">
                                     <button type="button" class="btn-mini" data-modal-open="modal-session-edit-{{ $session->id }}">Edit</button>
@@ -174,8 +298,8 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="table-wrap">
-                            <table>
+                        <div class="table-wrap mt-8">
+                            <table class="item-table">
                                 <thead>
                                 <tr>
                                     <th>Type</th>
@@ -192,14 +316,14 @@
                                         <td><span class="item-type-chip">{{ $itemLabels[$item->item_type] ?? strtoupper(str_replace('_', ' ', $item->item_type)) }}</span></td>
                                         <td>{{ $item->title }}</td>
                                         <td>{{ $item->resource_type ?: '-' }}</td>
-                                        <td>{{ $item->content ?: '-' }}</td>
+                                    <td>{{ $item->content ?: '-' }}</td>
                                     <td>
                                         @if ($item->hasPrivateCloudinaryAsset())
                                             <a href="{{ route('course-session-items.media.view', $item) }}" class="secure-link">Open Secure Viewer</a>
-                                        @elseif ($item->resource_url && !in_array($item->resource_type, ['video', 'ppt', 'video_or_ppt'], true))
-                                                <a href="{{ $item->resource_url }}" class="secure-link" target="_blank" rel="noopener">Open Link</a>
-                                            @else
-                                                -
+                                        @elseif ($item->resource_url)
+                                            <a href="{{ $item->resource_url }}" class="secure-link" target="_blank" rel="noopener">Open Link</a>
+                                        @else
+                                            -
                                         @endif
                                     </td>
                                     @if ($canManage)
@@ -217,38 +341,65 @@
                 <p class="muted">No sessions yet for this week.</p>
             @endforelse
         </article>
-    @empty
-        <p class="muted">No weeks yet for this course.</p>
-    @endforelse
-</section>
-
-        <section class="card">
-            <div class="page-head">
-                <h2>Enrollments</h2>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Trainer</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse ($course->enrollments as $enrollment)
-                        <tr>
-                            <td>{{ $enrollment->student?->name }}</td>
-                            <td>{{ $enrollment->trainer?->name ?? 'Not Assigned' }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="2">No students enrolled.</td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
+        @empty
+            <p class="muted">No weeks yet for this course.</p>
+        @endforelse
         </section>
+
+            <section class="card">
+                <div class="page-head">
+                    <h2>Enrollments</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Trainer</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @forelse ($enrollments as $enrollment)
+                            <tr>
+                                <td>{{ $enrollment->student?->name }}</td>
+                                <td>{{ $enrollment->trainer?->name ?? 'Not Assigned' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2">No students enrolled.</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                {{ $enrollments->links('pagination.custom') }}
+            </section>
+        </div>
+
+        <aside class="course-aside">
+            <div class="aside-card">
+                <h4>Quick Summary</h4>
+                <div class="aside-kpi">
+                    <div>
+                        <span class="muted">Weeks</span>
+                        <b>{{ $course->weeks->count() }}</b>
+                    </div>
+                    <div>
+                        <span class="muted">Sessions</span>
+                        <b>{{ $course->weeks->flatMap->sessions->count() }}</b>
+                    </div>
+                    <div>
+                        <span class="muted">Items</span>
+                        <b>{{ $course->weeks->flatMap->sessions->flatMap->items->count() }}</b>
+                    </div>
+                    <div>
+                        <span class="muted">Students</span>
+                        <b>{{ $enrollments->total() }}</b>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
     </div>
 
     @if ($canManage)
@@ -388,16 +539,16 @@
                                         </select>
                                     </div>
                                     <textarea name="content" rows="2" placeholder="Content / instructions for this session item">{{ $item->content }}</textarea>
-                                    <input type="url" name="resource_url" value="{{ $item->resource_url }}" placeholder="External link (optional, for non-video/PPT items)">
+                                    <input type="url" name="resource_url" value="{{ $item->resource_url }}" placeholder="External URL (optional)">
                                     <div class="field">
-                                        <label>Secure File ({{ $item->item_type === 'task' ? 'Any Document/Archive' : 'Video/PPT/PDF' }})</label>
+                                        <label>Secure File ({{ $item->item_type === 'task' ? 'Any File' : 'Video/PDF/PPT/Office' }})</label>
                                         <input
                                             type="file"
                                             name="resource_file"
                                             @if ($item->item_type === 'task')
-                                                accept=".mp4,.mov,.avi,.mkv,.pdf,.ppt,.pptx,.zip,.rar,.7z,.doc,.docx,.xls,.xlsx,.txt,.csv,.rtf,video/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.ms-excel,application/zip,application/x-7z-compressed,application/x-rar-compressed,text/plain,text/csv,application/rtf"
+                                                accept="*/*"
                                             @else
-                                                accept=".mp4,.mov,.avi,.mkv,.pdf,.ppt,.pptx,video/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                                                accept=".mp4,.mov,.avi,.mkv,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                             @endif
                                         >
                                     </div>

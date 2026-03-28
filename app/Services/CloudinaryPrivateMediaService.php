@@ -3,20 +3,23 @@
 namespace App\Services;
 
 use Cloudinary\Cloudinary;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use RuntimeException;
 
 class CloudinaryPrivateMediaService
 {
-    private const DELIVERY_TYPE = 'authenticated';
+    private const DELIVERY_TYPE = 'upload';
     private const UPLOAD_TIMEOUT_SECONDS = 1200;
     private const CHUNK_SIZE_BYTES = 10000000;
 
     public function isConfigured(): bool
     {
-        return (bool) config('services.cloudinary.cloud_name')
-            && (bool) config('services.cloudinary.api_key')
-            && (bool) config('services.cloudinary.api_secret');
+        $cloudName = (string) (env('CLOUDINARY_CLOUD_NAME') ?: config('services.cloudinary.cloud_name'));
+        $apiKey = (string) (env('CLOUDINARY_API_KEY') ?: config('services.cloudinary.api_key'));
+        $apiSecret = (string) (env('CLOUDINARY_API_SECRET') ?: config('services.cloudinary.api_secret'));
+
+        return $cloudName !== '' && $apiKey !== '' && $apiSecret !== '';
     }
 
     /**
@@ -39,7 +42,6 @@ class CloudinaryPrivateMediaService
             'folder' => 'lms/course-session-items',
             'resource_type' => $resourceType,
             'type' => self::DELIVERY_TYPE,
-            'access_mode' => self::DELIVERY_TYPE,
             'use_filename' => true,
             'unique_filename' => true,
             'overwrite' => true,
@@ -54,6 +56,22 @@ class CloudinaryPrivateMediaService
             'format' => (string) ($result['format'] ?? $file->getClientOriginalExtension()),
             'delivery_type' => self::DELIVERY_TYPE,
         ];
+    }
+
+    public function deleteAsset(string $publicId, string $resourceType = 'raw', string $deliveryType = self::DELIVERY_TYPE): void
+    {
+        if (! $this->isConfigured()) {
+            return;
+        }
+
+        try {
+            $this->client()->uploadApi()->destroy($publicId, [
+                'resource_type' => $resourceType,
+                'type' => $deliveryType,
+            ]);
+        } catch (\Throwable $e) {
+            // Best-effort delete; ignore failures.
+        }
     }
 
     public function temporaryDownloadUrl(
@@ -78,6 +96,50 @@ class CloudinaryPrivateMediaService
         string $resourceType = 'raw',
         string $deliveryType = self::DELIVERY_TYPE
     ): string {
+        return $this->accessUrl($publicId, $format, $resourceType, $deliveryType);
+    }
+
+    public function accessUrl(
+        string $publicId,
+        string $format,
+        string $resourceType = 'raw',
+        string $deliveryType = self::DELIVERY_TYPE
+    ): string {
+        if ($deliveryType !== self::DELIVERY_TYPE) {
+            return $this->signedAccessUrl($publicId, $format, $resourceType, $deliveryType);
+        }
+
+        return $this->publicAccessUrl($publicId, $format, $resourceType, $deliveryType);
+    }
+
+    public function publicAccessUrl(
+        string $publicId,
+        string $format,
+        string $resourceType = 'raw',
+        string $deliveryType = self::DELIVERY_TYPE
+    ): string {
+        $asset = $resourceType === 'video'
+            ? $this->client()->video($publicId)
+            : $this->client()->raw($publicId);
+
+        $asset->deliveryType($deliveryType);
+        $asset->signUrl(false);
+
+        $lastSegment = Str::afterLast($publicId, '/');
+        $hasExtension = Str::contains($lastSegment, '.');
+        if ($format !== '' && ! $hasExtension && ! Str::endsWith($publicId, '.'.$format)) {
+            $asset->extension($format);
+        }
+
+        return (string) $asset->toUrl();
+    }
+
+    public function signedAccessUrl(
+        string $publicId,
+        string $format,
+        string $resourceType = 'raw',
+        string $deliveryType = self::DELIVERY_TYPE
+    ): string {
         $asset = $resourceType === 'video'
             ? $this->client()->video($publicId)
             : $this->client()->raw($publicId);
@@ -85,7 +147,9 @@ class CloudinaryPrivateMediaService
         $asset->deliveryType($deliveryType);
         $asset->signUrl(true);
 
-        if ($format !== '') {
+        $lastSegment = Str::afterLast($publicId, '/');
+        $hasExtension = Str::contains($lastSegment, '.');
+        if ($format !== '' && ! $hasExtension && ! Str::endsWith($publicId, '.'.$format)) {
             $asset->extension($format);
         }
 
@@ -94,15 +158,29 @@ class CloudinaryPrivateMediaService
 
     private function client(): Cloudinary
     {
-        return new Cloudinary([
+        $cloudName = (string) (env('CLOUDINARY_CLOUD_NAME') ?: config('services.cloudinary.cloud_name'));
+        $apiKey = (string) (env('CLOUDINARY_API_KEY') ?: config('services.cloudinary.api_key'));
+        $apiSecret = (string) (env('CLOUDINARY_API_SECRET') ?: config('services.cloudinary.api_secret'));
+
+        $config = [
             'cloud' => [
-                'cloud_name' => (string) config('services.cloudinary.cloud_name'),
-                'api_key' => (string) config('services.cloudinary.api_key'),
-                'api_secret' => (string) config('services.cloudinary.api_secret'),
+                'cloud_name' => $cloudName,
+                'api_key' => $apiKey,
+                'api_secret' => $apiSecret,
             ],
             'url' => [
                 'secure' => true,
             ],
-        ]);
+        ];
+
+        $authTokenKey = (string) config('services.cloudinary.auth_token_key');
+        if ($authTokenKey !== '') {
+            $config['auth_token'] = [
+                'key' => $authTokenKey,
+                'duration' => (int) config('services.cloudinary.auth_token_ttl', 600),
+            ];
+        }
+
+        return new Cloudinary($config);
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -19,6 +20,7 @@ class User extends Authenticatable
     public const ROLE_IT = 'it';
     public const ROLE_TRAINER = 'trainer';
     public const ROLE_STUDENT = 'student';
+    public const ROLE_DEMO = 'demo';
 
     public const ROLES = [
         self::ROLE_SUPERADMIN,
@@ -27,6 +29,7 @@ class User extends Authenticatable
         self::ROLE_IT,
         self::ROLE_TRAINER,
         self::ROLE_STUDENT,
+        self::ROLE_DEMO,
     ];
 
     /**
@@ -37,6 +40,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'role',
         'is_active',
         'password',
@@ -78,6 +82,7 @@ class User extends Authenticatable
             self::ROLE_IT => 'IT',
             self::ROLE_TRAINER => 'Teacher / Trainer',
             self::ROLE_STUDENT => 'Student / User',
+            self::ROLE_DEMO => 'Demo User',
         ];
     }
 
@@ -94,5 +99,18 @@ class User extends Authenticatable
     public function enrollmentsAsTrainer(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class, 'trainer_id');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        return asset('storage/'.ltrim($this->avatar, '/'));
     }
 }
