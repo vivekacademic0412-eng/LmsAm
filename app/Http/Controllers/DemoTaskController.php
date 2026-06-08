@@ -357,7 +357,7 @@ class DemoTaskController extends Controller
 
         DemoTaskSubmission::create($payload);
 
-        return back()->with('success', 'Demo task submitted.');
+       return back()->with('success', 'Demo task submitted.');
     }
 
     public function download(Request $request, DemoTaskSubmission $submission)

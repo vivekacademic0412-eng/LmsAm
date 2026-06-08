@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
+   
+            <livewire:admin.demo-feature-video-manager />
+      
+    {{-- <style>
         .feature-page {
             display: grid;
             gap: 18px;
@@ -322,9 +325,9 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+    </style> --}}
 
-    <div class="feature-page">
+    {{-- <div class="feature-page">
         <section class="feature-hero">
             <div>
                 <span class="feature-eyebrow">Admin Demo Media</span>
@@ -471,9 +474,9 @@
                 <button type="button" class="btn btn-soft" data-modal-close="modal-feature-upload">Close</button>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    @foreach ($videos as $video)
+    {{-- @foreach ($videos as $video)
         <div class="modal-overlay" id="modal-feature-edit-{{ $video->id }}" aria-hidden="true">
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-head">
@@ -535,7 +538,7 @@
                 </div>
             </div>
         </div>
-    @endforeach
+    @endforeach --}}
 
-    <script src="{{ asset('js/course-modals.js') }}" defer></script>
+    {{-- <script src="{{ asset('js/course-modals.js') }}" defer></script> --}}
 @endsection

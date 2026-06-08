@@ -15,8 +15,11 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.2.0",
         "@jvmr/pptx-to-html": "^1.0.1",
+        "bootstrap": "^5.3.8",
         "docx-preview": "^0.3.7",
-        "mammoth": "^1.12.0"
+        "mammoth": "^1.12.0",
+        "sweetalert2": "^11.26.25"
     }
 }
