@@ -34,7 +34,7 @@ class SecurityHeadersMiddleware
             array_push($frameSources, 'https://www.youtube.com', 'https://youtube.com', 'https://www.youtube-nocookie.com', 'https://youtube-nocookie.com');
         }
 
-        $frameSrc = 'frame-src '.implode(' ', array_unique($frameSources));
+        $frameSrc = 'frame-src ' . implode(' ', array_unique($frameSources));
         $mediaSrc = $isMediaView ? "media-src 'self' https://res.cloudinary.com https://*.cloudinary.com" : "media-src 'self'";
         $imgSrc = $isMediaView ? "img-src 'self' data: https://res.cloudinary.com https://*.cloudinary.com" : "img-src 'self' data:";
         // $response->headers->set('Content-Security-Policy', implode('; ', [
@@ -50,25 +50,45 @@ class SecurityHeadersMiddleware
         //     "font-src 'self' data:",
         //     "connect-src 'self'",
         //     "object-src 'none'",
-            
+
         // ]));
-$response->headers->set('Content-Security-Policy', implode('; ', [
-    "default-src 'self'",
-    "base-uri 'self'",
-    "form-action 'self'",
+        // $response->headers->set('Content-Security-Policy', implode('; ', [
+        //     "default-src 'self'",
+        //     "base-uri 'self'",
+        //     "form-action 'self'",
+        //     $frameAncestors,
+        //     $frameSrc,
+        //     $mediaSrc,
+        //     "img-src 'self' data: blob: https://api.dicebear.com; " .
+        //         "style-src 'self' 'unsafe-inline'  http://localhost:5173; " .
+        //         "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; " .
+        //         "connect-src 'self' ws://localhost:5173 http://localhost:5173;",
+        //     "style-src-elem 'self' https://cdnjs.cloudflare.com;",
+        //     "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
+        //     "object-src 'none'",
+        // ]));
+        $response->headers->set('Content-Security-Policy', implode('; ', [
 
-    $frameAncestors,
-    $frameSrc,
-    $mediaSrc,
+            "default-src 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
 
-   "img-src 'self' data: blob: https://api.dicebear.com",
-    "style-src 'self' 'unsafe-inline' localhost:5173",
-   "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173",
-    "connect-src 'self' ws://localhost:5173 http://localhost:5173",
+            $frameAncestors,
+            $frameSrc,
+            $mediaSrc,
 
-    "font-src 'self' data: http://localhost:5173",
-    "object-src 'none'",
-]));
+            "img-src 'self' data: blob: https://api.dicebear.com",
+
+            "style-src 'self' 'unsafe-inline' http://localhost:5173 https://cdnjs.cloudflare.com",
+
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173",
+
+            "connect-src 'self' ws://localhost:5173 http://localhost:5173",
+
+            "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
+
+            "object-src 'none'",
+        ]));
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }

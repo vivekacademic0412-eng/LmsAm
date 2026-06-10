@@ -195,6 +195,7 @@ class DashboardController extends Controller
                     ->orderByDesc('id')
                     ->get();
             }
+            return redirect('/lms');
         }
 
         if (in_array($dashboardMode, ['admin', 'viewer'], true)) {

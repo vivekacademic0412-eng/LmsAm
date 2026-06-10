@@ -11,6 +11,7 @@ class DemoFeatureVideo extends Model
     use HasFactory;
 
     protected $fillable = [
+        'course_id',
         'position',
         'title',
         'description',
@@ -18,6 +19,7 @@ class DemoFeatureVideo extends Model
         'file_name',
         'file_mime',
         'file_size',
+        'status',
         'uploaded_by',
     ];
 

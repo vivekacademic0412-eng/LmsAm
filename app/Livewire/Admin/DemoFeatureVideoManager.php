@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Course;
 use App\Models\DemoFeatureVideo;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -17,7 +18,7 @@ class DemoFeatureVideoManager extends Component
     public $title;
     public $description;
     public $video_file;
-
+    public $course;
     public $search = '';
     public $filterPosition = '';
 
@@ -38,7 +39,10 @@ class DemoFeatureVideoManager extends Component
     protected function rules()
     {
         return [
-
+            'course' => [
+                'required',
+                'exists:courses,id'
+            ],
             'position' => [
                 'required',
                 'integer',
@@ -70,7 +74,7 @@ class DemoFeatureVideoManager extends Component
 
     public function save()
     {
-       
+
         $this->validate();
 
         $fileName = null;
@@ -98,22 +102,16 @@ class DemoFeatureVideoManager extends Component
         }
 
         DemoFeatureVideo::create([
-
+            'couses_id' => $this->course,
             'position' => $this->position,
-
             'title' => $this->title,
-
             'description' => $this->description,
-
             'file_path' => $path,
-
             'file_name' => $fileName,
-
             'file_mime' => $fileMime,
-
             'file_size' => $fileSize,
-
             'uploaded_by' => auth()->id(),
+            'status' => 1,
 
         ]);
 
@@ -125,7 +123,7 @@ class DemoFeatureVideoManager extends Component
     public function edit($id)
     {
         $video = DemoFeatureVideo::findOrFail($id);
-
+        $this->course = $video->course_id;
         $this->videoId = $video->id;
 
         $this->position = $video->position;
@@ -178,7 +176,7 @@ class DemoFeatureVideoManager extends Component
         }
 
         $video->update([
-
+            'course_id' => $this->course,
             'position' => $this->position,
 
             'title' => $this->title,
@@ -212,7 +210,7 @@ class DemoFeatureVideoManager extends Component
     public function resetForm()
     {
         $this->reset([
-
+            'course',
             'videoId',
 
             'position',
@@ -243,12 +241,11 @@ class DemoFeatureVideoManager extends Component
                     'like',
                     '%' . $this->search . '%'
                 )
-                ->orWhere(
-                    'description',
-                    'like',
-                    '%' . $this->search . '%'
-                );
-
+                    ->orWhere(
+                        'description',
+                        'like',
+                        '%' . $this->search . '%'
+                    );
             });
         }
 
@@ -270,6 +267,8 @@ class DemoFeatureVideoManager extends Component
 
         $nextPosition =
             (DemoFeatureVideo::max('position') ?? 0) + 1;
+        $courses = Course::orderBy('title')
+            ->get();
 
         return view(
             'livewire.admin.demo-feature-video-manager',
@@ -277,6 +276,7 @@ class DemoFeatureVideoManager extends Component
                 'videos' => $videos,
                 'featured' => $featured,
                 'nextPosition' => $nextPosition,
+                'courses' => $courses,
             ]
         );
     }

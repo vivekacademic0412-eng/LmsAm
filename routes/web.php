@@ -13,11 +13,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoFeatureVideoController;
 use App\Http\Controllers\DemoReviewVideoController;
 use App\Http\Controllers\DemoTaskController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TrainerCourseItemsController;
 use App\Http\Controllers\TrainerProgressController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\LmsController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -151,4 +153,38 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
         ->name('demo-tasks.submissions.download');
 
     Route::get('/course-item-submissions/{submission}/download', [CourseItemSubmissionController::class, 'download'])->name('course-item-submissions.download');
+
+
+
+
+    Route::prefix('lms')->name('lms.')->group(function () {
+
+        // Step 1 – Welcome & Onboarding
+        Route::get('/',           [LmsController::class, 'step1'])->name('step1');
+        Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
+
+        // Step 2 – Demo Video Session
+        Route::get('/step2',      [LmsController::class, 'step2'])->name('step2');
+        Route::post('/step2',     [LmsController::class, 'storeStep2'])->name('step2.store');
+
+        // Step 3 – Create Your Demo
+        Route::get('/step3',      [LmsController::class, 'step3'])->name('step3');
+        Route::post('/step3-store',     [LmsController::class, 'storeStep3'])->name('step3.store');
+
+        // Step 4 – Submission Confirmation
+        Route::get('/step4',      [LmsController::class, 'step4'])->name('step4');
+
+        // Step 5 – Recommendations
+        Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
+
+        // Dashboard (post-completion)
+        Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
+   
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    });
+    Route::get('/category-courses/{category}', function ($categoryId) {
+    return \App\Models\Course::where('category_id', $categoryId)
+        ->select('id', 'title')
+        ->get();
+});
 });
