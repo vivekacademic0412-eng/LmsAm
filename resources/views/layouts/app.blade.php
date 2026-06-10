@@ -9,7 +9,7 @@
         @yield('content')
     </div>
 
-    <!-- Footer -->
+    {{-- <!-- Footer -->
     <footer class="footer">
         <div class="footer-brand">
             <div class="sb-logo-mark" style="width:24px;height:24px;font-size:12px;border-radius:6px">A</div>
@@ -22,7 +22,7 @@
             <a href="#" class="footer-link">v2.4.1</a>
         </div>
         <span>© 2026 Academic Mantra · All rights reserved</span>
-    </footer>
+    </footer> --}}
   
 </main>
 <x-util.footer />

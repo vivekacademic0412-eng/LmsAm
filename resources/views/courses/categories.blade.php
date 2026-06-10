@@ -303,7 +303,7 @@
             .category-grid { grid-template-columns: 1fr; }
             .form-grid, .form-grid-2 { grid-template-columns: 1fr; }
         }
-    </style>
+    </style> 
 
     <div class="category-shell">
         <section class="card">
@@ -313,7 +313,8 @@
                     <p class="muted">Manage main categories and subcategories from one place.</p>
                 </div>
                 @if ($canManage)
-                    <button type="button" class="btn category-create-btn" data-modal-open="modal-main-create">+ Add new category</button>
+                    <button type="button" class="btn category-create-btn" data-modal-open="modal-main-create">+ Add new
+                        category</button>
                 @endif
             </div>
         </section>
@@ -323,7 +324,9 @@
                 @forelse ($categories as $category)
                     <article class="category-card">
                         @if ($category->thumbnail)
-                            <img class="category-thumb" src="{{ $category->thumbnail_url }}" alt="{{ $category->name }}" loading="lazy">
+                       
+                            <img class="category-thumb" src="{{ $category->thumbnail_url }}" alt="{{ $category->name }}"
+                                loading="lazy">
                         @else
                             <div class="category-thumb-placeholder">No Thumbnail</div>
                         @endif
@@ -342,8 +345,12 @@
                                     <span class="sub-name">{{ $child->name }}</span>
                                     @if ($canManage)
                                         <div class="sub-actions">
-                                            <button type="button" class="icon-action" title="Edit subcategory" aria-label="Edit subcategory" data-modal-open="modal-sub-edit-{{ $child->id }}">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <button type="button" class="icon-action" title="Edit subcategory"
+                                                aria-label="Edit subcategory"
+                                                data-modal-open="modal-sub-edit-{{ $child->id }}">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" aria-hidden="true">
                                                     <path d="M12 20h9"></path>
                                                     <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                                                 </svg>
@@ -351,8 +358,12 @@
                                             <form method="POST" action="{{ route('course-categories.destroy', $child) }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="icon-action danger" title="Delete subcategory" aria-label="Delete subcategory" onclick="return confirm('Delete this subcategory?')">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <button type="submit" class="icon-action danger" title="Delete subcategory"
+                                                    aria-label="Delete subcategory"
+                                                    onclick="return confirm('Delete this subcategory?')">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round" aria-hidden="true">
                                                         <polyline points="3 6 5 6 21 6"></polyline>
                                                         <path d="M19 6l-1 14H6L5 6"></path>
                                                         <path d="M10 11v6"></path>
@@ -372,59 +383,55 @@
                         </div>
 
                         @if ($canManage)
-                           <div class="card-tools">
+                            <div class="card-tools">
 
-    <!-- Add Subcategory -->
-    <button type="button"
-        class="btn-mini"
-        data-modal-open="modal-sub-create-{{ $category->id }}">
-        <svg width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        Add Subcategory
-    </button>
+                                <!-- Add Subcategory -->
+                                <button type="button" class="btn-mini"
+                                    data-modal-open="modal-sub-create-{{ $category->id }}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add Subcategory
+                                </button>
 
-    <!-- Edit Category -->
-    <button type="button"
-        class="btn-mini"
-        data-modal-open="modal-main-edit-{{ $category->id }}">
-        <svg width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-        </svg>
-        Edit
-    </button>
+                                <!-- Edit Category -->
+                                <button type="button" class="btn-mini"
+                                    data-modal-open="modal-main-edit-{{ $category->id }}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                    </svg>
+                                    Edit
+                                </button>
 
-    <!-- Delete Category -->
-    <form method="POST" action="{{ route('course-categories.destroy', $category) }}">
-        @csrf
-        @method('DELETE')
+                                <!-- Delete Category -->
+                                <form method="POST" action="{{ route('course-categories.destroy', $category) }}">
+                                    @csrf
+                                    @method('DELETE')
 
-        <button
-            class="btn-mini danger"
-            type="submit"
-            onclick="return confirm('Delete this category?')">
+                                    <button class="btn-mini danger" type="submit"
+                                        onclick="return confirm('Delete this category?')">
 
-            <svg width="14" height="14" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6l-1 14H6L5 6"></path>
-                <path d="M10 11v6"></path>
-                <path d="M14 11v6"></path>
-                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-            </svg>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6l-1 14H6L5 6"></path>
+                                            <path d="M10 11v6"></path>
+                                            <path d="M14 11v6"></path>
+                                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                        </svg>
 
-            Delete
-        </button>
-    </form>
+                                        Delete
+                                    </button>
+                                </form>
 
-</div>
+                            </div>
                         @endif
                     </article>
                 @empty
@@ -436,11 +443,14 @@
 
             @if ($categories->hasPages())
                 <div class="pagination">
-                    <a class="page-btn {{ $categories->onFirstPage() ? 'disabled' : '' }}" href="{{ $categories->previousPageUrl() ?: '#' }}">Prev</a>
+                    <a class="page-btn {{ $categories->onFirstPage() ? 'disabled' : '' }}"
+                        href="{{ $categories->previousPageUrl() ?: '#' }}">Prev</a>
                     @foreach ($categories->getUrlRange(1, $categories->lastPage()) as $page => $url)
-                        <a class="page-btn {{ $page === $categories->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
+                        <a class="page-btn {{ $page === $categories->currentPage() ? 'active' : '' }}"
+                            href="{{ $url }}">{{ $page }}</a>
                     @endforeach
-                    <a class="page-btn {{ $categories->hasMorePages() ? '' : 'disabled' }}" href="{{ $categories->nextPageUrl() ?: '#' }}">Next</a>
+                    <a class="page-btn {{ $categories->hasMorePages() ? '' : 'disabled' }}"
+                        href="{{ $categories->nextPageUrl() ?: '#' }}">Next</a>
                 </div>
             @endif
         </section>
@@ -451,10 +461,12 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-head">
                     <h3>Add new category</h3>
-                    <button type="button" class="modal-close" data-modal-close="modal-main-create" aria-label="Close">x</button>
+                    <button type="button" class="modal-close" data-modal-close="modal-main-create"
+                        aria-label="Close">x</button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('course-categories.store') }}" enctype="multipart/form-data" class="stack form-premium">
+                    <form method="POST" action="{{ route('course-categories.store') }}" enctype="multipart/form-data"
+                        class="stack form-premium">
                         @csrf
                         <div class="form-grid">
                             <div class="field">
@@ -495,10 +507,12 @@
                 <div class="modal" role="dialog" aria-modal="true">
                     <div class="modal-head">
                         <h3>Edit category</h3>
-                        <button type="button" class="modal-close" data-modal-close="modal-main-edit-{{ $category->id }}" aria-label="Close">x</button>
+                        <button type="button" class="modal-close"
+                            data-modal-close="modal-main-edit-{{ $category->id }}" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('course-categories.update', $category) }}" enctype="multipart/form-data" class="stack form-premium">
+                        <form method="POST" action="{{ route('course-categories.update', $category) }}"
+                            enctype="multipart/form-data" class="stack form-premium">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="parent_id" value="">
@@ -509,7 +523,8 @@
                                 </div>
                                 <div class="field">
                                     <label>Description</label>
-                                    <input type="text" name="description" value="{{ $category->description }}" placeholder="Description">
+                                    <input type="text" name="description" value="{{ $category->description }}"
+                                        placeholder="Description">
                                 </div>
                             </div>
                             <div class="field">
@@ -522,7 +537,8 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-soft" data-modal-close="modal-main-edit-{{ $category->id }}">Close</button>
+                        <button type="button" class="btn btn-soft"
+                            data-modal-close="modal-main-edit-{{ $category->id }}">Close</button>
                     </div>
                 </div>
             </div>
@@ -531,10 +547,12 @@
                 <div class="modal" role="dialog" aria-modal="true">
                     <div class="modal-head">
                         <h3>Add subcategory</h3>
-                        <button type="button" class="modal-close" data-modal-close="modal-sub-create-{{ $category->id }}" aria-label="Close">x</button>
+                        <button type="button" class="modal-close"
+                            data-modal-close="modal-sub-create-{{ $category->id }}" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ route('course-categories.store') }}" enctype="multipart/form-data" class="stack form-premium">
+                        <form method="POST" action="{{ route('course-categories.store') }}"
+                            enctype="multipart/form-data" class="stack form-premium">
                             @csrf
                             <input type="hidden" name="parent_id" value="{{ $category->id }}">
                             <div class="form-grid-2">
@@ -557,7 +575,8 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-soft" data-modal-close="modal-sub-create-{{ $category->id }}">Close</button>
+                        <button type="button" class="btn btn-soft"
+                            data-modal-close="modal-sub-create-{{ $category->id }}">Close</button>
                     </div>
                 </div>
             </div>
@@ -567,10 +586,12 @@
                     <div class="modal" role="dialog" aria-modal="true">
                         <div class="modal-head">
                             <h3>Edit subcategory</h3>
-                            <button type="button" class="modal-close" data-modal-close="modal-sub-edit-{{ $child->id }}" aria-label="Close">x</button>
+                            <button type="button" class="modal-close"
+                                data-modal-close="modal-sub-edit-{{ $child->id }}" aria-label="Close">x</button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="{{ route('course-categories.update', $child) }}" enctype="multipart/form-data" class="stack form-premium">
+                            <form method="POST" action="{{ route('course-categories.update', $child) }}"
+                                enctype="multipart/form-data" class="stack form-premium">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="parent_id" value="{{ $category->id }}">
@@ -581,7 +602,8 @@
                                     </div>
                                     <div class="field">
                                         <label>Description</label>
-                                        <input type="text" name="description" value="{{ $child->description }}" placeholder="Description">
+                                        <input type="text" name="description" value="{{ $child->description }}"
+                                            placeholder="Description">
                                     </div>
                                 </div>
                                 <div class="field">
@@ -594,12 +616,13 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-soft" data-modal-close="modal-sub-edit-{{ $child->id }}">Close</button>
+                            <button type="button" class="btn btn-soft"
+                                data-modal-close="modal-sub-edit-{{ $child->id }}">Close</button>
                         </div>
                     </div>
                 </div>
             @endforeach
         @endforeach
-<script src="{{ asset('js/category.js') }}" defer></script>
+        <script src="{{ asset('js/category.js') }}" defer></script>
     @endif
 @endsection

@@ -758,3 +758,48 @@
 .logout-btn:hover {
     background: #e63946;
 }
+
+/* Naina bitmoji on hero panel */
+.bm-sitter {
+   position: absolute;
+  top: 10px;
+  right: 5px;
+  width: 110px;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 20px rgba(108,63,245,.5));
+  animation: bmFloat 3.2s ease-in-out infinite;
+  z-index: 10;
+}
+@keyframes bmFloat {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+.bm-speech {
+    position: absolute;
+    bottom: 148px;
+    right: 10px;
+    background: #fff;
+    color: #1a1040;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 14px 14px 4px 14px;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+    animation: bmBubble .5s cubic-bezier(.175,.885,.32,1.275) both;
+    pointer-events: none;
+}
+@keyframes bmBubble {
+    from { opacity:0; transform:scale(.7) translateY(6px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.wave-arm { transform-origin: 28px 94px; }
+.bm-sitter:hover .wave-arm {
+    animation: waveArm .5s ease-in-out 3;
+}
+@keyframes waveArm {
+    0%   { transform: rotate(0deg); }
+    30%  { transform: rotate(-38deg); }
+    65%  { transform: rotate(12deg); }
+    100% { transform: rotate(0deg); }
+}

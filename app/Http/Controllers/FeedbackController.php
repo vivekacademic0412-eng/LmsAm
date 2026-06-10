@@ -56,6 +56,6 @@ class FeedbackController extends Controller
                             ->groupBy('emoji_reaction','emoji_label')->get(),
         ];
 
-        return view('admin.feedbacks', compact('feedbacks','stats'));
+        return view('feedback.feedback', compact('feedbacks','stats'));
     }
 }

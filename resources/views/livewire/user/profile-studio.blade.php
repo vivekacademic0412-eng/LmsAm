@@ -46,33 +46,31 @@
     </div>
 
     <!-- STATS -->
-    <div class="row g-3 mb-4">
+  <div class="d-stats-grid mb-4">
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-center p-3" style="border-radius:14px;">
-                <i class="fa-solid fa-user fs-4 text-primary mb-2"></i>
-                <span class="text-muted">Role</span>
-                <h5 class="mb-0">{{ \App\Models\User::roleOptions()[$user->role] }}</h5>
+        
+            <div class="d-stat shadow-sm text-center " >
+                <i class="fa-solid fa-user d-stat-icon"></i>
+                <span class="stat-label">Role</span>
+                <h5 class="mb-0 d-stat-value">{{ \App\Models\User::roleOptions()[$user->role] }}</h5>
             </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-center p-3" style="border-radius:14px;">
-                <i class="fa-solid fa-envelope fs-4 text-info mb-2"></i>
-                <span class="text-muted">Email</span>
-                <h6 class="mb-0 text-truncate">{{ $email }}</h6>
+        
+            <div class="d-stat shadow-sm text-center " >
+                <i class="fa-solid fa-envelope  d-stat-icon"></i>
+                <span class="stat-label">Email</span>
+                <h6 class="mb-0 d-stat-value">{{ $email }}</h6>
             </div>
-        </div>
+        
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm text-center p-3" style="border-radius:14px;">
-                <i class="fa-solid fa-shield-halved fs-4 text-success mb-2"></i>
-                <span class="text-muted">Status</span>
-                <h5 class="mb-0">
+       
+            <div class="d-stat shadow-sm text-center " >
+                <i class="fa-solid fa-shield-halved  d-stat-icon"></i>
+                <span class="stat-label">Status</span>
+                <h5 class="mb-0 d-stat-value">
                     {{ $user->is_active ? 'Active' : 'Inactive' }}
                 </h5>
             </div>
-        </div>
+       
 
     </div>
 

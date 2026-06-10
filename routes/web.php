@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoFeatureVideoController;
 use App\Http\Controllers\DemoReviewVideoController;
 use App\Http\Controllers\DemoTaskController;
+use App\Http\Controllers\DemoUserController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\ProfileController;
@@ -109,6 +110,12 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
         Route::post('/demo-review-videos', [DemoReviewVideoController::class, 'store'])->name('demo-review-videos.store');
         Route::put('/demo-review-videos/{video}', [DemoReviewVideoController::class, 'update'])->name('demo-review-videos.update');
         Route::delete('/demo-review-videos/{video}', [DemoReviewVideoController::class, 'destroy'])->name('demo-review-videos.destroy');
+        // ── Admin: Feedbacks ────────────────────────────────────────────
+        Route::get('/feedbacks', [FeedbackController::class, 'adminIndex'])->name('admin.feedbacks');
+        // ── Admin: Demo Students stages Onbording ────────────────────────────────────────────
+        Route::get('/demo-students', [DemoUserController::class, 'adminIndex'])->name('admin.demo-students');
+        Route::get('/demo-submission-stage', [DemoUserController::class, 'View'])->name('admin.demo-submission-stage');
+       
     });
 
     Route::get('/course-categories', [CourseCategoryController::class, 'index'])->name('course-categories.index');
@@ -179,12 +186,12 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
         // Dashboard (post-completion)
         Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
-   
-    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+
+        Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     });
     Route::get('/category-courses/{category}', function ($categoryId) {
-    return \App\Models\Course::where('category_id', $categoryId)
-        ->select('id', 'title')
-        ->get();
-});
+        return \App\Models\Course::where('category_id', $categoryId)
+            ->select('id', 'title')
+            ->get();
+    });
 });

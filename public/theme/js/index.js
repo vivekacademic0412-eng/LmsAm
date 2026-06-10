@@ -94,3 +94,23 @@ document.querySelectorAll('.sb-item').forEach(item=>{
         overlay.classList.toggle('show', open);
     };
 })();
+
+function toggleDescription(id)
+{
+    let shortText = document.getElementById('short' + id);
+    let fullText  = document.getElementById('full' + id);
+    let btn       = document.getElementById('btn' + id);
+
+    if(fullText.style.display === 'none')
+    {
+        shortText.style.display = 'none';
+        fullText.style.display = 'inline';
+        btn.innerText = 'Read Less';
+    }
+    else
+    {
+        shortText.style.display = 'inline';
+        fullText.style.display = 'none';
+        btn.innerText = 'Read More';
+    }
+}
