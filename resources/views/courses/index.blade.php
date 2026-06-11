@@ -303,7 +303,10 @@
             padding: 18px;
             z-index: 120;
         }
-        .modal-overlay.open { display: flex; }
+       .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
         .modal {
             width: min(860px, 100%);
             max-height: calc(100vh - 36px);

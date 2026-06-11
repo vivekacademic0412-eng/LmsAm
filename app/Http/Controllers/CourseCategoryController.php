@@ -21,7 +21,7 @@ class CourseCategoryController extends Controller
             'categories' => CourseCategory::with(['parent:id,name', 'children:id,name,parent_id'])
                 ->withCount(['courses', 'children'])
                 ->whereNull('parent_id')
-                ->orderBy('name')
+                ->orderBy('id','DESC')
                 ->paginate(8)
                 ->withQueryString(),
             'allCategories' => CourseCategory::orderBy('name')->get(['id', 'name', 'parent_id']),
@@ -35,8 +35,8 @@ class CourseCategoryController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120', 'unique:course_categories,name'],
-            'description' => ['nullable', 'string', 'max:800'],
-            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'description' => ['required', 'string', 'max:800'],
+            'thumbnail' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'parent_id' => ['nullable', 'integer', 'exists:course_categories,id'],
         ]);
 
@@ -69,8 +69,8 @@ class CourseCategoryController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120', Rule::unique('course_categories', 'name')->ignore($category->id)],
-            'description' => ['nullable', 'string', 'max:800'],
-            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'description' => ['required', 'string', 'max:800'],
+            'thumbnail' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'parent_id' => ['nullable', 'integer', 'exists:course_categories,id', Rule::notIn([$category->id])],
         ]);
 
