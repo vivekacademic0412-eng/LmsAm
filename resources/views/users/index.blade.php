@@ -1,7 +1,7 @@
 ﻿@extends('layouts.app')
 
 @section('content')
-    <style>
+    {{-- <style>
         .row-actions {
             display: flex;
             flex-wrap: wrap;
@@ -334,8 +334,8 @@
                 </div>
             </div>
         @endif
-    @endforeach
-
-    <script src="{{ asset('js/course-modals.js') }}" defer></script>
-    <script src="{{ asset('js/filters.js') }}" defer></script>
+    @endforeach --}}
+@livewire('user-management')
+    {{-- <script src="{{ asset('js/course-modals.js') }}" defer></script>
+    <script src="{{ asset('js/filters.js') }}" defer></script> --}}
 @endsection

@@ -195,3 +195,4 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
             ->get();
     });
 });
+

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
+    {{-- <style>
         .activity-page {
             display: grid;
             gap: 14px;
@@ -577,7 +577,8 @@
                 </div>
             @endif
         </section>
-    </div>
+    </div> --}}
 
-    <script src="{{ asset('js/filters.js') }}" defer></script>
+    {{-- <script src="{{ asset('js/filters.js') }}" defer></script> --}}
+    @livewire('activity-logs')
 @endsection
