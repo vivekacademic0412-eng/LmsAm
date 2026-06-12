@@ -25,10 +25,10 @@ public function approve($id)
         'status' => 'approved'
     ]);
 
-    if ($demo->user?->email) {
-        Mail::to($demo->user->email)
-            ->send(new DemoApprovedMail($demo));
-    }
+    // if ($demo->user?->email) {
+    //     Mail::to($demo->user->email)
+    //         ->send(new DemoApprovedMail($demo));
+    // }
 
     $this->dispatch(
         'swal',
@@ -44,10 +44,10 @@ public function approve($id)
         'status' => 'rejected'
     ]);
 
-    if ($demo->user?->email) {
-        Mail::to($demo->user->email)
-            ->send(new DemoRejectedMail($demo));
-    }
+    // if ($demo->user?->email) {
+    //     Mail::to($demo->user->email)
+    //         ->send(new DemoRejectedMail($demo));
+    // }
 
     $this->dispatch(
         'swal',
