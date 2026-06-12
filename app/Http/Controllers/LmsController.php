@@ -126,10 +126,11 @@ class LmsController extends Controller
 
         $video = DemoFeatureVideo::find(session('demo_video_id'));
 
-
+  $demoUser = DemoUser::find(session('demo_user_id'));
         return view('demo.lms.step2', [
             'currentStep' => 2,
             'video' => $video,
+            'video_details'=>$demoUser
         ]);
     }
     public function storeStep2(Request $request)
@@ -150,7 +151,7 @@ class LmsController extends Controller
             if ($demoUser) {
 
                 $demoUser->update([
-                    'demo_featured_video_id' => session('demo_video_id'),
+                    // 'demo_feature_video_id' => session('demo_video_id'),
                     'progress_demo'         => (int) $request->video_watched,
                 ]);
             }

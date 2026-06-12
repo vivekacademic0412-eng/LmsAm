@@ -197,11 +197,12 @@
         </script>
     @endsection --}}
     @section('scripts')
-    <script>
-
-  
+<script>
 const video = document.getElementById('demoVideo');
-let progress = 0;
+
+// safe PHP → JS
+let progress = @json($video_details->progress_demo ?? 0);
+let unlocked = false;
 
 if (video) {
 
@@ -213,21 +214,24 @@ if (video) {
 
         updateProgress(progress);
 
-        if (progress >= 70) {
+        if (progress >= 70 && !unlocked) {
             unlockCta();
+            unlocked = true;
         }
     });
 
     video.addEventListener('ended', function () {
-
         progress = 100;
         updateProgress(100);
-        unlockCta();
+
+        if (!unlocked) {
+            unlockCta();
+            unlocked = true;
+        }
     });
 }
 
 function updateProgress(p) {
-
     const pct = Math.round(p);
 
     document.getElementById('watchFill').style.width = pct + '%';
@@ -237,27 +241,13 @@ function updateProgress(p) {
     if (pct >= 30) checkItem('chk1');
     if (pct >= 60) checkItem('chk2');
     if (pct >= 90) checkItem('chk3');
-
-    if (pct >= 25 && pct < 26) {
-        showBitmoji('🎥 Great start! Keep watching...');
-    }
-
-    if (pct >= 50 && pct < 51) {
-        showBitmoji('🧠 You\'re halfway! Pay attention to the demo technique.');
-    }
-
-    if (pct >= 75 && pct < 76) {
-        showBitmoji('🚀 Almost done! The summary section is coming up — key part!');
-    }
 }
 
 function checkItem(id) {
     const el = document.getElementById(id);
-
-    if (el) {
-        el.classList.add('checked');
-    }
+    if (el) el.classList.add('checked');
 }
+
 
 function unlockCta() {
 

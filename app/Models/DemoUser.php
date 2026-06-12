@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DemoUser extends Model
 {
+       protected $table = 'demo_users';
     protected $fillable = [
         'user_id',
         'full_name',
@@ -15,7 +16,7 @@ class DemoUser extends Model
         'preferred_course_id',
         'ip_address',
         'progress_demo',
-        'demo_featured_video_id',
+        'demo_feature_video_id',
     ];
 
     public function educationLevel()

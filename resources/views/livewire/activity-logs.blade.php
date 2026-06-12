@@ -593,106 +593,188 @@
 
 </div>
 
- 
-    {{-- LOGS --}}
-    <div class="activity-feed">
-        @if (!$loggingReady)
-            <div class="activity-card empty">
-                <h3>
-                    Activity table missing
-                </h3>
-            </div>
-        @elseif($logs->count() == 0)
-            <div class="activity-card empty">
+{{-- LOGS TABLE --}}
+<div class="activity-card">
 
-                <h3>
-                    No Activity Found
-                </h3>
+    @if (!$loggingReady)
 
-            </div>
-        @else
-            @foreach ($logs as $log)
-                <div class="activity-item">
-                    <div class="activity-top">
-                        <div>
+        <div class="empty-state">
+            <h3>Activity table missing</h3>
+        </div>
+
+    @elseif($logs->count() == 0)
+
+        <div class="empty-state">
+            <h3>No Activity Found</h3>
+        </div>
+
+    @else
+
+        <div class="table-responsive">
+
+            <table class="activity-table">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Description</th>
+                        <th>Target</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                @foreach($logs as $log)
+
+                    <tr>
+
+                        <td>
                             <strong>
                                 {{ $log->created_at->format('d M Y') }}
                             </strong>
                             <br>
-                            <span class="muted">
+                            <small class="muted">
                                 {{ $log->created_at->diffForHumans() }}
-                            </span>
-                        </div>
-                        <div>
-                            <span class="badge">
+                            </small>
+                        </td>
+
+
+                        <td>
+                            <div class="user-box">
+
+                                <div class="avatar">
+                                    {{ strtoupper(substr($log->actorName(),0,2)) }}
+                                </div>
+
+                                <div>
+                                    <strong>
+                                        {{ $log->actorName() }}
+                                    </strong>
+
+                                    <br>
+
+                                    <small class="muted">
+                                        {{ $log->actorEmail() }}
+                                    </small>
+                                </div>
+
+                            </div>
+                        </td>
+
+
+                        <td>
+                            <span class="badge action">
                                 {{ $log->action }}
                             </span>
-                            <span class="badge">
+                        </td>
+
+
+                        <td>
+                            <span class="badge module">
                                 {{ $log->module }}
                             </span>
+                        </td>
 
-                        </div>
-                    </div>
-                    <div class="activity-grid">
-                        <div class="user">
-                            <div class="avatar">
-                                {{ strtoupper(substr($log->actorName(), 0, 2)) }}
-                            </div>
-                            <div>
-                                <strong>
-                                    {{ $log->actorName() }}
-                                </strong>
-                                <br>
-                                <span class="muted">
-                                    {{ $log->actorEmail() }}
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <h4>
-                                {{ $log->description }}
-                            </h4>
-                            @if ($log->subject_label)
-                                <p class="muted">
-                                    {{ $log->subject_label }}
-                                </p>
-                            @endif
-                        </div>
-                        <div>
+
+                        <td class="description">
+
                             <strong>
-                                Target
+                                {{ $log->description }}
                             </strong>
-                            <p class="muted">
+
+
+                            @if($log->subject_label)
+
+                            <br>
+
+                            <small class="muted">
+                                {{ $log->subject_label }}
+                            </small>
+
+                            @endif
+
+                        </td>
+
+
+                        <td>
+
+                            <small class="muted">
                                 {{ $log->route_name }}
-                            </p>
-                        </div>
-                    </div>
-                    @if ($log->payload)
-                        <div class="details">
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            @if($log->payload)
+
                             <details>
+
                                 <summary>
-                                    View Details
+                                    View
                                 </summary>
+
+
                                 <pre>
 {{ json_encode($log->payload, JSON_PRETTY_PRINT) }}
-</pre>
+                                </pre>
+
+
                             </details>
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        @endif
-    </div>
-    {{-- PAGINATION --}}
-    <div class="activity-card pagination-wrap">
-        <div class="muted">
-            Showing
-            {{ $logs->firstItem() }}
-            -
-            {{ $logs->lastItem() }}
+
+                            @else
+
+                                <span class="muted">
+                                    --
+                                </span>
+
+                            @endif
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                @endforeach
+
+
+                </tbody>
+
+            </table>
+
+
         </div>
-        <div>
-            {{ $logs->links('pagination.custom') }}
-        </div>
+
+
+    @endif
+
+</div>
+
+
+{{-- PAGINATION --}}
+<div class="activity-card pagination-wrap">
+
+    <div class="muted">
+
+        Showing 
+        {{ $logs->firstItem() }}
+        -
+        {{ $logs->lastItem() }}
+
     </div>
+
+
+    <div>
+
+        {{ $logs->links('pagination.custom') }}
+
+    </div>
+
 </div>

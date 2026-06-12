@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="{{ asset('theme/css/demo.css') }}">
 <link rel="stylesheet" href="{{ asset('theme/css/category.css') }}">
 <link rel="stylesheet" href="{{ asset('theme/css/user.css') }}">
+<link rel="stylesheet" href="{{ asset('theme/css/broadcast.css') }}">
  @vite(['resources/css/app.css', 'resources/js/app.js'])
  @livewireStyles
 </head>
