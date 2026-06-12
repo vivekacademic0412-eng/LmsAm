@@ -126,11 +126,11 @@ class LmsController extends Controller
 
         $video = DemoFeatureVideo::find(session('demo_video_id'));
 
-  $demoUser = DemoUser::find(session('demo_user_id'));
+        $demoUser = DemoUser::find(session('demo_user_id'));
         return view('demo.lms.step2', [
             'currentStep' => 2,
             'video' => $video,
-            'video_details'=>$demoUser
+            'video_details' => $demoUser
         ]);
     }
     public function storeStep2(Request $request)
@@ -180,146 +180,250 @@ class LmsController extends Controller
     // STEP 3 — Create Your Demo
     // ──────────────────────────────────────────
 
-    public function step3()
-    {
-        try {
+    // public function step3()
+    // {
+    //     try {
 
-            if (!session('lms_video_watched')) {
-                return redirect()->route('lms.step2');
-            }
-            $course = CourseCategory::find(session('lms_course_id'));
+    //         if (!session('lms_video_watched')) {
+    //             return redirect()->route('lms.step2');
+    //         }
+    //         $course = CourseCategory::find(session('lms_course_id'));
 
-            return view('demo.lms.step3', [
-                'currentStep' => 3,
-                'course' => $course
-            ]);
-        } catch (Exception $e) {
+    //         return view('demo.lms.step3', [
+    //             'currentStep' => 3,
+    //             'course' => $course
+    //         ]);
+    //     } catch (Exception $e) {
 
-            Log::error(__METHOD__, [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'request' => $request->all(),
-            ]);
+    //         Log::error(__METHOD__, [
+    //             'message' => $e->getMessage(),
+    //             'file' => $e->getFile(),
+    //             'line' => $e->getLine(),
+    //             'request' => $request->all(),
+    //         ]);
 
-            return back()->with('error', 'Something went wrong.');
+    //         return back()->with('error', $e->getMessage());
+    //     }
+    // }
+
+public function step3()
+{
+    try {
+        if (!session('lms_video_watched')) {
+            return redirect()->route('lms.step2');
         }
+
+        $course = CourseCategory::find(session('lms_course_id'));
+
+        return view('demo.lms.step3', [
+            'currentStep' => 3,
+            'course'      => $course,
+        ]);
+
+    } catch (Exception $e) {
+        Log::error(__METHOD__, [
+            'message' => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+            // ✅ REMOVED: 'request' => $request->all()  ← was causing fatal error
+        ]);
+
+        return back()->with('error', $e->getMessage());
     }
+}
 
+    // public function storeStep3(Request $request)
+    // {
+    //     try {
 
-  
-    public function storeStep3(Request $request)
-    {
-        try {
+    //         Log::info('Step3 Request Started', [
+    //             'user_id' => auth()->id(),
+    //             'request_data' => $request->except('demo_video'),
+    //         ]);
 
-            Log::info('Step3 Request Started', [
-                'user_id' => auth()->id(),
-                'request_data' => $request->except('demo_video'),
-            ]);
+    //         $request->validate([
+    //             'demo_topic'       => 'required|string|max:200',
+    //             'demo_description' => 'required|string|min:30|max:600',
+    //             'demo_video'       => 'required|file|mimetypes:video/*|max:512000',
+    //         ]);
 
-            $request->validate([
-                'demo_topic'       => 'required|string|max:200',
-                'demo_description' => 'required|string|min:30|max:600',
-                'demo_video'       => 'required|file|mimetypes:video/*|max:512000',
-            ]);
+    //         Log::info('Validation Passed');
 
-            Log::info('Validation Passed');
+    //         $userId   = auth()->id();
+    //         $courseId = session('lms_course_id');
 
-            $userId   = auth()->id();
-            $courseId = session('lms_course_id');
+    //         Log::info('Session Data', [
+    //             'user_id'   => $userId,
+    //             'course_id' => $courseId,
+    //         ]);
 
-            Log::info('Session Data', [
-                'user_id'   => $userId,
-                'course_id' => $courseId,
-            ]);
+    //         // Check existing record
+    //         $existing = SubmittedDemos::where('demo_user_id', $userId)
+    //             ->where('course_id', $courseId)
+    //             ->first();
 
-            // Check existing record
-            $existing = SubmittedDemos::where('demo_user_id', $userId)
-                ->where('course_id', $courseId)
-                ->first();
+    //         Log::info('Existing Demo Record', [
+    //             'exists' => !empty($existing),
+    //             'record' => $existing,
+    //         ]);
 
-            Log::info('Existing Demo Record', [
-                'exists' => !empty($existing),
-                'record' => $existing,
-            ]);
+    //         // Delete old video
+    //         if ($existing && $existing->demo_video) {
 
-            // Delete old video
-            if ($existing && $existing->demo_video) {
+    //             Log::info('Deleting Old Video', [
+    //                 'path' => $existing->demo_video,
+    //             ]);
 
-                Log::info('Deleting Old Video', [
-                    'path' => $existing->demo_video,
-                ]);
+    //             $deleted = Storage::disk('public')->delete($existing->demo_video);
 
-                $deleted = Storage::disk('public')->delete($existing->demo_video);
+    //             Log::info('Old Video Delete Result', [
+    //                 'deleted' => $deleted,
+    //             ]);
+    //         }
 
-                Log::info('Old Video Delete Result', [
-                    'deleted' => $deleted,
-                ]);
-            }
+    //         // Upload new video
+    //         Log::info('Uploading New Video', [
+    //             'original_name' => $request->file('demo_video')->getClientOriginalName(),
+    //             'size' => $request->file('demo_video')->getSize(),
+    //             'mime' => $request->file('demo_video')->getMimeType(),
+    //         ]);
 
-            // Upload new video
-            Log::info('Uploading New Video', [
-                'original_name' => $request->file('demo_video')->getClientOriginalName(),
-                'size' => $request->file('demo_video')->getSize(),
-                'mime' => $request->file('demo_video')->getMimeType(),
-            ]);
+    //         $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
 
-            $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
+    //         Log::info('Video Uploaded Successfully', [
+    //             'video_path' => $videoPath,
+    //         ]);
 
-            Log::info('Video Uploaded Successfully', [
-                'video_path' => $videoPath,
-            ]);
+    //         // Store session
+    //         session([
+    //             'lms_demo_topic' => $videoPath
+    //         ]);
 
-            // Store session
-            session([
-                'lms_demo_topic' => $videoPath
-            ]);
+    //         Log::info('Session Updated', [
+    //             'lms_demo_topic' => session('lms_demo_topic'),
+    //         ]);
 
-            Log::info('Session Updated', [
-                'lms_demo_topic' => session('lms_demo_topic'),
-            ]);
+    //         // Create/Update record
+    //         $demo = SubmittedDemos::updateOrCreate(
+    //             [
+    //                 'demo_user_id' => $userId,
+    //                 'course_id'    => $courseId,
+    //             ],
+    //             [
+    //                 'user_id'           => $userId,
+    //                 'demo_topic'        => $request->demo_topic,
+    //                 'demo_description'  => $request->demo_description,
+    //                 'demo_video'        => $videoPath,
+    //                 'status'            => 'pending',
+    //                 'completion_score'  => 0,
+    //             ]
+    //         );
 
-            // Create/Update record
-            $demo = SubmittedDemos::updateOrCreate(
-                [
-                    'demo_user_id' => $userId,
-                    'course_id'    => $courseId,
-                ],
-                [
-                    'user_id'           => $userId,
-                    'demo_topic'        => $request->demo_topic,
-                    'demo_description'  => $request->demo_description,
-                    'demo_video'        => $videoPath,
-                    'status'            => 'pending',
-                    'completion_score'  => 0,
-                ]
-            );
+    //         Log::info('Demo Record Saved Successfully', [
+    //             'demo_id' => $demo->id,
+    //             'record'  => $demo->toArray(),
+    //         ]);
 
-            Log::info('Demo Record Saved Successfully', [
-                'demo_id' => $demo->id,
-                'record'  => $demo->toArray(),
-            ]);
+    //         Log::info('Step3 Completed Successfully');
 
-            Log::info('Step3 Completed Successfully');
+    //         return response()->json([
+    //             'status' => true,
+    //             'message' => 'Demo submitted successfully!',
+    //             'redirect_url' => route('lms.step4')
+    //         ]);
+    //     } catch (Exception $e) {
 
-            return redirect()
-                ->route('lms.step4')
-                ->with('success', 'Demo submitted successfully!');
-        } catch (Exception $e) {
+    //         Log::error('Step3 Failed', [
+    //             'message' => $e->getMessage(),
+    //             'file'    => $e->getFile(),
+    //             'line'    => $e->getLine(),
+    //             'trace'   => $e->getTraceAsString(),
+    //             'request' => $request->except('demo_video'),
+    //             'user_id' => auth()->id(),
+    //         ]);
 
-            Log::error('Step3 Failed', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => $e->getTraceAsString(),
-                'request' => $request->except('demo_video'),
-                'user_id' => auth()->id(),
-            ]);
+    //         return back()->with('error', 'Something went wrong.' . $e->getMessage());
+    //     }
+    // }
+public function storeStep3(Request $request)
+{
+    try {
+        // Make sure Laravel treats this as an AJAX/JSON request
+        // even if Accept header gets stripped by a redirect
+        $request->headers->set('Accept', 'application/json');
 
-            return back()->with('error', 'Something went wrong.');
+        Log::info('Step3 Request Started', [
+            'user_id' => auth()->id(),
+            'request_data' => $request->except('demo_video'),
+        ]);
+
+        $request->validate([
+            'demo_topic'       => 'required|string|max:200',
+            'demo_description' => 'required|string|min:30|max:600',
+            'demo_video'       => 'required|file|mimetypes:video/*|max:512000',
+        ]);
+
+        $userId   = session('demo_user_id') ?? auth()->id();
+        $courseId = session('lms_course_id');
+
+        $existing = SubmittedDemos::where('demo_user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+
+        if ($existing && $existing->demo_video) {
+            Storage::disk('public')->delete($existing->demo_video);
         }
-    }
 
+        $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
+
+        session(['lms_demo_topic' => $videoPath]);
+
+        $demo = SubmittedDemos::updateOrCreate(
+            [
+                'demo_user_id' => $userId,
+                'course_id'    => $courseId,
+            ],
+            [
+                'user_id'          => $userId,
+                'demo_topic'       => $request->demo_topic,
+                'demo_description' => $request->demo_description,
+                'demo_video'       => $videoPath,
+                'status'           => 'pending',
+                'completion_score' => 0,
+            ]
+        );
+
+        Log::info('Step3 Completed', ['demo_id' => $demo->id]);
+
+        // Always return JSON — never redirect from this method
+        return response()->json([
+            'status'       => true,
+            'message'      => 'Demo submitted successfully!',
+            'redirect_url' => route('lms.step4'),
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Return validation errors as JSON explicitly
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed.',
+            'errors'  => $e->errors(),
+        ], 422);
+
+    } catch (Exception $e) {
+        Log::error('Step3 Failed', [
+            'message' => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+            'user_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong: ' . $e->getMessage(),
+        ], 500);
+    }
+}
     // ──────────────────────────────────────────
     // STEP 4 — Submission Confirmation
     // ──────────────────────────────────────────
@@ -343,7 +447,7 @@ class LmsController extends Controller
                 'course_id' => $courseId,
             ]);
 
-          
+
 
             // Check feedback
             $feedback = DemoFeedback::where('demo_user_id', $userId)
@@ -356,13 +460,13 @@ class LmsController extends Controller
             ]);
 
             Log::info('Loading Step4 View', [
-                
+
                 'feedback_exists' => !is_null($feedback),
             ]);
 
             return view('demo.lms.step4', [
                 'currentStep' => 4,
-               
+
                 'feedback' => $feedback,
             ]);
         } catch (Exception $e) {

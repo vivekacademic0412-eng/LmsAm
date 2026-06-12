@@ -4,7 +4,8 @@
 @section('title', 'Create Your Demo')
 
 
-@section('bitmoji-message', '🧠 Now it\'s YOUR turn! Don\'t worry — just explain what you understood in your own words.
+@section('bitmoji-message',
+    '🧠 Now it\'s YOUR turn! Don\'t worry — just explain what you understood in your own words.
     You\'ve got this!')
 @section('bitmoji-emoji', '💪')
 
@@ -76,7 +77,7 @@
                 <label><i class="fas fa-lightbulb" style="color:var(--brand-primary); margin-right:5px"></i> Demo
                     Topic</label>
                 <input type="text" name="demo_topic" id="demoTopic" class="form-control"
-                    placeholder="e.g. How to create a landing page in HTML..." value="{{ old('demo_topic') }}" >
+                    placeholder="e.g. How to create a landing page in HTML..." value="{{ old('demo_topic') }}">
                 @error('demo_topic')
                     <p class="field-tip" style="color:var(--brand-secondary)"><i class="fas fa-exclamation-circle"></i>
                         {{ $message }}</p>
@@ -99,7 +100,7 @@
                     Learned / What You Demonstrated</label>
                 <textarea name="demo_description" id="demoDesc" class="form-control"
                     placeholder="Describe what you explained in your video. For example: 'I demonstrated how to create a responsive navbar using HTML and CSS Flexbox. I explained the mobile-first approach...'"
-                    maxlength="600" >{{ old('demo_description') }}</textarea>
+                    maxlength="600">{{ old('demo_description') }}</textarea>
                 <div class="char-count"><span id="charCount">0</span>/600 characters</div>
                 @error('demo_description')
                     <p class="field-tip" style="color:var(--brand-secondary)"><i class="fas fa-exclamation-circle"></i>
@@ -156,61 +157,161 @@
 
     </div>
 @endsection
-
 @section('scripts')
-    <script>
-        // Topic pill click
-        function setTopic(el) {
-            document.getElementById('demoTopic').value = el.textContent;
-            document.querySelectorAll('.topic-pill').forEach(p => p.style.borderColor = 'var(--border)');
-            el.style.borderColor = 'var(--brand-primary)';
-            el.style.color = '#A78BFA';
-        }
+<script>
+// ── Topic pill ──────────────────────────────────────────────
+function setTopic(el) {
+    document.getElementById('demoTopic').value = el.textContent;
+    document.querySelectorAll('.topic-pill').forEach(p => {
+        p.style.borderColor = 'var(--border)';
+        p.style.color = '';
+    });
+    el.style.borderColor = 'var(--brand-primary)';
+    el.style.color = '#A78BFA';
+}
 
-        // Char counter
-        const desc = document.getElementById('demoDesc');
-        desc.addEventListener('input', () => {
-            document.getElementById('charCount').textContent = desc.value.length;
-        });
+// ── Char counter ────────────────────────────────────────────
+const desc = document.getElementById('demoDesc');
+if (desc) {
+    desc.addEventListener('input', () => {
         document.getElementById('charCount').textContent = desc.value.length;
+    });
+    document.getElementById('charCount').textContent = desc.value.length;
+}
 
-        // Upload preview
-        document.getElementById('videoFile').addEventListener('change', function() {
-            if (this.files[0]) {
-                const preview = document.getElementById('uploadPreview');
-                document.getElementById('uploadFilename').textContent = this.files[0].name;
-                preview.classList.add('visible');
-                document.getElementById('uploadZone').style.borderColor = 'var(--brand-green)';
-                showBitmoji('📤 Video selected! Looking great — fill the description and hit submit!');
-            }
-        });
-
-        // Drag & drop
-        const zone = document.getElementById('uploadZone');
-        zone.addEventListener('dragover', e => {
-            e.preventDefault();
-            zone.classList.add('drag-over');
-        });
-        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-        zone.addEventListener('drop', e => {
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            const dt = e.dataTransfer;
-            if (dt.files[0]) document.getElementById('videoFile').files = dt.files;
-        });
-
-        // Submit loading
-        document.getElementById('createForm').addEventListener('submit', function() {
-            document.getElementById('submitBtnText').textContent = 'Uploading...';
-            document.getElementById('submitBtnIcon').className = 'fas fa-spinner fa-spin';
-            document.getElementById('submitDemoBtn').style.opacity = '0.8';
-        });
-
-        function showBitmoji(msg) {
-            const el = document.getElementById('bitmojiMsg');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
+// ── Upload preview ──────────────────────────────────────────
+document.getElementById('videoFile').addEventListener('change', function () {
+    if (this.files[0]) {
+        if (this.files[0].size > 512 * 1024 * 1024) {
+            alert('Max file size is 500MB');
+            this.value = '';
+            return;
         }
-    </script>
+        document.getElementById('uploadFilename').textContent = this.files[0].name;
+        document.getElementById('uploadPreview').classList.add('visible');
+        document.getElementById('uploadZone').style.borderColor = 'var(--brand-green)';
+        showBitmoji('📤 Video selected! Fill in the description and hit submit!');
+    }
+});
+
+// ── Drag & drop ─────────────────────────────────────────────
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('videoFile').files = dt.files;
+        document.getElementById('videoFile').dispatchEvent(new Event('change'));
+    }
+});
+
+// ── Bitmoji helper ──────────────────────────────────────────
+function showBitmoji(msg) {
+    const el = document.getElementById('bitmojiMsg');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 5000);
+}
+
+// ── Clear all inline validation errors ─────────────────────
+function clearErrors() {
+    document.querySelectorAll('.lms-field-error').forEach(el => el.remove());
+    document.querySelectorAll('.form-control').forEach(el => el.classList.remove('input-error'));
+}
+
+// ── Show a validation error under the right element ─────────
+function showError(fieldName, message) {
+    // Walk up from the named input to its nearest .form-group
+    const input = document.querySelector(`[name="${fieldName}"]`);
+    // For file input it lives inside .upload-zone inside .form-group
+    const group = input
+        ? (input.closest('.form-group') ?? input.parentElement)
+        : null;
+
+    if (!group) return;
+
+    const p = document.createElement('p');
+    p.className = 'field-tip lms-field-error';
+    p.style.color = 'var(--brand-secondary)';
+    p.style.marginTop = '6px';
+    p.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    group.appendChild(p);
+
+    if (input) input.classList.add('input-error');
+}
+
+// ── SINGLE submit handler ───────────────────────────────────
+document.getElementById('createForm').addEventListener('submit', function (e) {
+    e.preventDefault();   // ← always prevent default; we handle redirect in JS
+
+    clearErrors();
+
+    const btn      = document.getElementById('submitDemoBtn');
+    const btnText  = document.getElementById('submitBtnText');
+    const btnIcon  = document.getElementById('submitBtnIcon');
+
+    // Loading state
+    btn.disabled       = true;
+    btn.style.opacity  = '0.75';
+    btnText.textContent = 'Uploading…';
+    btnIcon.className   = 'fas fa-spinner fa-spin';
+
+    const formData   = new FormData(this);
+    const csrfToken  = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch("{{ route('lms.step3.store') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN':     csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',   // ← tells Laravel it's AJAX
+            'Accept':           'application/json',
+        },
+        body: formData,
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (response.ok && data.status) {
+            // ✅ Success — redirect to step 4
+            btnText.textContent = 'Redirecting…';
+            window.location.href = data.redirect_url;
+            return;
+        }
+
+        // ❌ Reset button
+        btn.disabled       = false;
+        btn.style.opacity  = '1';
+        btnText.textContent = 'Submit My Demo';
+        btnIcon.className   = 'fas fa-paper-plane';
+
+        if (response.status === 422 && data.errors) {
+            // Show each validation error under the correct field
+            Object.entries(data.errors).forEach(([field, messages]) => {
+                showError(field, messages[0]);
+            });
+            // Scroll to first error
+            const firstErr = document.querySelector('.lms-field-error');
+            if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // General server error
+        showBitmoji('❌ ' + (data.message || 'Something went wrong. Try again.'));
+    })
+    .catch(err => {
+        console.error('AJAX Error:', err);
+        btn.disabled       = false;
+        btn.style.opacity  = '1';
+        btnText.textContent = 'Submit My Demo';
+        btnIcon.className   = 'fas fa-paper-plane';
+        showBitmoji('❌ Network error. Check your connection and try again.');
+    });
+});
+</script>
 @endsection
