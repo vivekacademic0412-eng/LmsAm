@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class DemoUser extends Model
 {
-       protected $table = 'demo_users';
+    protected $table = 'demo_users';
+
     protected $fillable = [
         'user_id',
         'full_name',
-        'email_phone',
+        'email',
+        'phone',
         'education_level_id',
         'interest_area_id',
         'preferred_course_id',

@@ -22,33 +22,120 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request): RedirectResponse
+    // public function login(Request $request): RedirectResponse
+    // {
+    //     $credentials = $request->validate([
+    //         'email' => ['required', 'email'],
+    //         'password' => ['required', 'string'],
+    //     ]);
+
+    //     $throttleKey = Str::lower($credentials['email']).'|'.$request->ip();
+
+    //     if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+    //         $seconds = RateLimiter::availableIn($throttleKey);
+
+    //         return back()->withErrors([
+    //             'email' => "Too many login attempts. Try again in {$seconds} seconds.",
+    //         ])->onlyInput('email');
+    //     }
+
+    //     if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+    //         RateLimiter::hit($throttleKey, 300);
+
+    //         return back()->withErrors([
+    //             'email' => 'Invalid email or password.',
+    //         ])->onlyInput('email');
+    //     }
+
+    //     $user = $request->user();
+
+    //     if (! $user?->is_active) {
+    //         ActivityLogger::log(
+    //             actor: $user,
+    //             module: 'Authentication',
+    //             action: 'blocked_login',
+    //             description: 'Blocked a login attempt for an inactive account.',
+    //             context: [
+    //                 'subject_type' => User::class,
+    //                 'subject_id' => $user?->id,
+    //                 'subject_label' => $user?->name ? $user->name.' | '.$user->email : $credentials['email'],
+    //                 'route_name' => 'login.attempt',
+    //                 'method' => $request->method(),
+    //                 'url' => $request->fullUrl(),
+    //                 'ip_address' => $request->ip(),
+    //                 'user_agent' => (string) $request->userAgent(),
+    //                 'properties' => [
+    //                     'remember' => $request->boolean('remember'),
+    //                     'status' => 'inactive',
+    //                 ],
+    //             ]
+    //         );
+
+    //         Auth::logout();
+
+    //         return back()->withErrors([
+    //             'email' => 'Your account is inactive. Contact Super Admin.',
+    //         ])->onlyInput('email');
+    //     }
+
+    //     RateLimiter::clear($throttleKey);
+    //     $request->session()->regenerate();
+
+    //     ActivityLogger::log(
+    //         actor: $user,
+    //         module: 'Authentication',
+    //         action: 'login',
+    //         description: 'Signed in to the LMS.',
+    //         context: [
+    //             'subject_type' => User::class,
+    //             'subject_id' => $user->id,
+    //             'subject_label' => $user->name.' | '.$user->email,
+    //             'route_name' => 'login.attempt',
+    //             'method' => $request->method(),
+    //             'url' => $request->fullUrl(),
+    //             'ip_address' => $request->ip(),
+    //             'user_agent' => (string) $request->userAgent(),
+    //             'properties' => [
+    //                 'remember' => $request->boolean('remember'),
+    //             ],
+    //         ]
+    //     );
+
+    //     return redirect()->intended(route('dashboard', absolute: false));
+    // }
+
+
+    public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        $throttleKey = Str::lower($credentials['email']).'|'.$request->ip();
+        $throttleKey = Str::lower($credentials['email']) . '|' . $request->ip();
 
+        /* ── Rate limit: 5 attempts per 5 minutes ── */
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
-            return back()->withErrors([
-                'email' => "Too many login attempts. Try again in {$seconds} seconds.",
-            ])->onlyInput('email');
+            return response()->json([
+                'message' => "Too many login attempts. Try again in {$seconds} seconds.",
+            ], 429);
         }
 
+        /* ── Attempt auth ── */
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 300);
 
-            return back()->withErrors([
-                'email' => 'Invalid email or password.',
-            ])->onlyInput('email');
+            return response()->json([
+                'message' => 'Invalid email or password.',
+                'errors'  => ['email' => ['Invalid email or password.']],
+            ], 401);
         }
 
         $user = $request->user();
 
+        /* ── Inactive account ── */
         if (! $user?->is_active) {
             ActivityLogger::log(
                 actor: $user,
@@ -56,28 +143,30 @@ class AuthController extends Controller
                 action: 'blocked_login',
                 description: 'Blocked a login attempt for an inactive account.',
                 context: [
-                    'subject_type' => User::class,
-                    'subject_id' => $user?->id,
-                    'subject_label' => $user?->name ? $user->name.' | '.$user->email : $credentials['email'],
-                    'route_name' => 'login.attempt',
-                    'method' => $request->method(),
-                    'url' => $request->fullUrl(),
-                    'ip_address' => $request->ip(),
-                    'user_agent' => (string) $request->userAgent(),
-                    'properties' => [
+                    'subject_type'  => User::class,
+                    'subject_id'    => $user?->id,
+                    'subject_label' => $user?->name ? $user->name . ' | ' . $user->email : $credentials['email'],
+                    'route_name'    => 'login.attempt',
+                    'method'        => $request->method(),
+                    'url'           => $request->fullUrl(),
+                    'ip_address'    => $request->ip(),
+                    'user_agent'    => (string) $request->userAgent(),
+                    'properties'    => [
                         'remember' => $request->boolean('remember'),
-                        'status' => 'inactive',
+                        'status'   => 'inactive',
                     ],
                 ]
             );
 
             Auth::logout();
 
-            return back()->withErrors([
-                'email' => 'Your account is inactive. Contact Super Admin.',
-            ])->onlyInput('email');
+            return response()->json([
+                'message' => 'Your account is inactive. Contact Super Admin.',
+                'errors'  => ['email' => ['Your account is inactive. Contact Super Admin.']],
+            ], 403);
         }
 
+        /* ── Success ── */
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
@@ -87,21 +176,22 @@ class AuthController extends Controller
             action: 'login',
             description: 'Signed in to the LMS.',
             context: [
-                'subject_type' => User::class,
-                'subject_id' => $user->id,
-                'subject_label' => $user->name.' | '.$user->email,
-                'route_name' => 'login.attempt',
-                'method' => $request->method(),
-                'url' => $request->fullUrl(),
-                'ip_address' => $request->ip(),
-                'user_agent' => (string) $request->userAgent(),
-                'properties' => [
-                    'remember' => $request->boolean('remember'),
-                ],
+                'subject_type'  => User::class,
+                'subject_id'    => $user->id,
+                'subject_label' => $user->name . ' | ' . $user->email,
+                'route_name'    => 'login.attempt',
+                'method'        => $request->method(),
+                'url'           => $request->fullUrl(),
+                'ip_address'    => $request->ip(),
+                'user_agent'    => (string) $request->userAgent(),
+                'properties'    => ['remember' => $request->boolean('remember')],
             ]
         );
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return response()->json([
+            'message'  => 'Welcome back, ' . $user->name . '!',
+            'redirect' => route('dashboard', absolute: false),
+        ], 200);
     }
 
     public function logout(Request $request): RedirectResponse
@@ -117,7 +207,7 @@ class AuthController extends Controller
                 context: [
                     'subject_type' => User::class,
                     'subject_id' => $user->id,
-                    'subject_label' => $user->name.' | '.$user->email,
+                    'subject_label' => $user->name . ' | ' . $user->email,
                     'route_name' => 'logout',
                     'method' => $request->method(),
                     'url' => $request->fullUrl(),

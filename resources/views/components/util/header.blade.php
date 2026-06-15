@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Academic Mantra — LMS Dashboard</title>
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{ asset('theme/css/index.css') }}">
 <link rel="stylesheet" href="{{ asset('theme/css/aside.css') }}">
 <link rel="stylesheet" href="{{ asset('theme/css/profile.css') }}">
@@ -17,4 +17,4 @@
  @livewireStyles
 </head>
 <body>
-    <div class="app">
+   

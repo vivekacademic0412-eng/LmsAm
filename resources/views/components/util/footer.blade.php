@@ -1,4 +1,4 @@
-</div>
+
 @livewireScripts
 
 <script src="{{ asset('theme/js/index.js') }}" defer></script>

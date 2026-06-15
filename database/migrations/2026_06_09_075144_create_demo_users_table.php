@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('demo_users', function (Blueprint $table) {
+
             $table->id();
 
             $table->foreignId('user_id')
@@ -17,20 +18,33 @@ return new class extends Migration
                 ->nullOnDelete();
 
             $table->string('full_name');
-            $table->string('email_phone');
+
+            $table->string('email');
+
+            $table->string('phone', 20);
 
             $table->foreignId('education_level_id')
-                ->constrained('education_levels');
+                ->constrained('education_levels')
+                ->cascadeOnDelete();
 
             $table->foreignId('interest_area_id')
-                ->constrained('course_categories');
+                ->constrained('course_categories')
+                ->cascadeOnDelete();
 
             $table->foreignId('preferred_course_id')
-                ->constrained('courses');
+                ->constrained('courses')
+                ->cascadeOnDelete();
 
-            $table->string('ip_address', 45)->nullable();
-            $table->foreignId('demo_feature_video_id')->nullable();
-            $table->unsignedTinyInteger('progress_demo')->default(0);
+            $table->string('ip_address', 45)
+                ->nullable();
+
+            $table->foreignId('demo_feature_video_id')
+                ->nullable()
+                ->constrained('demo_feature_videos')
+                ->nullOnDelete();
+
+            $table->unsignedTinyInteger('progress_demo')
+                ->default(0);
 
             $table->timestamps();
         });

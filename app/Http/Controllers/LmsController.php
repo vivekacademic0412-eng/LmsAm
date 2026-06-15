@@ -28,6 +28,14 @@ class LmsController extends Controller
             Log::info(__METHOD__ . ' started');
 
             $categories = CourseCategory::get();
+            $feedbacks = DemoFeedback::with([
+                'user',
+                'course'
+            ])
+                ->whereNotNull('message')
+                ->latest()
+                ->take(10)
+                ->get();
 
             $educationLevels = EducationLevel::where('status', 1)
                 ->orderBy('sort_order')
@@ -37,7 +45,7 @@ class LmsController extends Controller
 
             return view(
                 'demo.lms.step1',
-                compact('categories', 'educationLevels') + [
+                compact('categories', 'educationLevels', 'feedbacks') + [
                     'currentStep' => 1
                 ]
             );
@@ -60,19 +68,51 @@ class LmsController extends Controller
             Log::info(__METHOD__ . ' started', [
                 'request' => $request->all()
             ]);
-
             $data = $request->validate([
-                'full_name'        => 'required|string|max:100',
-                'email_phone'      => 'required|string|max:100',
-                'education_level'  => 'required|string',
-                'interest_area'    => 'required|string',
-                'preferred_course' => 'required|string',
+
+                'full_name' => [
+                    'required',
+                    'string',
+                    'max:100'
+                ],
+
+                'email' => [
+                    'required',
+                    'email',
+                    'max:100'
+                ],
+
+                'contact' => [
+                    'required',
+                    'string',
+                    'regex:/^[0-9+\s-]{10,15}$/'
+                ],
+
+                'education_level' => [
+                    'required',
+                    'integer',
+                    'exists:education_levels,id'
+                ],
+
+                'interest_area' => [
+                    'required',
+                    'integer',
+                    'exists:course_categories,id'
+                ],
+
+                'preferred_course' => [
+                    'required',
+                    'integer',
+                    'exists:courses,id'
+                ]
+
             ]);
 
             $demoUser = DemoUser::create([
                 'user_id'             => auth()->id(),
                 'full_name'           => $data['full_name'],
-                'email_phone'         => $data['email_phone'],
+                'email'         => $data['email'],
+                'phone'         => $data['contact'],
                 'education_level_id'  => $data['education_level'],
                 'interest_area_id'    => $data['interest_area'],
                 'preferred_course_id' => $data['preferred_course'],
@@ -83,13 +123,15 @@ class LmsController extends Controller
                 'demo_user_id' => $demoUser->id
             ]);
             $course = CourseCategory::find($data['interest_area']);
+
             $video = DemoFeatureVideo::where('course_id', $data['preferred_course'])
                 ->where('status', 1)
                 ->first();
 
             session([
                 'lms_full_name'        => $data['full_name'],
-                'lms_email_phone'      => $data['email_phone'],
+                'lms_email_phone'      => $data['email'],
+                'lms_contact'      => $data['contact'],
                 'lms_education'        => $data['education_level'],
                 'lms_interest'         => $data['interest_area'],
                 'lms_preferred_course' => $data['preferred_course'],
@@ -206,31 +248,30 @@ class LmsController extends Controller
     //     }
     // }
 
-public function step3()
-{
-    try {
-        if (!session('lms_video_watched')) {
-            return redirect()->route('lms.step2');
+    public function step3()
+    {
+        try {
+            if (!session('lms_video_watched')) {
+                return redirect()->route('lms.step2');
+            }
+
+            $course = CourseCategory::find(session('lms_course_id'));
+
+            return view('demo.lms.step3', [
+                'currentStep' => 3,
+                'course'      => $course,
+            ]);
+        } catch (Exception $e) {
+            Log::error(__METHOD__, [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                // ✅ REMOVED: 'request' => $request->all()  ← was causing fatal error
+            ]);
+
+            return back()->with('error', $e->getMessage());
         }
-
-        $course = CourseCategory::find(session('lms_course_id'));
-
-        return view('demo.lms.step3', [
-            'currentStep' => 3,
-            'course'      => $course,
-        ]);
-
-    } catch (Exception $e) {
-        Log::error(__METHOD__, [
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            // ✅ REMOVED: 'request' => $request->all()  ← was causing fatal error
-        ]);
-
-        return back()->with('error', $e->getMessage());
     }
-}
 
     // public function storeStep3(Request $request)
     // {
@@ -345,85 +386,83 @@ public function step3()
     //         return back()->with('error', 'Something went wrong.' . $e->getMessage());
     //     }
     // }
-public function storeStep3(Request $request)
-{
-    try {
-        // Make sure Laravel treats this as an AJAX/JSON request
-        // even if Accept header gets stripped by a redirect
-        $request->headers->set('Accept', 'application/json');
+    public function storeStep3(Request $request)
+    {
+        try {
+            // Make sure Laravel treats this as an AJAX/JSON request
+            // even if Accept header gets stripped by a redirect
+            $request->headers->set('Accept', 'application/json');
 
-        Log::info('Step3 Request Started', [
-            'user_id' => auth()->id(),
-            'request_data' => $request->except('demo_video'),
-        ]);
+            Log::info('Step3 Request Started', [
+                'user_id' => auth()->id(),
+                'request_data' => $request->except('demo_video'),
+            ]);
 
-        $request->validate([
-            'demo_topic'       => 'required|string|max:200',
-            'demo_description' => 'required|string|min:30|max:600',
-            'demo_video'       => 'required|file|mimetypes:video/*|max:512000',
-        ]);
+            $request->validate([
+                'demo_topic'       => 'required|string|max:200',
+                'demo_description' => 'required|string|min:30|max:600',
+                'demo_video'       => 'required|file|mimetypes:video/*|max:512000',
+            ]);
 
-        $userId   = session('demo_user_id') ?? auth()->id();
-        $courseId = session('lms_course_id');
+            $userId   = session('demo_user_id') ?? auth()->id();
+            $courseId = session('lms_course_id');
 
-        $existing = SubmittedDemos::where('demo_user_id', $userId)
-            ->where('course_id', $courseId)
-            ->first();
+            $existing = SubmittedDemos::where('demo_user_id', $userId)
+                ->where('course_id', $courseId)
+                ->first();
 
-        if ($existing && $existing->demo_video) {
-            Storage::disk('public')->delete($existing->demo_video);
+            if ($existing && $existing->demo_video) {
+                Storage::disk('public')->delete($existing->demo_video);
+            }
+
+            $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
+
+            session(['lms_demo_topic' => $videoPath]);
+
+            $demo = SubmittedDemos::updateOrCreate(
+                [
+                    'demo_user_id' => $userId,
+                    'course_id'    => $courseId,
+                ],
+                [
+                    'user_id'          => $userId,
+                    'demo_topic'       => $request->demo_topic,
+                    'demo_description' => $request->demo_description,
+                    'demo_video'       => $videoPath,
+                    'status'           => 'pending',
+                    'completion_score' => 0,
+                ]
+            );
+
+            Log::info('Step3 Completed', ['demo_id' => $demo->id]);
+
+            // Always return JSON — never redirect from this method
+            return response()->json([
+                'status'       => true,
+                'message'      => 'Demo submitted successfully!',
+                'redirect_url' => route('lms.step4'),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors as JSON explicitly
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (Exception $e) {
+            Log::error('Step3 Failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'user_id' => auth()->id(),
+            ]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
-
-        session(['lms_demo_topic' => $videoPath]);
-
-        $demo = SubmittedDemos::updateOrCreate(
-            [
-                'demo_user_id' => $userId,
-                'course_id'    => $courseId,
-            ],
-            [
-                'user_id'          => $userId,
-                'demo_topic'       => $request->demo_topic,
-                'demo_description' => $request->demo_description,
-                'demo_video'       => $videoPath,
-                'status'           => 'pending',
-                'completion_score' => 0,
-            ]
-        );
-
-        Log::info('Step3 Completed', ['demo_id' => $demo->id]);
-
-        // Always return JSON — never redirect from this method
-        return response()->json([
-            'status'       => true,
-            'message'      => 'Demo submitted successfully!',
-            'redirect_url' => route('lms.step4'),
-        ]);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Return validation errors as JSON explicitly
-        return response()->json([
-            'status'  => false,
-            'message' => 'Validation failed.',
-            'errors'  => $e->errors(),
-        ], 422);
-
-    } catch (Exception $e) {
-        Log::error('Step3 Failed', [
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'user_id' => auth()->id(),
-        ]);
-
-        return response()->json([
-            'status'  => false,
-            'message' => 'Something went wrong: ' . $e->getMessage(),
-        ], 500);
     }
-}
     // ──────────────────────────────────────────
     // STEP 4 — Submission Confirmation
     // ──────────────────────────────────────────

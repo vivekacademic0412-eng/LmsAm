@@ -16,10 +16,10 @@
 <body>
 
     {{-- ═══ PROGRESS HEADER ═══ --}}
-    <header class="progress-header">
+    {{-- <header class="progress-header">
         <div class="logo">
-            <i class="fas fa-graduation-cap" style="color:var(--brand-primary)"></i>
-            Learning Management System<span> AM</span>
+            <img src="{{ asset('theme/images/logo.png') }}" alt="Academic Mantra" title=" Acedmic Mantra" loading="lazy"
+                width="70px" height="50px">
         </div>
         <nav class="steps-track">
             @php
@@ -49,13 +49,95 @@
             @endforeach
         </nav>
         <div class="logout-area">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+            <div class="header-actions">
+
+                <button class="theme-btn" id="themeBtn">
+
+                    🌙
+
                 </button>
-            </form>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+    </header> --}}
+
+    <header class="progress-header">
+
+        <div class="logo">
+            <img src="{{ asset('theme/images/logo.png') }}" alt="Academic Mantra" width="70">
         </div>
+
+        <nav class="steps-track">
+
+            @php
+                $currentStep = $currentStep ?? 1;
+
+                $steps = [
+                    1 => 'Welcome',
+                    2 => 'Demo Stage',
+                    3 => 'Submission',
+                    4 => 'Feedback',
+                    5 => 'Explore Courses',
+                ];
+            @endphp
+
+            @foreach ($steps as $num => $label)
+                @if (!$loop->first)
+                    <div class="step-line {{ $num <= $currentStep ? 'done' : '' }}">
+                    </div>
+                @endif
+
+                <div class="step-dot
+                      {{ $num == $currentStep ? 'active' : ($num < $currentStep ? 'done' : '') }}">
+
+                    <div class="dot">
+
+                        @if ($num < $currentStep)
+                            ✓
+                        @else
+                            {{ $num }}
+                        @endif
+
+                    </div>
+
+                    <span>
+
+                        {{ $label }}
+
+                    </span>
+
+                </div>
+            @endforeach
+
+        </nav>
+
+        <div class="header-actions">
+
+            <button class="theme-btn" id="themeBtn">
+                🌙
+            </button>
+
+            <form method="POST" action="{{ route('logout') }}">
+
+                @csrf
+
+                <button type="submit" class="logout-btn">
+
+                    <i class="fas fa-sign-out-alt"></i>
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
     </header>
 
     {{-- ═══ PAGE CONTENT ═══ --}}
@@ -108,32 +190,88 @@
             });
         }
         const bmMsgs = [
-    "Hi! I'm Acedmic Mantra👋 Let's start!",
-    "You're going to love this! 😊",
-    "I'll guide every step!",
-    "Fill in your details below 📝",
-    "Let's gooo! 🚀"
-];
-let bmIdx = 0;
-function waveHello() {
-    const arm = document.getElementById('waveArmG');
-    const sp  = document.getElementById('bmSpeech');
-    if (!arm || !sp) return;
-    arm.style.animation = 'none'; void arm.offsetWidth;
-    arm.style.animation = 'waveArm .5s ease-in-out 3';
-    bmIdx = (bmIdx + 1) % bmMsgs.length;
-    sp.textContent = bmMsgs[bmIdx];
-    sp.style.animation = 'none'; void sp.offsetWidth;
-    sp.style.animation = 'bmBubble .4s ease both';
-}
-setInterval(() => {
-    const sp = document.getElementById('bmSpeech');
-    if (!sp) return;
-    bmIdx = (bmIdx + 1) % bmMsgs.length;
-    sp.textContent = bmMsgs[bmIdx];
-    sp.style.animation = 'none'; void sp.offsetWidth;
-    sp.style.animation = 'bmBubble .4s ease both';
-}, 4500);
+            "Hi! I'm Acedmic Mantra👋 Let's start!",
+            "You're going to love this! 😊",
+            "I'll guide every step!",
+            "Fill in your details below 📝",
+            "Let's gooo! 🚀"
+        ];
+        let bmIdx = 0;
+
+        function waveHello() {
+            const arm = document.getElementById('waveArmG');
+            const sp = document.getElementById('bmSpeech');
+            if (!arm || !sp) return;
+            arm.style.animation = 'none';
+            void arm.offsetWidth;
+            arm.style.animation = 'waveArm .5s ease-in-out 3';
+            bmIdx = (bmIdx + 1) % bmMsgs.length;
+            sp.textContent = bmMsgs[bmIdx];
+            sp.style.animation = 'none';
+            void sp.offsetWidth;
+            sp.style.animation = 'bmBubble .4s ease both';
+        }
+        setInterval(() => {
+            const sp = document.getElementById('bmSpeech');
+            if (!sp) return;
+            bmIdx = (bmIdx + 1) % bmMsgs.length;
+            sp.textContent = bmMsgs[bmIdx];
+            sp.style.animation = 'none';
+            void sp.offsetWidth;
+            sp.style.animation = 'bmBubble .4s ease both';
+        }, 4500);
+
+        const themeBtn =
+            document.getElementById("themeBtn");
+
+        const saved =
+            localStorage.getItem("theme");
+
+        if (saved) {
+
+            document.documentElement
+                .setAttribute(
+                    "data-theme",
+                    saved
+                );
+
+            themeBtn.innerHTML =
+                saved === "dark" ?
+                "☀️" :
+                "🌙";
+
+        }
+
+
+        themeBtn.onclick = () => {
+
+            const current =
+                document.documentElement
+                .getAttribute("data-theme");
+
+            const next =
+                current === "dark" ?
+                "light" :
+                "dark";
+
+            document.documentElement
+                .setAttribute(
+                    "data-theme",
+                    next
+                );
+
+            localStorage
+                .setItem(
+                    "theme",
+                    next
+                );
+
+            themeBtn.innerHTML =
+                next === "dark" ?
+                "☀️" :
+                "🌙";
+
+        };
     </script>
 
     @yield('scripts')
