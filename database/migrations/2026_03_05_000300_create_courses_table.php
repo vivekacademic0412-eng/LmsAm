@@ -11,6 +11,14 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('course_categories')->cascadeOnDelete();
+            // $table->foreignId('course_type_id')
+            //     ->constrained('course_types');
+            $table->integer('course_type_id');
+            $table->integer('course_level_id');
+            // $table->foreignId('course_level_id')
+            //     ->nullable()
+            //     ->constrained('course_levels');
+
             $table->string('title', 160);
             $table->string('slug', 180)->unique();
             $table->text('description')->nullable();

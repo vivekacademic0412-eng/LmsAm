@@ -15,62 +15,22 @@
 
 <body>
 
-    {{-- ═══ PROGRESS HEADER ═══ --}}
-    {{-- <header class="progress-header">
-        <div class="logo">
-            <img src="{{ asset('theme/images/logo.png') }}" alt="Academic Mantra" title=" Acedmic Mantra" loading="lazy"
-                width="70px" height="50px">
+
+    <header class="lms-header">
+
+        <!-- Logo -->
+        <div class="brand">
+
+            <img src="{{ asset('theme/images/am35.png') }}" alt="LIVE Skills" class="brand-logo"
+                title="LIVE Skills Training Programs" loading="lazy">
+
+            <img src="{{ asset('theme/images/am21.png') }}" alt="Academic Mantra Services" class="brand-logo am-logo"
+                title="Academic Mantra Services" loading="lazy">
+
         </div>
-        <nav class="steps-track">
-            @php
-                $currentStep = $currentStep ?? 1;
-                $steps = [
-                    1 => 'Welcome',
-                    2 => 'Demo Stage',
-                    3 => 'Submission Stage',
-                    4 => 'Feedback Stage',
-                    5 => 'Explore Recommended Couses & Reviews',
-                ];
-            @endphp
-            @foreach ($steps as $num => $label)
-                @if (!$loop->first)
-                    <div class="step-line {{ $num <= $currentStep ? 'done' : '' }}"></div>
-                @endif
-                <div class="step-dot {{ $num == $currentStep ? 'active' : ($num < $currentStep ? 'done' : '') }}">
-                    <div class="dot">
-                        @if ($num < $currentStep)
-                            <i class="fas fa-check" style="font-size:0.6rem"></i>
-                        @else
-                            {{ $num }}
-                        @endif
-                    </div>
-                    <span class="step-label">{{ $label }}</span>
-                </div>
-            @endforeach
-        </nav>
-        <div class="logout-area">
-            <div class="header-actions">
 
-                <button class="theme-btn" id="themeBtn">
 
-                    🌙
-
-                </button>
-
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </form>
-            </div>
-    </header> --}}
-
-    <header class="progress-header">
-
-        <div class="logo">
-            <img src="{{ asset('theme/images/logo.png') }}" alt="Academic Mantra" width="70">
-        </div>
+        <!-- Progress -->
 
         <nav class="steps-track">
 
@@ -79,23 +39,27 @@
 
                 $steps = [
                     1 => 'Welcome',
-                    2 => 'Demo Stage',
-                    3 => 'Submission',
-                    4 => 'Feedback',
-                    5 => 'Explore Courses',
+                    2 => 'Basic Details',
+                    3 => 'Live Demo',
+                    4 => 'Assessment',
+                    5 => 'Feedback',
+                    6 => 'Courses',
                 ];
             @endphp
 
+
             @foreach ($steps as $num => $label)
-                @if (!$loop->first)
-                    <div class="step-line {{ $num <= $currentStep ? 'done' : '' }}">
-                    </div>
-                @endif
+                <div class="step-item">
 
-                <div class="step-dot
-                      {{ $num == $currentStep ? 'active' : ($num < $currentStep ? 'done' : '') }}">
+                    @if (!$loop->first)
+                        <div class="step-line {{ $num <= $currentStep ? 'done' : '' }}">
+                        </div>
+                    @endif
 
-                    <div class="dot">
+
+                    <div
+                        class="step-dot
+                    {{ $num == $currentStep ? 'active' : ($num < $currentStep ? 'done' : '') }}">
 
                         @if ($num < $currentStep)
                             ✓
@@ -105,10 +69,9 @@
 
                     </div>
 
+
                     <span>
-
                         {{ $label }}
-
                     </span>
 
                 </div>
@@ -116,15 +79,24 @@
 
         </nav>
 
+
+
+        <!-- Actions -->
+
         <div class="header-actions">
 
+
             <button class="theme-btn" id="themeBtn">
+
                 🌙
+
             </button>
+
 
             <form method="POST" action="{{ route('logout') }}">
 
                 @csrf
+
 
                 <button type="submit" class="logout-btn">
 
@@ -134,9 +106,12 @@
 
                 </button>
 
+
             </form>
 
+
         </div>
+
 
     </header>
 
@@ -156,7 +131,50 @@
             @yield('bitmoji-emoji', '🧑‍🏫')
         </div>
     </div>
+    <footer class="lms-footer">
 
+        <div class="footer-content">
+
+            <div class="footer-brand">
+
+                <h3>
+                    🔴 LIVE Skills Training Programs
+                </h3>
+
+                <p>
+                    Learn • Practice • Build • Grow
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="#courses">
+                    Courses
+                </a>
+
+                <a href="#reviews">
+                    Reviews
+                </a>
+
+                <a href="#">
+                    Support
+                </a>
+
+            </div>
+
+
+            <div class="footer-copy">
+
+                © {{ date('Y') }} Academic Mantra Services.
+                All Rights Reserved.
+
+            </div>
+
+        </div>
+
+    </footer>
     <script>
         function toggleBitmoji() {
             const msg = document.getElementById('bitmojiMsg');

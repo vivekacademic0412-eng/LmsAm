@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Models\CourseCategory;
+use App\Models\CourseLevel;
+use App\Models\CourseType;
 use App\Models\DemoFeatureVideo;
 use App\Models\DemoFeedback;
 use App\Models\EducationLevel;
@@ -17,6 +19,25 @@ use Exception;
 
 class LmsController extends Controller
 {
+    //Landing Page 
+    public function Landing(){
+         $courses = Course::get();
+           $categories = CourseCategory::get();
+            $feedbacks = DemoFeedback::with([
+                'user',
+                'course'
+            ])
+                ->whereNotNull('message')
+                ->latest()
+                ->take(10)
+                ->get();
+            return view('demo.lms.landing', compact('categories', 'courses', 'feedbacks') + [
+                    'currentStep' => 1
+                ]);
+    }
+
+
+
     // ──────────────────────────────────────────
     // STEP 1 — Welcome & Onboarding
     // ──────────────────────────────────────────
@@ -46,7 +67,7 @@ class LmsController extends Controller
             return view(
                 'demo.lms.step1',
                 compact('categories', 'educationLevels', 'feedbacks') + [
-                    'currentStep' => 1
+                    'currentStep' => 2
                 ]
             );
         } catch (Exception $e) {
@@ -60,6 +81,55 @@ class LmsController extends Controller
 
             return back()->with('error', 'Something went wrong.');
         }
+    }
+     public function courseTypes(Request $request)
+    {
+        $types = CourseType::where('status', 1)
+            ->select('id', 'name')
+            ->orderBy('id')
+            ->get();
+ 
+        return response()->json($types);
+    }
+  public function courseLevels(Request $request)
+    {
+        $typeId = $request->query('type_id');
+ 
+        // CourseType name lookup to decide available levels
+        $type = CourseType::find($typeId);
+ 
+        $query = CourseLevel::where('status', 1)->orderBy('id');
+ 
+        // Fundamentals / Basic courses have no level — return a synthetic "All levels"
+        if ($type && strtolower($type->name) === 'basic') {
+            return response()->json([
+                ['id' => 'all', 'name' => 'All levels']
+            ]);
+        }
+ 
+        return response()->json($query->select('id', 'name')->get());
+    }
+     public function courses(Request $request)
+    {
+        $categoryId = $request->query('category_id');
+        $typeId     = $request->query('type_id');
+        $levelId    = $request->query('level_id'); // may be 'all'
+ 
+        $query = Course::query()
+            ->select('id', 'title', 'duration_hours', 'course_type_id', 'course_level_id', 'category_id')
+            ->where('category_id', $categoryId)
+            ->where('course_type_id', $typeId);
+ 
+        // 'all' means Basic/Fundamentals — level_id is null in seeder
+        if ($levelId && $levelId !== 'all') {
+            $query->where('course_level_id', $levelId);
+        } else {
+            $query->whereNull('course_level_id');
+        }
+ 
+        $courses = $query->orderBy('title')->get();
+ 
+        return response()->json($courses);
     }
     public function storeStep1(Request $request)
     {
@@ -170,7 +240,7 @@ class LmsController extends Controller
 
         $demoUser = DemoUser::find(session('demo_user_id'));
         return view('demo.lms.step2', [
-            'currentStep' => 2,
+            'currentStep' => 3,
             'video' => $video,
             'video_details' => $demoUser
         ]);
@@ -258,7 +328,7 @@ class LmsController extends Controller
             $course = CourseCategory::find(session('lms_course_id'));
 
             return view('demo.lms.step3', [
-                'currentStep' => 3,
+                'currentStep' => 4,
                 'course'      => $course,
             ]);
         } catch (Exception $e) {
@@ -504,7 +574,7 @@ class LmsController extends Controller
             ]);
 
             return view('demo.lms.step4', [
-                'currentStep' => 4,
+                'currentStep' => 5,
 
                 'feedback' => $feedback,
             ]);
@@ -543,7 +613,7 @@ class LmsController extends Controller
             ->get();
 
         return view('demo.lms.step5', [
-            'currentStep' => 5,
+            'currentStep' => 6,
             'courses'     => $courses,   // comma, not semicolon
             'reviews'     => $reviews,
         ]);

@@ -115,7 +115,6 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
         // ── Admin: Demo Students stages Onbording ────────────────────────────────────────────
         Route::get('/demo-students', [DemoUserController::class, 'adminIndex'])->name('admin.demo-students');
         Route::get('/demo-submission-stage', [DemoUserController::class, 'View'])->name('admin.demo-submission-stage');
-       
     });
 
     Route::get('/course-categories', [CourseCategoryController::class, 'index'])->name('course-categories.index');
@@ -167,7 +166,8 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
     Route::prefix('lms')->name('lms.')->group(function () {
 
         // Step 1 – Welcome & Onboarding
-        Route::get('/',           [LmsController::class, 'step1'])->name('step1');
+        Route::get('/',           [LmsController::class, 'Landing'])->name('landing');
+        Route::get('/step1',           [LmsController::class, 'step1'])->name('step1');
         Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
 
         // Step 2 – Demo Video Session
@@ -194,5 +194,9 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
             ->select('id', 'title')
             ->get();
     });
+    Route::prefix('api/demo')->group(function () {
+    Route::get('course-types',  [LmsController::class, 'courseTypes']);
+    Route::get('course-levels', [LmsController::class, 'courseLevels']);
+    Route::get('courses',       [LmsController::class, 'courses']);
 });
-
+});
