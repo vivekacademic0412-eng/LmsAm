@@ -37,111 +37,60 @@ class SecurityHeadersMiddleware
         $frameSrc = 'frame-src ' . implode(' ', array_unique($frameSources));
         $mediaSrc = $isMediaView ? "media-src 'self' https://res.cloudinary.com https://*.cloudinary.com" : "media-src 'self'";
         $imgSrc = $isMediaView ? "img-src 'self' data: https://res.cloudinary.com https://*.cloudinary.com" : "img-src 'self' data:";
-        // $response->headers->set('Content-Security-Policy', implode('; ', [
-        //     "default-src 'self'",
-        //     "base-uri 'self'",
-        //     "form-action 'self'",
-        //     $frameAncestors,
-        //     $frameSrc,
-        //     $mediaSrc,
-        //     $imgSrc,
-        //     "style-src 'self' 'unsafe-inline' ",
-        //     "script-src 'self'",
-        //     "font-src 'self' data:",
-        //     "connect-src 'self'",
-        //     "object-src 'none'",
 
-        // ]));
-        // $response->headers->set('Content-Security-Policy', implode('; ', [
-        //     "default-src 'self'",
-        //     "base-uri 'self'",
-        //     "form-action 'self'",
-        //     $frameAncestors,
-        //     $frameSrc,
-        //     $mediaSrc,
-        //     "img-src 'self' data: blob: https://api.dicebear.com; " .
-        //         "style-src 'self' 'unsafe-inline'  http://localhost:5173; " .
-        //         "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; " .
-        //         "connect-src 'self' ws://localhost:5173 http://localhost:5173;",
-        //     "style-src-elem 'self' https://cdnjs.cloudflare.com;",
-        //     "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
-        //     "object-src 'none'",
-        // ]));
-        // $response->headers->set('Content-Security-Policy', implode('; ', [
+        $isLocal = app()->environment('local');
 
-        //     "default-src 'self'",
-        //     "base-uri 'self'",
-        //     "form-action 'self'",
+        // Vite dev server sources — only added in local env
+        $viteScript = $isLocal ? ' http://localhost:5173' : '';
+        $viteStyle  = $isLocal ? ' http://localhost:5173' : '';
+        $viteFont   = $isLocal ? ' http://localhost:5173' : '';
+        $viteWs     = $isLocal ? ' ws://localhost:5173 http://localhost:5173' : '';
 
-        //     $frameAncestors,
-        //     $frameSrc,
-        //     $mediaSrc,
+        $response->headers->set('Content-Security-Policy', implode('; ', [
 
-        //     "img-src 'self' data: blob: https://api.dicebear.com",
+            "default-src 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
 
-        //     "style-src 'self' 'unsafe-inline' http://localhost:5173 https://cdnjs.cloudflare.com",
+            $frameAncestors,
+            $frameSrc,
+            $mediaSrc,
 
-        //     "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173",
+            // Images
+            "img-src 'self' data: blob:"
+                . " https://api.dicebear.com"
+                . " https://cdnjs.cloudflare.com"
+                . " https://lh3.googleusercontent.com",   // if you use Google OAuth avatars
 
-        //     "connect-src 'self' ws://localhost:5173 http://localhost:5173",
+            // Styles
+            "style-src 'self' 'unsafe-inline'"
+                . $viteStyle
+                . " https://cdnjs.cloudflare.com"
+                . " https://cdn.jsdelivr.net"
+                . " https://fonts.googleapis.com",
 
-        //     "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
+            // Scripts — Cloudflare beacon allowed here so the console warning disappears
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+                . $viteScript
+                . " https://cdnjs.cloudflare.com"
+                . " https://cdn.jsdelivr.net"
+                . " https://static.cloudflareinsights.com",   // ← Cloudflare beacon
 
-        //     "object-src 'none'",
-        // ]));
-      $isLocal = app()->environment('local');
- 
-// Vite dev server sources — only added in local env
-$viteScript = $isLocal ? ' http://localhost:5173' : '';
-$viteStyle  = $isLocal ? ' http://localhost:5173' : '';
-$viteFont   = $isLocal ? ' http://localhost:5173' : '';
-$viteWs     = $isLocal ? ' ws://localhost:5173 http://localhost:5173' : '';
- 
-$response->headers->set('Content-Security-Policy', implode('; ', [
- 
-    "default-src 'self'",
-    "base-uri 'self'",
-    "form-action 'self'",
- 
-    $frameAncestors,
-    $frameSrc,
-    $mediaSrc,
- 
-    // Images
-    "img-src 'self' data: blob:"
-        . " https://api.dicebear.com"
-        . " https://cdnjs.cloudflare.com"
-        . " https://lh3.googleusercontent.com",   // if you use Google OAuth avatars
- 
-    // Styles
-    "style-src 'self' 'unsafe-inline'"
-        . $viteStyle
-        . " https://cdnjs.cloudflare.com"
-        . " https://cdn.jsdelivr.net"
-        . " https://fonts.googleapis.com",
- 
-    // Scripts — Cloudflare beacon allowed here so the console warning disappears
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        . $viteScript
-        . " https://cdnjs.cloudflare.com"
-        . " https://cdn.jsdelivr.net"
-        . " https://static.cloudflareinsights.com",   // ← Cloudflare beacon
- 
-    // XHR / Fetch / WebSocket
-    "connect-src 'self'"
-        . $viteWs
-        . " https://lms.academicmantraservices.com"
-        . " https://cloudflareinsights.com",          // ← beacon ping endpoint
- 
-    // Fonts
-    "font-src 'self' data:"
-        . $viteFont
-        . " https://cdnjs.cloudflare.com"
-        . " https://cdn.jsdelivr.net"
-        . " https://fonts.gstatic.com",
- 
-    "object-src 'none'",
-]));
+            // XHR / Fetch / WebSocket
+            "connect-src 'self'"
+                . $viteWs
+                . " https://lms.academicmantraservices.com"
+                . " https://cloudflareinsights.com",          // ← beacon ping endpoint
+
+            // Fonts
+            "font-src 'self' data:"
+                . $viteFont
+                . " https://cdnjs.cloudflare.com"
+                . " https://cdn.jsdelivr.net"
+                . " https://fonts.gstatic.com",
+
+            "object-src 'none'",
+        ]));
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
