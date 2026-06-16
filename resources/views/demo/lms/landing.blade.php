@@ -661,7 +661,7 @@
 
         </section>
     </div>
-<script>
+{{-- <script>
      const slider =
             document.getElementById(
                 'reviewCarousel'
@@ -687,5 +687,5 @@
             });
 
         }, 3000);
-</script>
+</script> --}}
 @endsection

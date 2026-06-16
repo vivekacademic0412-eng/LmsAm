@@ -89,7 +89,15 @@ class SecurityHeadersMiddleware
 
         //     "object-src 'none'",
         // ]));
-        $response->headers->set('Content-Security-Policy', implode('; ', [
+      $isLocal = app()->environment('local');
+ 
+// Vite dev server sources — only added in local env
+$viteScript = $isLocal ? ' http://localhost:5173' : '';
+$viteStyle  = $isLocal ? ' http://localhost:5173' : '';
+$viteFont   = $isLocal ? ' http://localhost:5173' : '';
+$viteWs     = $isLocal ? ' ws://localhost:5173 http://localhost:5173' : '';
+ 
+$response->headers->set('Content-Security-Policy', implode('; ', [
  
     "default-src 'self'",
     "base-uri 'self'",
@@ -99,34 +107,38 @@ class SecurityHeadersMiddleware
     $frameSrc,
     $mediaSrc,
  
-    // Images — allow data URIs, blobs, dicebear avatars
-    "img-src 'self' data: blob: https://api.dicebear.com https://cdnjs.cloudflare.com",
+    // Images
+    "img-src 'self' data: blob:"
+        . " https://api.dicebear.com"
+        . " https://cdnjs.cloudflare.com"
+        . " https://lh3.googleusercontent.com",   // if you use Google OAuth avatars
  
-    // Styles — allow inline + CDNs used by SweetAlert2 / Font Awesome
-    "style-src 'self' 'unsafe-inline' "
-        . "http://localhost:5173 "
-        . "https://cdnjs.cloudflare.com "
-        . "https://cdn.jsdelivr.net "
-        . "https://fonts.googleapis.com",
+    // Styles
+    "style-src 'self' 'unsafe-inline'"
+        . $viteStyle
+        . " https://cdnjs.cloudflare.com"
+        . " https://cdn.jsdelivr.net"
+        . " https://fonts.googleapis.com",
  
-    // Scripts — allow inline/eval + CDNs
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
-        . "http://localhost:5173 "
-        . "https://cdnjs.cloudflare.com "
-        . "https://cdn.jsdelivr.net",
+    // Scripts — Cloudflare beacon allowed here so the console warning disappears
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+        . $viteScript
+        . " https://cdnjs.cloudflare.com"
+        . " https://cdn.jsdelivr.net"
+        . " https://static.cloudflareinsights.com",   // ← Cloudflare beacon
  
-    // Fetch / XHR — allow your own API + Vite dev server
-    "connect-src 'self' "
-        . "ws://localhost:5173 "
-        . "http://localhost:5173 "
-        . "https://lms.academicmantraservices.com",
+    // XHR / Fetch / WebSocket
+    "connect-src 'self'"
+        . $viteWs
+        . " https://lms.academicmantraservices.com"
+        . " https://cloudflareinsights.com",          // ← beacon ping endpoint
  
     // Fonts
-    "font-src 'self' data: "
-        . "http://localhost:5173 "
-        . "https://cdnjs.cloudflare.com "
-        . "https://cdn.jsdelivr.net "
-        . "https://fonts.gstatic.com",
+    "font-src 'self' data:"
+        . $viteFont
+        . " https://cdnjs.cloudflare.com"
+        . " https://cdn.jsdelivr.net"
+        . " https://fonts.gstatic.com",
  
     "object-src 'none'",
 ]));
