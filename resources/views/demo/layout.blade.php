@@ -163,17 +163,13 @@
                 </a>
 
             </div>
-
-
             <div class="footer-copy">
-
                 © {{ date('Y') }} Academic Mantra Services.
                 All Rights Reserved.
 
             </div>
 
         </div>
-
     </footer>
     <script>
         function toggleBitmoji() {
@@ -291,7 +287,6 @@
 
         };
     </script>
-
     @yield('scripts')
 </body>
 

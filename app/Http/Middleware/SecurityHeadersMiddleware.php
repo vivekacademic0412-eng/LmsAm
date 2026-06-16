@@ -67,28 +67,69 @@ class SecurityHeadersMiddleware
         //     "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
         //     "object-src 'none'",
         // ]));
+        // $response->headers->set('Content-Security-Policy', implode('; ', [
+
+        //     "default-src 'self'",
+        //     "base-uri 'self'",
+        //     "form-action 'self'",
+
+        //     $frameAncestors,
+        //     $frameSrc,
+        //     $mediaSrc,
+
+        //     "img-src 'self' data: blob: https://api.dicebear.com",
+
+        //     "style-src 'self' 'unsafe-inline' http://localhost:5173 https://cdnjs.cloudflare.com",
+
+        //     "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173",
+
+        //     "connect-src 'self' ws://localhost:5173 http://localhost:5173",
+
+        //     "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
+
+        //     "object-src 'none'",
+        // ]));
         $response->headers->set('Content-Security-Policy', implode('; ', [
-
-            "default-src 'self'",
-            "base-uri 'self'",
-            "form-action 'self'",
-
-            $frameAncestors,
-            $frameSrc,
-            $mediaSrc,
-
-            "img-src 'self' data: blob: https://api.dicebear.com",
-
-            "style-src 'self' 'unsafe-inline' http://localhost:5173 https://cdnjs.cloudflare.com",
-
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173",
-
-            "connect-src 'self' ws://localhost:5173 http://localhost:5173",
-
-            "font-src 'self' data: http://localhost:5173 https://cdnjs.cloudflare.com",
-
-            "object-src 'none'",
-        ]));
+ 
+    "default-src 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+ 
+    $frameAncestors,
+    $frameSrc,
+    $mediaSrc,
+ 
+    // Images — allow data URIs, blobs, dicebear avatars
+    "img-src 'self' data: blob: https://api.dicebear.com https://cdnjs.cloudflare.com",
+ 
+    // Styles — allow inline + CDNs used by SweetAlert2 / Font Awesome
+    "style-src 'self' 'unsafe-inline' "
+        . "http://localhost:5173 "
+        . "https://cdnjs.cloudflare.com "
+        . "https://cdn.jsdelivr.net "
+        . "https://fonts.googleapis.com",
+ 
+    // Scripts — allow inline/eval + CDNs
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+        . "http://localhost:5173 "
+        . "https://cdnjs.cloudflare.com "
+        . "https://cdn.jsdelivr.net",
+ 
+    // Fetch / XHR — allow your own API + Vite dev server
+    "connect-src 'self' "
+        . "ws://localhost:5173 "
+        . "http://localhost:5173 "
+        . "https://lms.academicmantraservices.com",
+ 
+    // Fonts
+    "font-src 'self' data: "
+        . "http://localhost:5173 "
+        . "https://cdnjs.cloudflare.com "
+        . "https://cdn.jsdelivr.net "
+        . "https://fonts.gstatic.com",
+ 
+    "object-src 'none'",
+]));
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
