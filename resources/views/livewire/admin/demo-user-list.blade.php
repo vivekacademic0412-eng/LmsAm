@@ -121,7 +121,10 @@
                     </th>
 
                     <th>
-                        Email / Phone
+                        Email 
+                    </th>
+<th>
+                        Phone
                     </th>
 
                     <th>
@@ -175,9 +178,11 @@
                         </td>
 
                         <td>
-                            {{ $demo->email_phone }}
+                            {{ $demo->email }}
                         </td>
-
+                          <td>
+                            {{ $demo->phone }}
+                        </td>
                         <td>
                             {{ $demo->educationLevel?->name ?? '-' }}
                         </td>

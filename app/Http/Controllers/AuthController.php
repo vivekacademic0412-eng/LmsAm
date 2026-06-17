@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Livewire\Attributes\Session;
 
 class AuthController extends Controller
 {
@@ -218,7 +219,7 @@ class AuthController extends Controller
         }
 
         Auth::logout();
-
+    
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -38,6 +38,24 @@ class Course extends Model
     {
         return $this->belongsTo(CourseCategory::class, 'category_id');
     }
+  
+
+    public function courseType()
+    {
+        return $this->belongsTo(CourseType::class, 'course_type_id');
+    }
+
+    public function courseLevel()
+    {
+        return $this->belongsTo(CourseLevel::class, 'course_level_id');
+    }
+
+    
+
+    public function demoFeatureVideos()
+    {
+        return $this->hasMany(DemoFeatureVideo::class, 'course_id');
+    }
 
     public function creator(): BelongsTo
     {

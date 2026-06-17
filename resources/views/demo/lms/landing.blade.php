@@ -1,48 +1,28 @@
 @extends('demo.layout')
-
 @section('title', 'LIVE Skills Training Programs')
-
 @section('content')
-
     <div class="lms-landing">
-
-
-
-
-
-
         <section class="hero-section">
-
             <div class="hero-left">
-
                 <div class="logo-tag">
                     🔴 LIVE DEMO SESSION
                 </div>
-
                 <h1>
                     Welcome to <span>LIVE Skills Training Programs</span>
                 </h1>
-
                 <p>
                     We’re excited to have you here! Explore your live demo session,
                     interact with expert mentors, discover career-focused courses,
                     and experience how practical learning can transform your future.
                 </p>
-
-
                 <div class="hero-buttons">
-
                     <a href="#courses" class="btn-primary-custom">
                         🚀 Explore Demo Courses
                     </a>
-
                     <a href="#reviews" class="btn-outline-custom">
                         ⭐ Student Success Stories
                     </a>
-
                 </div>
-
-
                 <div class="hero-features">
 
                     <div class="feature-pill">
@@ -94,11 +74,12 @@
                             I'll guide you through this LIVE demo journey,
                             show courses, videos and help you explore your future skills.
                         </p>
-
-                        <button>
-                           <a href="{{ route('lms.step1') }}" style="text-decoration:none;color:white;">Start Demo →</a> 
-                        </button>
-
+                        @if (!session('demo_user_id'))
+                            <button class="">
+                                <a href="{{ route('lms.step1') }}" style="text-decoration:none;color:white;">Start Demo
+                                    →</a>
+                            </button>
+                        @endif
                     </div>
 
                 </div>
@@ -112,7 +93,7 @@
 
         </section>
 
-        @if (count($feedbacks)>0)
+        @if (count($feedbacks) > 0)
             <section class="section review-section" id="reviews">
 
                 <div class="section-title">
@@ -303,8 +284,8 @@
 
 
         <!-- ======================================
-                                         CHOOSE YOUR LEARNING PATH
-                                    ====================================== -->
+                                                 CHOOSE YOUR LEARNING PATH
+                                            ====================================== -->
 
         <section class="section learning-path">
 
@@ -517,8 +498,8 @@
         </section>
 
         <!-- ======================================
-                                         COURSE CATEGORIES (DYNAMIC)
-                                    ====================================== -->
+                                                 COURSE CATEGORIES (DYNAMIC)
+                                            ====================================== -->
 
         <section class="section">
 
@@ -559,7 +540,7 @@
                         </p>
 
 
-                        <a href="#courses">
+                        <a href="{{ route('course.show', ['slug' => $category->id]) }}">
                             Explore Courses →
                         </a>
 
@@ -572,97 +553,10 @@
 
         </section>
 
-        <!-- ======================================
-                                         FEATURED COURSES
-                                    ====================================== -->
 
-        <section class="section" id="courses">
-
-            <div class="section-title">
-
-
-                <h2>
-                    Popular Live Courses
-                </h2>
-
-
-                <p>
-                    Learn from expert mentors with projects, assignments and certification.
-                </p>
-
-
-            </div>
-
-
-            <div class="course-grid">
-
-
-                @foreach ($courses->take(8) as $course)
-                    <div class="course-card">
-
-
-                        <img src="{{ asset($course->thumbnail) }}" alt="{{ $course->title }}">
-
-
-                        <div class="course-content">
-
-
-                            <span class="course-tag">
-
-                                {{ $course->courseType->name ?? 'Course' }}
-
-                            </span>
-
-
-                            <h3>
-
-                                {{ $course->title }}
-
-                            </h3>
-
-
-                            <p>
-
-                                {{ Str::limit($course->short_description, 90) }}
-
-                            </p>
-
-
-                            <div class="course-meta">
-
-
-                                <span>
-                                    ⏰ {{ $course->duration_hours }} Hours
-                                </span>
-
-
-                                <span>
-                                    🌎 {{ $course->language }}
-                                </span>
-
-
-                            </div>
-
-
-                            <button class="btn-primary-custom">
-                                Start Learning
-                            </button>
-
-
-                        </div>
-
-
-                    </div>
-                @endforeach
-
-
-            </div>
-
-
-        </section>
     </div>
-{{-- <script>
-     const slider =
+    <script>
+        const slider =
             document.getElementById(
                 'reviewCarousel'
             );
@@ -687,5 +581,5 @@
             });
 
         }, 3000);
-</script> --}}
+    </script>
 @endsection

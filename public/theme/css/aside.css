@@ -1,4 +1,49 @@
+:root {
+    --sidebar-bg: linear-gradient(
+        180deg,
+        #0947a8 0%,
+        #0e3270 100%
+    );
 
+    --sidebar-text: #eaf2ff;
+    --sidebar-text-muted: #6b86a8;
+    --sidebar-text-soft: #5a718a;
+
+    --sidebar-icon: #4a6d99;
+    --sidebar-icon-active: var(--accent);
+
+    --sidebar-hover: rgba(9,71,168,.08);
+    --sidebar-active: rgba(9,71,168,.14);
+
+    --sidebar-border: var(--border);
+    --sidebar-sub-border: rgba(9,71,168,.12);
+
+    --sidebar-badge: var(--accent);
+    --sidebar-tooltip: #0947a8;
+}
+html[data-theme="dark"] {
+    --sidebar-bg: linear-gradient(
+        180deg,
+        #07101d 0%,
+        #0d1728 100%
+    );
+
+    --sidebar-text: #f5f9ff;
+    --sidebar-text-muted: #91a7c5;
+    --sidebar-text-soft: #64748b;
+
+    --sidebar-icon: #64748b;
+    --sidebar-icon-active: #7ea8ff;
+
+    --sidebar-hover: rgba(126,168,255,.08);
+    --sidebar-active: rgba(126,168,255,.12);
+
+    --sidebar-border: #223754;
+    --sidebar-sub-border: rgba(126,168,255,.15);
+
+    --sidebar-badge: #7ea8ff;
+    --sidebar-tooltip: #111d2e;
+}
 
 /* ════════════════════════════════════════════════
    SIDEBAR

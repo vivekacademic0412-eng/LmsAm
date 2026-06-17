@@ -4631,6 +4631,7 @@ textarea.form-control {
     border-radius: 30px;
 
     cursor: pointer;
+    width: 200px;
 }
 
 

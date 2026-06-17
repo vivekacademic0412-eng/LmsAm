@@ -67,4 +67,5 @@ class CourseSessionItem extends Model
     {
         return $this->hasMany(CourseItemSubmission::class, 'course_session_item_id');
     }
+    
 }
