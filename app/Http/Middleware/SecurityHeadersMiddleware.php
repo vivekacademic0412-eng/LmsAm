@@ -39,56 +39,38 @@ class SecurityHeadersMiddleware
         $imgSrc = $isMediaView ? "img-src 'self' data: https://res.cloudinary.com https://*.cloudinary.com" : "img-src 'self' data:";
 
         $isLocal = app()->environment('local');
-
-        // Vite dev server sources — only added in local env
         $viteScript = $isLocal ? ' http://localhost:5173' : '';
         $viteStyle  = $isLocal ? ' http://localhost:5173' : '';
         $viteFont   = $isLocal ? ' http://localhost:5173' : '';
         $viteWs     = $isLocal ? ' ws://localhost:5173 http://localhost:5173' : '';
 
         $response->headers->set('Content-Security-Policy', implode('; ', [
-
             "default-src 'self'",
             "base-uri 'self'",
             "form-action 'self'",
-
             $frameAncestors,
             $frameSrc,
             $mediaSrc,
-
-            // Images
-            "img-src 'self' data: blob:"
-                . " https://api.dicebear.com"
-                . " https://cdnjs.cloudflare.com"
-                . " https://lh3.googleusercontent.com",   // if you use Google OAuth avatars
-
-            // Styles
+            "img-src 'self' data: blob: https://api.dicebear.com https://cdnjs.cloudflare.com",
             "style-src 'self' 'unsafe-inline'"
                 . $viteStyle
                 . " https://cdnjs.cloudflare.com"
                 . " https://cdn.jsdelivr.net"
                 . " https://fonts.googleapis.com",
-
-            // Scripts — Cloudflare beacon allowed here so the console warning disappears
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
                 . $viteScript
                 . " https://cdnjs.cloudflare.com"
                 . " https://cdn.jsdelivr.net"
-                . " https://static.cloudflareinsights.com",   // ← Cloudflare beacon
-
-            // XHR / Fetch / WebSocket
+                . " https://static.cloudflareinsights.com",
             "connect-src 'self'"
                 . $viteWs
                 . " https://lms.academicmantraservices.com"
-                . " https://cloudflareinsights.com",          // ← beacon ping endpoint
-
-            // Fonts
+                . " https://cloudflareinsights.com",
             "font-src 'self' data:"
                 . $viteFont
                 . " https://cdnjs.cloudflare.com"
                 . " https://cdn.jsdelivr.net"
                 . " https://fonts.gstatic.com",
-
             "object-src 'none'",
         ]));
         if ($request->isSecure()) {
