@@ -4531,15 +4531,13 @@ textarea.form-control {
 }
 
 .mentor-assistant {
-    /* position: absolute; */
-    /* top: px; */
+ 
     right: 50px;
     width: 800px;
-    /* background: white; */
+   
     border-radius: 25px;
     padding: 30px;
-    /* box-shadow: 0 25px 60px rgba(9, 71, 168, .15); */
-    /* border: 1px solid var(--line); */
+  
     z-index: 10;
     animation: floatCard 4s ease-in-out infinite;
 }
@@ -4821,4 +4819,17 @@ textarea.form-control {
   height: 200px;
   top: 70px;
   left: 620px;
+}
+.image-back-mentor1 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  left: -50px;
+}
+.image-back-mentor2 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  right: 10px;
+  transform: rotate(10deg);
 }

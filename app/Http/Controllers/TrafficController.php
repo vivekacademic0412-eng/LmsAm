@@ -28,12 +28,8 @@ class TrafficController extends Controller
 
     public function landing(Request $request)
     {
-       
-       
-
         $courses = Course::all();
         $categories = CourseCategory::all();
-
         $feedbacks = DemoFeedback::with(['user', 'course'])
             ->whereNotNull('message')
             ->latest()

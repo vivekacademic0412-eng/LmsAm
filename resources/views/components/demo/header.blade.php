@@ -53,7 +53,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 </head>
 <style>
-    :root {
+:root {
 
     /* BRAND */
     --brand-primary: #0947a8;
@@ -3021,7 +3021,6 @@ textarea.form-control {
     flex-wrap: wrap;
 }
 
-
 .feature-pill {
     color:white;
     background: var(--brand-primary);
@@ -4587,15 +4586,13 @@ textarea.form-control {
 }
 
 .mentor-assistant {
-    /* position: absolute; */
-    /* top: px; */
+ 
     right: 50px;
     width: 800px;
-    /* background: white; */
+   
     border-radius: 25px;
     padding: 30px;
-    /* box-shadow: 0 25px 60px rgba(9, 71, 168, .15); */
-    /* border: 1px solid var(--line); */
+  
     z-index: 10;
     animation: floatCard 4s ease-in-out infinite;
 }
@@ -4643,19 +4640,8 @@ textarea.form-control {
 
     font-weight: 700;
 }
-.image-back-mentor1 {
-  width: 300px;
-  height: 300px;
-  top: 90px;
-  left: -50px;
-}
-.image-back-mentor2 {
-  width: 300px;
-  height: 300px;
-  top: 90px;
-  right: 10px;
-   transform: rotate(10deg);
-}
+
+
 .mentor-content {
 
     text-align: center;
@@ -4672,7 +4658,7 @@ textarea.form-control {
 
 .mentor-content p {
 
-    color: var(--text);
+   color: var(--text);
 
     font-size: 14px;
 
@@ -4883,7 +4869,25 @@ textarea.form-control {
     }
 
 }
-
+ .image-back-mentor3 {
+  width: 200px;
+  height: 200px;
+  top: 70px;
+  left: 620px;
+}
+.image-back-mentor1 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  left: -50px;
+}
+.image-back-mentor2 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  right: 10px;
+  transform: rotate(10deg);
+}
 </style>
 <body>
 
