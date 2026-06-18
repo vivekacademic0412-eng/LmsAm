@@ -179,7 +179,7 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 Route::prefix('lms')->name('lms.')->group(function () {
 
     // Step 1 – Welcome & Onboarding
-    // Route::get('/',           [LmsController::class, 'Landing'])->name('landing');
+    Route::get('/landing',           [LmsController::class, 'Landing'])->name('landing');
     Route::get('/step1',           [LmsController::class, 'step1'])->name('step1');
     Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
 
@@ -205,7 +205,7 @@ Route::prefix('lms')->name('lms.')->group(function () {
     Route::post('payment-store', [PaymentController::class, 'store'])->name('booking.store');
 });
 Route::get('/courses/{slug}', [LmsController::class, 'show'])->name('course.show');
-Route::get('/', [TrafficController::class, 'Landing'])->name('lms.landing');
+Route::get('/', [TrafficController::class, 'chooseDemoType'])->name('lms.demo');
 
 /*
 |--------------------------------------------------------------------------
