@@ -21,15 +21,19 @@ use App\Http\Controllers\TrainerCourseItemsController;
 use App\Http\Controllers\TrainerProgressController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\LmsController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TrafficController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+// Route::get('/', function () {
+//     return redirect()->route('lms.landing');
+// });
 
 Route::middleware(['guest', 'secure.headers'])->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
-    Route::get('/courses/{slug}', [LmsController::class, 'show'])->name('course.show');
+
 Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/notifications/{notification}/read', [DashboardController::class, 'markNotificationRead'])->name('notifications.read');
@@ -161,44 +165,57 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
     Route::get('/course-item-submissions/{submission}/download', [CourseItemSubmissionController::class, 'download'])->name('course-item-submissions.download');
 
 
-
-
-    Route::prefix('lms')->name('lms.')->group(function () {
-
-        // Step 1 – Welcome & Onboarding
-        Route::get('/',           [LmsController::class, 'Landing'])->name('landing');
-        Route::get('/step1',           [LmsController::class, 'step1'])->name('step1');
-        Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
-
-        // Step 2 – Demo Video Session
-        Route::get('/step2',      [LmsController::class, 'step2'])->name('step2');
-        Route::post('/step2',     [LmsController::class, 'storeStep2'])->name('step2.store');
-
-        // Step 3 – Create Your Demo
-        Route::get('/step3',      [LmsController::class, 'step3'])->name('step3');
-        Route::post('/step3-store',     [LmsController::class, 'storeStep3'])->name('step3.store');
-
-        // Step 4 – Submission Confirmation
-        Route::get('/step4',      [LmsController::class, 'step4'])->name('step4');
-
-        // Step 5 – Recommendations
-        Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
-
-        // Dashboard (post-completion)
-        Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
-
-        Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-  
-    });
-
     Route::get('/category-courses/{category}', function ($categoryId) {
         return \App\Models\Course::where('category_id', $categoryId)
             ->select('id', 'title')
             ->get();
     });
     Route::prefix('api/demo')->group(function () {
-    Route::get('course-types',  [LmsController::class, 'courseTypes']);
-    Route::get('course-levels', [LmsController::class, 'courseLevels']);
-    Route::get('courses',       [LmsController::class, 'courses']);
+        Route::get('course-types',  [LmsController::class, 'courseTypes']);
+        Route::get('course-levels', [LmsController::class, 'courseLevels']);
+        Route::get('courses',       [LmsController::class, 'courses']);
+    });
 });
+Route::prefix('lms')->name('lms.')->group(function () {
+
+    // Step 1 – Welcome & Onboarding
+    // Route::get('/',           [LmsController::class, 'Landing'])->name('landing');
+    Route::get('/step1',           [LmsController::class, 'step1'])->name('step1');
+    Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
+
+    // Step 2 – Demo Video Session
+    Route::get('/step2',      [LmsController::class, 'step2'])->name('step2');
+    Route::post('/step2',     [LmsController::class, 'storeStep2'])->name('step2.store');
+
+    // Step 3 – Create Your Demo
+    Route::get('/step3',      [LmsController::class, 'step3'])->name('step3');
+    Route::post('/step3-store',     [LmsController::class, 'storeStep3'])->name('step3.store');
+
+    // Step 4 – Submission Confirmation
+    Route::get('/step4',      [LmsController::class, 'step4'])->name('step4');
+
+    // Step 5 – Recommendations
+    Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
+
+    // Dashboard (post-completion)
+    Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
+
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::get('/booking',      [PaymentController::class, 'payment'])->name('paid.booking');
+    Route::post('payment-store', [PaymentController::class, 'store'])->name('booking.store');
+});
+Route::get('/courses/{slug}', [LmsController::class, 'show'])->name('course.show');
+Route::get('/', [TrafficController::class, 'Landing'])->name('lms.landing');
+
+/*
+|--------------------------------------------------------------------------
+| PHASE 2 — Demo Type Selection (Free vs Paid)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('demo')->group(function () {
+    Route::get('/choose-type', [TrafficController::class, 'chooseDemoType'])
+        ->name('lms.choose-type');
+
+    Route::post('/choose-type', [TrafficController::class, 'storeDemoType'])
+        ->name('lms.choose-type.store');
 });

@@ -17,28 +17,28 @@
                 </p>
                 <div class="hero-buttons">
                     <a href="#courses" class="btn-primary-custom">
-                        🚀 Explore Demo Courses
+                       Explore Demo Courses
                     </a>
                     <a href="#reviews" class="btn-outline-custom">
-                        ⭐ Student Success Stories
+                       Student Success Stories
                     </a>
                 </div>
                 <div class="hero-features">
 
                     <div class="feature-pill">
-                        🎥 Live Demo Classes
+                         Live Demo Classes
                     </div>
 
                     <div class="feature-pill">
-                        🧑‍🏫 Expert Trainers
+                       Expert Trainers
                     </div>
 
                     <div class="feature-pill">
-                        💻 Hands-on Learning
+                     Hands-on Learning
                     </div>
 
                     <div class="feature-pill">
-                        🏆 Career Growth
+                       Career Growth
                     </div>
 
                 </div>
@@ -53,10 +53,12 @@
 
                 <div class="mentor-assistant">
                     <div class="shape shape-1"></div>
-
+                   
                     <div class="shape shape-2"></div>
+                    <img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor1 shape">
+                     <img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor2 shape">
                     <div class="mentor-image">
-                        <img src="{{ asset('theme/images/hii-bitmoji.png') }}" alt="Mentor">
+                        <img src="{{ asset('theme/images/hii-bitmoji.png') }}" alt="Mentor" title="Mentor">
                         <span class="live-dot"></span>
                     </div>
 

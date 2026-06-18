@@ -1,4 +1,59 @@
-:root {
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSRF -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Primary SEO Meta -->
+    <title>@yield('title', 'LMS AM - Learning Management System')</title>
+    <meta name="description" content="@yield('meta_description', 'Join LMS AM - Learn trending skills, courses, certifications, and industry-ready training programs.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'LMS, online courses, learning management system, training, certifications, skill development, internships')">
+    <meta name="author" content="LMS AM Team">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph (Facebook / WhatsApp / LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@yield('title', 'LMS AM')">
+    <meta property="og:description" content="@yield('meta_description', 'Learn skills with LMS AM platform')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('theme/images/am21.png') }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', 'LMS AM')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Learn skills with LMS AM platform')">
+    <meta name="twitter:image" content="{{ asset('theme/images/am35.png') }}">
+
+    <!-- Favicon -->
+
+    <!-- Favicon ICO (BEST COMPATIBILITY) -->
+    <link rel="icon" href="{{ asset('theme/images/logo.png') }}" type="image/x-icon">
+
+    <!-- PNG Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('theme/images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('theme/images/logo.png') }}">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="{{ asset('theme/images/logo.png') }}">
+    <!-- Preconnect (Speed Optimization) -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('theme/css/lms-demo.css') }}">
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+</head>
+<style>
+    :root {
 
     /* BRAND */
     --brand-primary: #0947a8;
@@ -2966,6 +3021,7 @@ textarea.form-control {
     flex-wrap: wrap;
 }
 
+
 .feature-pill {
     color:white;
     background: var(--brand-primary);
@@ -4587,8 +4643,19 @@ textarea.form-control {
 
     font-weight: 700;
 }
-
-
+.image-back-mentor1 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  left: -50px;
+}
+.image-back-mentor2 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  right: 10px;
+   transform: rotate(10deg);
+}
 .mentor-content {
 
     text-align: center;
@@ -4605,7 +4672,7 @@ textarea.form-control {
 
 .mentor-content p {
 
-   color: var(--text);
+    color: var(--text);
 
     font-size: 14px;
 
@@ -4816,9 +4883,107 @@ textarea.form-control {
     }
 
 }
- .image-back-mentor3 {
-  width: 200px;
-  height: 200px;
-  top: 70px;
-  left: 620px;
-}
+
+</style>
+<body>
+
+
+    <header class="lms-header">
+
+        <!-- Logo -->
+        <div class="brand">
+             <a href="{{ route('lms.landing') }}">
+            <img src="{{ asset('theme/images/am35.png') }}" alt="LIVE Skills" class="brand-logo"
+                title="LIVE Skills Training Programs" loading="lazy"></a>
+
+            <img src="{{ asset('theme/images/am21.png') }}" alt="Academic Mantra Services" class="brand-logo am-logo"
+                title="Academic Mantra Services" loading="lazy">
+
+        </div>
+
+
+        <!-- Progress -->
+
+        <nav class="steps-track">
+
+            @php
+                $currentStep = $currentStep ?? 1;
+
+                $steps = [
+                    // 1 => 'Welcome',
+                    1 => 'Form fill up',
+                    2 => 'Demo Task',
+                    3 => 'Submit Assessment',
+                    4 => 'Rate Us!',
+                    5 => 'Choose your Next Course',
+                    6 =>'Certification'
+                ];
+            @endphp
+
+
+            @foreach ($steps as $num => $label)
+                <div class="step-item">
+
+                    @if (!$loop->first)
+                        <div class="step-line {{ $num <= $currentStep ? 'done' : '' }}">
+                        </div>
+                    @endif
+
+
+                    <div
+                        class="step-dot
+                    {{ $num == $currentStep ? 'active' : ($num < $currentStep ? 'done' : '') }}">
+
+                        @if ($num < $currentStep)
+                            ✓
+                        @else
+                            {{ $num }}
+                        @endif
+
+                    </div>
+
+
+                    <span>
+                        {{ $label }}
+                    </span>
+
+                </div>
+            @endforeach
+
+        </nav>
+
+
+
+        <!-- Actions -->
+
+        <div class="header-actions">
+
+
+            <button class="theme-btn" id="themeBtn">
+
+                🌙
+
+            </button>
+
+
+            {{-- <form method="POST" action="{{ route('logout') }}">
+
+                @csrf
+
+
+                <button type="submit" class="logout-btn">
+
+                    <i class="fas fa-sign-out-alt"></i>
+
+                    Logout
+
+                </button>
+
+
+            </form> --}}
+
+
+        </div>
+
+
+    </header>

@@ -1,5 +1,4 @@
-﻿<x-util.header :title="'Academic Mantra — Sign In'">
-</x-util.header>
+﻿<x-demo.header/>
 <link rel="stylesheet" href="{{ asset('theme/css/login.css') }}">
 <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle dark mode">
     <svg class="sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -181,4 +180,4 @@
 </div>
 
 <script src="{{ asset('theme/js/login.js') }}" defer></script>
-<x-util.footer />
+<x-demo.footer />

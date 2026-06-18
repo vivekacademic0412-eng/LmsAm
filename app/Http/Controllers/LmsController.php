@@ -119,8 +119,8 @@ class LmsController extends Controller
             if (session('demo_user_id')) {
                 $existingDemoUser = DemoUser::find(session('demo_user_id'));
             }
-            if (!$existingDemoUser && auth()->check()) {
-                $existingDemoUser = DemoUser::where('user_id', auth()->id())
+            if (!$existingDemoUser ) {
+                $existingDemoUser = DemoUser::where('user_id', session('demo_user_id'))
                     ->latest()
                     ->first();
             }
@@ -160,7 +160,7 @@ class LmsController extends Controller
             ]);
 
             $payload = [
-                'user_id'             => auth()->id(),
+                'user_id'             =>null,
                 'full_name'           => $data['full_name'],
                 'email'               => $data['email'],
                 'phone'               => $data['contact'],
@@ -362,7 +362,7 @@ class LmsController extends Controller
             $request->headers->set('Accept', 'application/json');
 
             Log::info('Step3 Request Started', [
-                'user_id'      => auth()->id(),
+                // 'user_id'      => auth()->id(),
                 'request_data' => $request->except('demo_video'),
             ]);
 
@@ -387,7 +387,7 @@ class LmsController extends Controller
                 'demo_video.max'             => 'Your video is too large — please keep it under 500MB.',
             ]);
 
-            $userId   = session('demo_user_id') ?? auth()->id();
+            $userId   = session('demo_user_id');
             $courseId = session('lms_course_id');
 
             $existing = SubmittedDemos::where('demo_user_id', $userId)
@@ -437,7 +437,7 @@ class LmsController extends Controller
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),
                 'line'    => $e->getLine(),
-                'user_id' => auth()->id(),
+                // 'user_id' => auth()->id(),
             ]);
 
             return response()->json([
@@ -457,7 +457,7 @@ class LmsController extends Controller
         try {
 
             Log::info('Step4 Request Started', [
-                'auth_user_id' => auth()->id(),
+                // 'auth_user_id' => auth()->id(),
                 'session_data' => session()->all(),
             ]);
 
