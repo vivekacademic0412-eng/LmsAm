@@ -1,5 +1,5 @@
 <x-demo.header/>
-
+<x-demo.navigation/>
 
     {{-- ═══ PAGE CONTENT ═══ --}}
     <div class="page-wrapper">

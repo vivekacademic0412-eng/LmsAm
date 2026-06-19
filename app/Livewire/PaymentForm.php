@@ -21,8 +21,14 @@ class PaymentForm extends Component
     public $amount = 999;
     public function mount()
     {
+   
+        if (auth()->check()) {
+        $this->name = auth()->user()->name;
+        $this->email = auth()->user()->email;
+    }
         $this->states = State::orderBy('name')->get();
     }
+
 
     public function updatedStateId($value)
     {

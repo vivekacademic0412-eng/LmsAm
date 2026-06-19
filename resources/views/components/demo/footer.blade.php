@@ -1,45 +1,48 @@
    <footer class="lms-footer">
 
-        <div class="footer-content">
+       <div class="footer-content">
 
-            <div class="footer-brand">
+           <div class="footer-brand">
 
-                <h3>
-                    🔴 LIVE Skills Training Programs
-                </h3>
+               <h3>
+                   🔴 LIVE Skills Training Programs
+               </h3>
 
-                <p>
-                    Learn • Practice • Build • Grow
-                </p>
+               <p>
+                   Learn • Practice • Build • Grow
+               </p>
 
-            </div>
+           </div>
 
 
-            <div class="footer-links">
+           <div class="footer-links">
 
-                <a href="#courses" title="Courses">
-                    Courses
-                </a>
+               <a href="#courses" title="Courses">
+                   Courses
+               </a>
 
-                <a href="#reviews" title="Reviews">
-                    Reviews
-                </a>
+               <a href="#reviews" title="Reviews">
+                   Reviews
+               </a>
 
-                <a href="#" title="Support">
-                    Support
-                </a>
+               <a href="#" title="Support">
+                   Support
+               </a>
 
-            </div>
-            <div class="footer-copy">
-                © {{ date('Y') }} Academic Mantra Services.
-                All Rights Reserved.
+           </div>
+           <div class="footer-copy">
+               © {{ date('Y') }} Academic Mantra Services.
+               All Rights Reserved.
 
-            </div>
+           </div>
 
-        </div>
-    </footer>
+       </div>
+   </footer>
    <script src="{{ asset('theme/js/demo.js') }}" defer></script>
-    @yield('scripts')
-</body>
+   @yield('scripts')
+   @livewireScripts
+   @stack('scripts')
+   </body>
 
-</html>
+
+   </html>

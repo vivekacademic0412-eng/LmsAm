@@ -155,28 +155,8 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
         Route::post('/course-session-items/{item}/submit', [CourseItemSubmissionController::class, 'store'])->name('course-session-items.submit');
     });
 
-    Route::middleware('role:demo')->group(function (): void {
-        Route::post('/demo-assignments/{assignment}/submit', [DemoTaskController::class, 'submit'])->name('demo-assignments.submit');
-    });
-
-    Route::get('/demo-task-submissions/{submission}/download', [DemoTaskController::class, 'download'])
-        ->name('demo-tasks.submissions.download');
-
-    Route::get('/course-item-submissions/{submission}/download', [CourseItemSubmissionController::class, 'download'])->name('course-item-submissions.download');
-
-
-    Route::get('/category-courses/{category}', function ($categoryId) {
-        return \App\Models\Course::where('category_id', $categoryId)
-            ->select('id', 'title')
-            ->get();
-    });
-    Route::prefix('api/demo')->group(function () {
-        Route::get('course-types',  [LmsController::class, 'courseTypes']);
-        Route::get('course-levels', [LmsController::class, 'courseLevels']);
-        Route::get('courses',       [LmsController::class, 'courses']);
-    });
-});
-Route::prefix('lms')->name('lms.')->group(function () {
+    //student new 
+    Route::prefix('lms')->name('lms.')->group(function () {
 
     // Step 1 – Welcome & Onboarding
     Route::get('/landing',           [LmsController::class, 'Landing'])->name('landing');
@@ -203,9 +183,33 @@ Route::prefix('lms')->name('lms.')->group(function () {
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::get('/booking',      [PaymentController::class, 'payment'])->name('paid.booking');
     Route::post('payment-store', [PaymentController::class, 'store'])->name('booking.store');
+    Route::get('thankyou', [TrafficController::class, 'thankyou'])->name('thankyou');
 });
 Route::get('/courses/{slug}', [LmsController::class, 'show'])->name('course.show');
-Route::get('/', [TrafficController::class, 'chooseDemoType'])->name('lms.demo');
+Route::get('/', [TrafficController::class, 'Home'])->name('lms.demo');
+Route::get('/choose-type', [TrafficController::class, 'chooseDemoType'])->name('lms.choose-type');
+
+    Route::middleware('role:demo')->group(function (): void {
+        Route::post('/demo-assignments/{assignment}/submit', [DemoTaskController::class, 'submit'])->name('demo-assignments.submit');
+    });
+
+    Route::get('/demo-task-submissions/{submission}/download', [DemoTaskController::class, 'download'])
+        ->name('demo-tasks.submissions.download');
+
+    Route::get('/course-item-submissions/{submission}/download', [CourseItemSubmissionController::class, 'download'])->name('course-item-submissions.download');
+
+
+    Route::get('/category-courses/{category}', function ($categoryId) {
+        return \App\Models\Course::where('category_id', $categoryId)
+            ->select('id', 'title')
+            ->get();
+    });
+    Route::prefix('api/demo')->group(function () {
+        Route::get('course-types',  [LmsController::class, 'courseTypes']);
+        Route::get('course-levels', [LmsController::class, 'courseLevels']);
+        Route::get('courses',       [LmsController::class, 'courses']);
+    });
+});
 
 /*
 |--------------------------------------------------------------------------

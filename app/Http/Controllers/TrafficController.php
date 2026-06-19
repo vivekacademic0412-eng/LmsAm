@@ -26,31 +26,9 @@ class TrafficController extends Controller
     // demo-type chooser. No login/registration required — that
     // happens later in Phase 5.
 
-    public function landing(Request $request)
+    public function Home(Request $request)
     {
-        $courses = Course::all();
-        $categories = CourseCategory::all();
-        $feedbacks = DemoFeedback::with(['user', 'course'])
-            ->whereNotNull('message')
-            ->latest()
-            ->take(10)
-            ->get();
-
-        return view('demo.lms.landing', compact(
-            'categories',
-            'courses',
-            'feedbacks'
-        ) + [
-            'currentStep' => 0
-        ]);
-    }
-    // ──────────────────────────────────────────
-    // PHASE 2 — Demo type selection page
-    // ──────────────────────────────────────────
-
-    public function chooseDemoType(Request $request)
-    {
-         try {
+        try {
             $attributes = TrafficSource::attributesFromRequest($request);
 
             $traffic = TrafficSource::create($attributes);
@@ -68,10 +46,46 @@ class TrafficController extends Controller
                 'line' => $e->getLine(),
             ]);
         }
+        return auth()->check()
+            ? view('demo.lms.choose-type', [
+                'currentStep' => 0,
+                'paidPrice'   => 999.00,
+            ])
+            : view('demo.lms.register', [
+                'currentStep' => 0
+            ]);
+    }
+    // ──────────────────────────────────────────
+    // PHASE 2 — Demo type selection page
+    // ──────────────────────────────────────────
+
+    public function chooseDemoType(Request $request)
+    {
+        try {
+            $attributes = TrafficSource::attributesFromRequest($request);
+            $traffic    = TrafficSource::create($attributes);
+            $request->session()->put('traffic_source_id', $traffic->id);
+
+            Log::info('Traffic source captured', [
+                'traffic_source_id' => $traffic->id,
+                'source'            => $traffic->source,
+            ]);
+            $alredySubmit = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->whereIn('demo_type', ['paid_qr', 'paid_online'])->first();
+            if ($alredySubmit) {
+               return redirect()->route('lms.thankyou');
+            }
+        } catch (Exception $e) {
+            Log::error('Traffic tracking failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+        }
+
         return view('demo.lms.choose-type', [
-            'currentStep'   => 0,
-            'paidPrice'     => 999.00, // ₹99 — surfaced here so the Blade
-            // never hardcodes price in two places
+            'currentStep' => 0,
+            'paidPrice'   => 999.00, // ₹999 — single source of truth
+            'submitDetails'  => $alredySubmit
         ]);
     }
 
@@ -79,20 +93,48 @@ class TrafficController extends Controller
     {
         try {
             $request->validate([
-                'demo_type' => ['required', 'in:free,paid'],
+                'demo_type' => ['required', 'in:paid_online,paid_qr,free',],
             ]);
+
+
 
             $demoType = $request->demo_type;
-            $amount   = $demoType === 'paid' ? 99.00 : null;
 
-            $selection = DemoTypeSelection::create([
-                'traffic_source_id' => $request->session()->get('traffic_source_id'),
-                'session_id'        => $request->session()->getId(),
-                'user_ip'           => $request->ip(),
-                'demo_type'         => $demoType,
-                'amount'            => $amount,
-            ]);
+            $amount = match ($demoType) {
+                'paid_online', 'paid_qr' => 999.00,
+                default => 0,
+            };
 
+            $paymentMethod = match ($demoType) {
+                'paid_online' => 'online',
+                'paid_qr'     => 'qr',
+                default       => null,
+            };
+
+            $paymentStatus = match ($demoType) {
+                'free'        => 'completed',
+                'paid_online' => 'pending',
+                'paid_qr'     => 'pending',
+            };
+            // Resolve amount
+            $amount = match ($demoType) {
+                'paid_online', 'paid_qr' => 999.00,
+                default                  => null,
+            };
+
+            $selection = DemoTypeSelection::updateOrCreate(
+                [
+                    'demo_user_id' => auth()->id()
+                ],
+                [
+                    'demo_type'      => $demoType,
+                    'payment_method' => $paymentMethod,
+                    'payment_status' => $paymentStatus,
+                    'amount'         => $amount,
+                    'session_id'     => $request->session()->getId(),
+                    'user_ip'        => $request->ip(),
+                ]
+            );
             $request->session()->put('demo_type_selection_id', $selection->id);
             $request->session()->put('demo_type', $demoType);
 
@@ -101,13 +143,13 @@ class TrafficController extends Controller
                 'demo_type'    => $demoType,
             ]);
 
-            if ($demoType === 'paid') {
-                // Phase 3 — paid booking form + payment QR
-                return redirect()->route('lms.paid.booking');
-            }
+            return match ($demoType) {
+                // Online card payment → payment gateway page
+                'paid_online' => redirect()->route('lms.paid.booking'),
 
-            // Free demo skips straight to Phase 5 (basic info form)
-            return redirect()->back();
+                // QR payment + Free → thank you page
+                'paid_qr', 'free' => redirect()->route('lms.thankyou'),
+            };
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (Exception $e) {
@@ -117,10 +159,26 @@ class TrafficController extends Controller
                 'line'    => $e->getLine(),
             ]);
 
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return back()->with('error', 'Something went wrong. Please try again.' . $e->getMessage());
         }
     }
 
+    public function thankyou(Request $request)
+    {
+        // Guard: only allow if a selection exists in session
+        $selectionId = $request->session()->get('demo_type_selection_id');
+        if (! $selectionId) {
+            return redirect()->route('lms.choose-type');
+        }
+
+        $demoType = $request->session()->get('demo_type');
+
+        return view('demo.lms.thankyou', [
+            'demoType' => $demoType,
+            'name'     => $request->session()->get('user_name'),   // set earlier if captured
+            'email'    => $request->session()->get('user_email'),  // set earlier if captured
+        ]);
+    }
     // ──────────────────────────────────────────
     // ADMIN — Traffic dashboard data (Phase 1 reporting)
     // ──────────────────────────────────────────
