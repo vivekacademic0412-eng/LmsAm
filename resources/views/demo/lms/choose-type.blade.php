@@ -1445,7 +1445,7 @@
 
                 return;
             }else{
-qrModal.classList.add('open');
+      qrModal.classList.add('open');
             document.body.style.overflow = 'hidden';
             }
             
@@ -1476,7 +1476,7 @@ qrModal.classList.add('open');
         function submitQrPayment() {
             btnConfirmPay.disabled = true;
             btnConfirmPay.innerHTML =
-                '<i class="ti ti-loader-2" style="animation:spin .7s linear infinite"></i> Processing…';
+                '<i class="fas fa-loader-2" style="animation:spin .7s linear infinite"></i> Processing…';
 
             /* POST to server — mark QR as confirmed */
             fetch('{{ route('lms.qr.confirm') }}', {
@@ -1498,13 +1498,13 @@ qrModal.classList.add('open');
                     } else {
                         alert(data.message || 'Something went wrong. Please try again.');
                         btnConfirmPay.disabled = false;
-                        btnConfirmPay.innerHTML = '<i class="ti ti-circle-check"></i> Confirm Payment & Continue';
+                        btnConfirmPay.innerHTML = '<i class="fas fa-circle-check"></i> Confirm Payment & Continue';
                     }
                 })
                 .catch(() => {
                     alert('Network error. Please check your connection and try again.');
                     btnConfirmPay.disabled = false;
-                    btnConfirmPay.innerHTML = '<i class="ti ti-circle-check"></i> Confirm Payment & Continue';
+                    btnConfirmPay.innerHTML = '<i class="fas fa-circle-check"></i> Confirm Payment & Continue';
                 });
         }
 
