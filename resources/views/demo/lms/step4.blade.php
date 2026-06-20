@@ -10,7 +10,7 @@
 @section('content')
 
     <canvas id="confettiCanvas"></canvas>
-
+  <div class="stepper">@include('demo.stepper')</div>
     <div class="card">
 
         {{-- ── Success Hero ── --}}
@@ -241,11 +241,12 @@
         @endif
         {{-- ── CTA Buttons ── --}}
         <div class="btn-group" style="margin-top:24px">
-            <a href="{{ route('lms.step5') }}" class="btn-primary">
-                <i class="fas fa-compass"></i> Explore More Courses
-            </a>
-            <a href="{{ route('lms.step1') }}" class="btn-secondary">
+            
+            <a href="#" class="btn-secondary">
                 <i class="fas fa-th-large"></i> Go to Dashboard
+            </a>
+            <a href="{{ route('lms.step5') }}" class="btn-primary ">
+                <i class="fas fa-arrow-right"></i>Next
             </a>
         </div>
     </div>

@@ -124,7 +124,7 @@
                 </span>
             @enderror
         </div>
-
+         
         {{-- Confirm Password --}}
         <div class="dreg-field @error('password_confirmation') dreg-field--error @enderror">
             <label class="dreg-label" for="dreg-confirm">
@@ -142,7 +142,7 @@
                 />
             </div>
         </div>
-
+       
         {{-- Submit --}}
         <button type="submit" class="dreg-submit" wire:loading.attr="disabled">
             <span wire:loading.remove>

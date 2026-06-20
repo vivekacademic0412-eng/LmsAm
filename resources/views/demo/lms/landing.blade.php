@@ -2,6 +2,7 @@
 @section('title', 'LIVE Skills Training Programs')
 @section('content')
     <div class="lms-landing">
+        
         <section class="hero-section">
             <div class="hero-left">
                 <div class="logo-tag">

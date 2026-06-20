@@ -8,7 +8,7 @@
 @section('bitmoji-emoji', '🚀')
 
 @section('content')
-
+ <div class="stepper">@include('demo.stepper')</div>
 {{-- ── Banner ── --}}
 <div class="explore-banner">
     <div class="banner-icon">🗺️</div>
@@ -161,11 +161,12 @@
     <h2>You Can Be the <em>Next Success Story!</em></h2>
     <p>Join thousands of learners who transformed their skills into real careers and income.</p>
     <div class="btn-group" style="justify-content:center">
-        <a href="#" class="btn-primary" style="width:auto">
-            <i class="fas fa-play-circle"></i> Continue Learning
-        </a>
-        <a href="#" class="btn-secondary" style="width:auto">
+       
+        <a href="#" class="btn-secondary border" style="width:auto">
             <i class="fas fa-trophy"></i> View More Courses
+        </a>
+         <a href="#" class="btn-primary" style="width:auto">
+            <i class="fas fa-arrow-right"></i> Next
         </a>
     </div>
 </div>

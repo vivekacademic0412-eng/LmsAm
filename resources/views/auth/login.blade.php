@@ -1,6 +1,4 @@
 ﻿@extends('layouts.auth')
-
-
 @section('content')
 
     <button type="button" class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">
@@ -87,7 +85,7 @@
                     <label for="remember">Remember me</label>
                     <a href="#" class="forgot-link">Forgot password?</a>
                 </div>
-
+                   <a href="{{ route('lms.demo') }}" class="register">Register</a>
                 <button type="submit" class="btn-login" id="submitBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -142,70 +140,5 @@
 
     </div>
 
-    <script>
-        (function () {
-            var html = document.documentElement;
-            var themeBtn = document.getElementById('themeBtn');
-            var stored = localStorage.getItem('am-theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            html.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
-
-            themeBtn.addEventListener('click', function () {
-                var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                html.setAttribute('data-theme', next);
-                localStorage.setItem('am-theme', next);
-            });
-
-            var eyeBtn = document.getElementById('eyeBtn');
-            var pwd = document.getElementById('password');
-            var eyeOpen = document.getElementById('eyeOpen');
-            var eyeClosed = document.getElementById('eyeClosed');
-            eyeBtn.addEventListener('click', function () {
-                var show = pwd.type === 'password';
-                pwd.type = show ? 'text' : 'password';
-                eyeOpen.style.display = show ? 'none' : 'block';
-                eyeClosed.style.display = show ? 'block' : 'none';
-                eyeBtn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-            });
-
-            var form = document.getElementById('loginForm');
-            var submitBtn = document.getElementById('submitBtn');
-            var errorBox = document.getElementById('errorBox');
-            var errorMsg = document.getElementById('errorMsg');
-
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                errorBox.style.display = 'none';
-                submitBtn.disabled = true;
-
-                var token = form.querySelector('input[name="_token"]').value;
-                var formData = new FormData(form);
-
-                fetch(form.dataset.url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                    .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
-                    .then(function (result) {
-                        if (result.ok) {
-                            window.location.href = result.data.redirect || '/dashboard';
-                        } else {
-                            errorMsg.textContent = (result.data && (result.data.message || (result.data.errors && Object.values(result.data.errors)[0][0]))) || 'These credentials do not match our records.';
-                            errorBox.style.display = 'flex';
-                            submitBtn.disabled = false;
-                        }
-                    })
-                    .catch(function () {
-                        errorMsg.textContent = 'Something went wrong. Please try again.';
-                        errorBox.style.display = 'flex';
-                        submitBtn.disabled = false;
-                    });
-            });
-        })();
-    </script>
-
 @endsection
+<script src="{{ asset('theme/js/login.js') }}" defer></script>

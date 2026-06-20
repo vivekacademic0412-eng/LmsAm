@@ -243,9 +243,10 @@
 @endphp
 
 <div class="journey-wrap">
-
-    <div class="page-hero">
-        <h1>🚀 Start Your Learning Journey</h1>
+    <div class="stepper">@include('demo.stepper')</div>
+   
+    <div class="page-hero mt-4">
+        <h1> Start Your Learning Journey</h1>
         <p>Tell us about yourself and we'll personalise your demo experience.</p>
     </div>
 
@@ -292,7 +293,7 @@
                         <input type="text" id="full_name" name="full_name"
                             class="finput @error('full_name') is-invalid @enderror"
                             placeholder="e.g. Riya Sharma"
-                            value="{{ $rv['full_name'] }}"
+                            value="{{ $existingDemoUser['name'] ?? $rv['full_name'] }}"
                             autocomplete="name">
                         <span class="field-error" id="e_full_name">
                             <i class="fas fa-exclamation-circle"></i>
@@ -306,7 +307,7 @@
                         <input type="email" id="email" name="email"
                             class="finput @error('email') is-invalid @enderror"
                             placeholder="e.g. riya@email.com"
-                            value="{{ $rv['email'] }}"
+                            value="{{$existingDemoUser['email'] ?? $rv['email'] }}"
                             autocomplete="email">
                         <span class="field-error" id="e_email">
                             <i class="fas fa-exclamation-circle"></i>

@@ -4,8 +4,9 @@
 @section('bitmoji-message', '🎥 Watch carefully! Pay attention to techniques — you\'ll recreate something similar next!')
 
 @section('content')
-
+  <div class="stepper">@include('demo.stepper')</div>
 <div class="explore-banner">
+
   <div class="banner-icon">🗺️</div>
   <div class="banner-text">
     <div class="step-badge" style="margin-bottom:10px">

@@ -494,7 +494,7 @@
             {{-- ── HERO ── --}}
             <div class="ty-hero-card">
                 <div class="ty-check-ring">
-                    <i class="ti ti-circle-check-filled" aria-hidden="true"></i>
+                    <i class="fas fa-circle-check" aria-hidden="true"></i>
                 </div>
 
                 <div class="ty-badge">
@@ -510,22 +510,22 @@
 
                 <div class="ty-type-pill">
                     @if (($demoType ?? '') === 'paid_online')
-                        <i class="ti ti-credit-card" aria-hidden="true"></i> Paid Demo · Online Payment
+                        <i class="fas fa-credit-card" aria-hidden="true"></i> Paid Demo · Online Payment
                     @elseif(($demoType ?? '') === 'paid_qr')
-                        <i class="ti ti-qrcode" aria-hidden="true"></i> Paid Demo · QR Payment
+                        <i class="fas fa-qrcode" aria-hidden="true"></i> Paid Demo · QR Payment
                     @else
-                        <i class="ti ti-gift" aria-hidden="true"></i> Free Self-Guided Demo
+                        <i class="fas fa-gift" aria-hidden="true"></i> Free Self-Guided Demo
                     @endif
                 </div>
             </div>
 
             {{-- ── DETAILS ROW ── --}}
-            <div class="ty-details-row">
+            {{-- <div class="ty-details-row">
 
-                {{-- Mentor card --}}
+             
                 <div class="ty-detail-card">
                     <div class="ty-detail-label">
-                        <i class="ti ti-user-circle" aria-hidden="true"></i>
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
                         Your Mentor
                     </div>
                     <div class="mentor-mini">
@@ -537,28 +537,28 @@
                             <div class="name">Rahul Sharma</div>
                             <div class="role">Senior LMS Consultant</div>
                             <div class="rating">
-                                <i class="ti ti-star-filled" style="font-size:12px"></i>
+                                <i class="fas fa-star-filled" style="font-size:12px"></i>
                                 4.9 · 500+ demos
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Session details --}}
+              
                 <div class="ty-detail-card">
                     <div class="ty-detail-label">
-                        <i class="ti ti-calendar" aria-hidden="true"></i>
+                        <i class="fas fa-calendar" aria-hidden="true"></i>
                         Session Details
                     </div>
                     <div class="session-row">
-                        <div class="session-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+                        <div class="session-icon"><i class="fas fa-clock" aria-hidden="true"></i></div>
                         <div>
                             <div class="si-label">Duration</div>
                             <div class="si-val">45 minutes</div>
                         </div>
                     </div>
                     <div class="session-row">
-                        <div class="session-icon"><i class="ti ti-device-laptop" aria-hidden="true"></i></div>
+                        <div class="session-icon"><i class="fas fa-device-laptop" aria-hidden="true"></i></div>
                         <div>
                             <div class="si-label">Format</div>
                             <div class="si-val">
@@ -571,7 +571,7 @@
                         </div>
                     </div>
                     <div class="session-row">
-                        <div class="session-icon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+                        <div class="session-icon"><i class="fas fa-mail" aria-hidden="true"></i></div>
                         <div>
                             <div class="si-label">Confirmation sent to</div>
                             <div class="si-val">{{ $email ?? 'your email' }}</div>
@@ -579,17 +579,17 @@
                     </div>
                 </div>
 
-            </div>
+            </div> --}}
 
             {{-- ── WHAT HAPPENS NEXT ── --}}
             <div class="ty-next-card">
                 <div class="ty-next-title">
-                    <i class="ti ti-list-check" aria-hidden="true"></i>
+                    <i class="fas fa-check" aria-hidden="true"></i>
                     What happens next
                 </div>
                 <div class="next-steps">
                     <div class="next-step">
-                        <div class="ns-num done"><i class="ti ti-check" style="font-size:13px"></i></div>
+                        <div class="ns-num done"><i class="fas fa-check" style="font-size:13px"></i></div>
                         <div class="ns-content">
                             <div class="ns-title">Booking confirmed</div>
                             <div class="ns-desc">Your demo slot is reserved and a confirmation email is on its way.</div>
@@ -600,18 +600,15 @@
                         <div class="ns-num">2</div>
                         <div class="ns-content">
                             <div class="ns-title">
-                                @if (($demoType ?? '') === 'free')
-                                    Receive Your Demo Login Credentials
-                                @else
+                              
+                               
                                     Receive Your Demo Access Link
-                                @endif
+                              
                             </div>
                             <div class="ns-desc">
-                                @if (($demoType ?? '') === 'free')
-                                    Your demo login details will be sent to your registered email address.
-                                @else
+                              
                                     A secure demo access link will be shared with you via email.
-                                @endif
+                               
                             </div>
                         </div>
                     </div>
@@ -628,7 +625,7 @@
                             </div>
                         </div>
                     </div>
-                    @if (($demoType ?? '') === 'free')
+                    @if (($demoType ?? '') === 'paid_qr')
                         <div class="next-step">
                             <div class="ns-num">4</div>
                             <div class="ns-content">
@@ -649,21 +646,21 @@
 
             {{-- ── CTA BUTTONS ── --}}
             <div class="ty-actions">
-                <a href="{{ route('lms.dashboard') ?? '#' }}" class="ty-btn-primary">
-                    <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+                <a href="#" class="ty-btn-primary">
+                    <i class="fas fa-layout-dashboard" aria-hidden="true"></i>
                     Go to Dashboard
                 </a>
                 <a href="#" class="ty-btn-outline">
-                    <i class="ti ti-home" aria-hidden="true"></i>
+                    <i class="fas fa-home" aria-hidden="true"></i>
                     Back to Home
                 </a>
             </div>
 
             <div class="ty-footer">
-                <i class="ti ti-headset" aria-hidden="true"></i>
+                <i class="fas fa-headset" aria-hidden="true"></i>
                 Questions? Reach us at <strong>support@learnpro.in</strong>
                 &nbsp;·&nbsp;
-                <i class="ti ti-lock" aria-hidden="true"></i>
+                <i class="fas fa-lock" aria-hidden="true"></i>
                 All data secured by 256-bit SSL
             </div>
 

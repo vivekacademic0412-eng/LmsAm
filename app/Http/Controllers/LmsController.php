@@ -14,6 +14,7 @@ use App\Models\EducationLevel;
 use App\Models\DemoUser;
 use App\Models\SubmittedDemos;
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Log;
@@ -116,8 +117,8 @@ class LmsController extends Controller
             // Load previously saved record so the form pre-fills on Back navigation.
             // Priority: session demo_user_id → auth user's latest record → null.
             $existingDemoUser = null;
-            if (session('demo_user_id')) {
-                $existingDemoUser = DemoUser::find(session('demo_user_id'));
+            if (auth()->user()) {
+                $existingDemoUser = User::find(auth()->user()->id);
             }
             if (!$existingDemoUser ) {
                 $existingDemoUser = DemoUser::where('user_id', session('demo_user_id'))
@@ -160,7 +161,7 @@ class LmsController extends Controller
             ]);
 
             $payload = [
-                'user_id'             =>null,
+                'user_id'             =>auth()->user()->id,
                 'full_name'           => $data['full_name'],
                 'email'               => $data['email'],
                 'phone'               => $data['contact'],

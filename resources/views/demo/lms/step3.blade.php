@@ -5,6 +5,7 @@
     You\'ve got this!')
 
 @section('content')
+  <div class="stepper">@include('demo.stepper')</div>
     <div class="explore-banner">
         <div class="banner-icon">🗺️</div>
         <div class="banner-text">

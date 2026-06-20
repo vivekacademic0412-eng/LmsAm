@@ -76,54 +76,54 @@ setInterval(() => {
     sp.style.animation = 'bmBubble .4s ease both';
 }, 4500);
 
-const themeBtn =
-    document.getElementById("themeBtn");
+// const themeBtn =
+//     document.getElementById("themeBtn");
 
-const saved =
-    localStorage.getItem("theme");
+// const saved =
+//     localStorage.getItem("theme");
 
-if (saved) {
+// if (saved) {
 
-    document.documentElement
-        .setAttribute(
-            "data-theme",
-            saved
-        );
+//     document.documentElement
+//         .setAttribute(
+//             "data-theme",
+//             saved
+//         );
 
-    themeBtn.innerHTML =
-        saved === "dark" ?
-        "☀️" :
-        "🌙";
+//     themeBtn.innerHTML =
+//         saved === "dark" ?
+//         "☀️" :
+//         "🌙";
 
-}
+// }
 
 
-themeBtn.onclick = () => {
+// themeBtn.onclick = () => {
 
-    const current =
-        document.documentElement
-        .getAttribute("data-theme");
+//     const current =
+//         document.documentElement
+//         .getAttribute("data-theme");
 
-    const next =
-        current === "dark" ?
-        "light" :
-        "dark";
+//     const next =
+//         current === "dark" ?
+//         "light" :
+//         "dark";
 
-    document.documentElement
-        .setAttribute(
-            "data-theme",
-            next
-        );
+//     document.documentElement
+//         .setAttribute(
+//             "data-theme",
+//             next
+//         );
 
-    localStorage
-        .setItem(
-            "theme",
-            next
-        );
+//     localStorage
+//         .setItem(
+//             "theme",
+//             next
+//         );
 
-    themeBtn.innerHTML =
-        next === "dark" ?
-        "☀️" :
-        "🌙";
+//     themeBtn.innerHTML =
+//         next === "dark" ?
+//         "☀️" :
+//         "🌙";
 
-};
+// };

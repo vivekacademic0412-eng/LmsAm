@@ -3,9 +3,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
-use App\Models\CourseCategory;
-use App\Models\DemoFeedback;
+
+use App\Http\Controllers\Controller;
 use App\Models\DemoTypeSelection;
 use App\Models\TrafficSource;
 use Exception;
@@ -46,139 +45,137 @@ class TrafficController extends Controller
                 'line' => $e->getLine(),
             ]);
         }
-        return auth()->check()
-            ? view('demo.lms.choose-type', [
-                'currentStep' => 0,
-                'paidPrice'   => 999.00,
-            ])
-            : view('demo.lms.register', [
-                'currentStep' => 0
-            ]);
+       
+            return auth()->check()
+    ? redirect()->route('lms.choose-type')
+    : view('demo.lms.register', [
+        'currentStep' => 0
+    ]);
     }
     // ──────────────────────────────────────────
     // PHASE 2 — Demo type selection page
     // ──────────────────────────────────────────
 
-    public function chooseDemoType(Request $request)
-    {
-        try {
-            $attributes = TrafficSource::attributesFromRequest($request);
-            $traffic    = TrafficSource::create($attributes);
-            $request->session()->put('traffic_source_id', $traffic->id);
+    // public function chooseDemoType(Request $request)
+    // {
+    //     try {
+    //         $attributes = TrafficSource::attributesFromRequest($request);
+    //         $traffic    = TrafficSource::create($attributes);
+    //         $request->session()->put('traffic_source_id', $traffic->id);
 
-            Log::info('Traffic source captured', [
-                'traffic_source_id' => $traffic->id,
-                'source'            => $traffic->source,
-            ]);
-            $alredySubmit = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->whereIn('demo_type', ['paid_qr', 'paid_online'])->first();
-            if ($alredySubmit) {
-               return redirect()->route('lms.thankyou');
-            }
-        } catch (Exception $e) {
-            Log::error('Traffic tracking failed', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-            ]);
-        }
+    //         Log::info('Traffic source captured', [
+    //             'traffic_source_id' => $traffic->id,
+    //             'source'            => $traffic->source,
+    //         ]);
+    //         $alredySubmit = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->whereIn('demo_type', ['paid_qr', 'paid_online'])->first();
+    //         if ($alredySubmit) {
+    //            return redirect()->route('lms.thankyou');
+    //         }
+    //     } catch (Exception $e) {
+    //         Log::error('Traffic tracking failed', [
+    //             'message' => $e->getMessage(),
+    //             'file'    => $e->getFile(),
+    //             'line'    => $e->getLine(),
+    //         ]);
+    //     }
 
-        return view('demo.lms.choose-type', [
-            'currentStep' => 0,
-            'paidPrice'   => 999.00, // ₹999 — single source of truth
-            'submitDetails'  => $alredySubmit
-        ]);
-    }
+    //     return view('demo.lms.choose-type', [
+    //         'currentStep' => 0,
+    //         'paidPrice'   => 999.00, // ₹999 — single source of truth
+    //         'submitDetails'  => $alredySubmit
+    //     ]);
+    // }
 
-    public function storeDemoType(Request $request)
-    {
-        try {
-            $request->validate([
-                'demo_type' => ['required', 'in:paid_online,paid_qr,free',],
-            ]);
+    // public function storeDemoType(Request $request)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'demo_type' => ['required', 'in:paid_online,paid_qr,free',],
+    //         ]);
 
 
 
-            $demoType = $request->demo_type;
+    //         $demoType = $request->demo_type;
 
-            $amount = match ($demoType) {
-                'paid_online', 'paid_qr' => 999.00,
-                default => 0,
-            };
+    //         $amount = match ($demoType) {
+    //             'paid_online', 'paid_qr' => 999.00,
+    //             default => 0,
+    //         };
 
-            $paymentMethod = match ($demoType) {
-                'paid_online' => 'online',
-                'paid_qr'     => 'qr',
-                default       => null,
-            };
+    //         $paymentMethod = match ($demoType) {
+    //             'paid_online' => 'online',
+    //             'paid_qr'     => 'qr',
+    //             default       => null,
+    //         };
 
-            $paymentStatus = match ($demoType) {
-                'free'        => 'completed',
-                'paid_online' => 'pending',
-                'paid_qr'     => 'pending',
-            };
-            // Resolve amount
-            $amount = match ($demoType) {
-                'paid_online', 'paid_qr' => 999.00,
-                default                  => null,
-            };
+    //         $paymentStatus = match ($demoType) {
+    //             'free'        => 'completed',
+    //             'paid_online' => 'pending',
+    //             'paid_qr'     => 'pending',
+    //         };
+    //         // Resolve amount
+    //         $amount = match ($demoType) {
+    //             'paid_online', 'paid_qr' => 999.00,
+    //             default                  => null,
+    //         };
 
-            $selection = DemoTypeSelection::updateOrCreate(
-                [
-                    'demo_user_id' => auth()->id()
-                ],
-                [
-                    'demo_type'      => $demoType,
-                    'payment_method' => $paymentMethod,
-                    'payment_status' => $paymentStatus,
-                    'amount'         => $amount,
-                    'session_id'     => $request->session()->getId(),
-                    'user_ip'        => $request->ip(),
-                ]
-            );
-            $request->session()->put('demo_type_selection_id', $selection->id);
-            $request->session()->put('demo_type', $demoType);
+    //         $selection = DemoTypeSelection::updateOrCreate(
+    //             [
+    //                 'demo_user_id' => auth()->id()
+    //             ],
+    //             [
+    //                 'demo_type'      => $demoType,
+    //                 'payment_method' => $paymentMethod,
+    //                 'payment_status' => $paymentStatus,
+    //                 'amount'         => $amount,
+    //                 'session_id'     => $request->session()->getId(),
+    //                 'user_ip'        => $request->ip(),
+    //             ]
+    //         );
+    //         $request->session()->put('demo_type_selection_id', $selection->id);
+    //         $request->session()->put('demo_type', $demoType);
 
-            Log::info('Demo type selected', [
-                'selection_id' => $selection->id,
-                'demo_type'    => $demoType,
-            ]);
+    //         Log::info('Demo type selected', [
+    //             'selection_id' => $selection->id,
+    //             'demo_type'    => $demoType,
+    //         ]);
 
-            return match ($demoType) {
-                // Online card payment → payment gateway page
-                'paid_online' => redirect()->route('lms.paid.booking'),
+    //         return match ($demoType) {
+    //             // Online card payment → payment gateway page
+    //             'paid_online' => redirect()->route('lms.paid.booking'),
 
-                // QR payment + Free → thank you page
-                'paid_qr', 'free' => redirect()->route('lms.thankyou'),
-            };
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()->withErrors($e->errors())->withInput();
-        } catch (Exception $e) {
-            Log::error('storeDemoType failed', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-            ]);
+    //             // QR payment + Free → thank you page
+    //             'paid_qr', 'free' => redirect()->route('lms.thankyou'),
+    //         };
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         return back()->withErrors($e->errors())->withInput();
+    //     } catch (Exception $e) {
+    //         Log::error('storeDemoType failed', [
+    //             'message' => $e->getMessage(),
+    //             'file'    => $e->getFile(),
+    //             'line'    => $e->getLine(),
+    //         ]);
 
-            return back()->with('error', 'Something went wrong. Please try again.' . $e->getMessage());
-        }
-    }
+    //         return back()->with('error', 'Something went wrong. Please try again.' . $e->getMessage());
+    //     }
+    // }
 
-    public function thankyou(Request $request)
-    {
-        // Guard: only allow if a selection exists in session
-        $selectionId = $request->session()->get('demo_type_selection_id');
-        if (! $selectionId) {
-            return redirect()->route('lms.choose-type');
-        }
+    // public function thankyou(Request $request)
+    // {
+    //     // Guard: only allow if a selection exists in session
+    //     $selectionId = $request->session()->get('demo_type_selection_id');
+    //     if (! $selectionId) {
+    //         return redirect()->route('lms.choose-type');
+    //     }
 
-        $demoType = $request->session()->get('demo_type');
+    //     $demoType = $request->session()->get('demo_type');
 
-        return view('demo.lms.thankyou', [
-            'demoType' => $demoType,
-            'name'     => $request->session()->get('user_name'),   // set earlier if captured
-            'email'    => $request->session()->get('user_email'),  // set earlier if captured
-        ]);
-    }
+    //     return view('demo.lms.thankyou', [
+    //         'demoType' => $demoType,
+    //         'name'     => $request->session()->get('user_name'),   // set earlier if captured
+    //         'email'    => $request->session()->get('user_email'),  // set earlier if captured
+    //     ]);
+    // }
     // ──────────────────────────────────────────
     // ADMIN — Traffic dashboard data (Phase 1 reporting)
     // ──────────────────────────────────────────
@@ -224,6 +221,306 @@ class TrafficController extends Controller
             'total_visitors'  => $totalVisitors,
             'by_source'       => $bySource,
             'by_device'       => $byDevice,
+        ]);
+    }
+
+    public function chooseDemoType(Request $request)
+    {
+        // ── Traffic attribution ─────────────────────────────────
+        try {
+            $attributes = TrafficSource::attributesFromRequest($request);
+            $traffic    = TrafficSource::create($attributes);
+            $request->session()->put('traffic_source_id', $traffic->id);
+
+            Log::info('Traffic source captured', [
+                'traffic_source_id' => $traffic->id,
+                'source'            => $traffic->source,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Traffic tracking failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+        }
+
+        // ── Guard: check existing selection ────────────────────
+        $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
+ 
+        if ($existing) {
+           
+            // Completed paid payment → hard block, go to thank-you
+            if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
+                // Restore session keys so thank-you page works
+                $request->session()->put('demo_type_selection_id', $existing->id);
+                $request->session()->put('demo_type', $existing->demo_type);
+                return redirect()->route('lms.thankyou');
+            }
+
+            // Online payment pending → send back to payment gateway
+            if ($existing->demo_type === 'paid_online' && $existing->status === 'pending') {
+                $request->session()->put('demo_type_selection_id', $existing->id);
+                $request->session()->put('demo_type', 'paid_online');
+                return redirect()->route('lms.paid.booking');
+            }
+
+            // QR pending OR free → allow re-access (fall through to show page)
+        }
+
+        return view('demo.lms.choose-type', [
+            'currentStep' => 0,
+            'paidPrice'   => 999.00,
+            'existingQrStatus'=>$existing->status ??'pending',
+        ]);
+    }
+
+    /**
+     * Store the chosen demo type (form POST).
+     */
+    public function storeDemoType(Request $request)
+    {
+        try {
+            $request->validate([
+                'demo_type' => ['required', 'in:paid_online,paid_qr,free'],
+            ]);
+
+            $demoType = $request->demo_type;
+
+            // ── Guard: prevent double-payment ──────────────────
+            $existing = DemoTypeSelection::where('demo_user_id', auth()->id())->latest()->first();
+
+            if ($existing) {
+                // Already completed a paid method → block
+                if (
+                    in_array($existing->demo_type, ['paid_online', 'paid_qr']) &&
+                    $existing->status === 'completed'
+                ) {
+                    $request->session()->put('demo_type_selection_id', $existing->id);
+                    $request->session()->put('demo_type', $existing->demo_type);
+                    return redirect()->route('lms.thankyou')
+                        ->with('info', 'You have already completed your payment.');
+                }
+            }
+
+            // ── Resolve payment attributes ──────────────────────
+            $amount = match ($demoType) {
+                'paid_online', 'paid_qr' => 999.00,
+                default                  => null,
+            };
+
+            $paymentMethod = match ($demoType) {
+                'paid_online' => 'online',
+                'paid_qr'     => 'qr',
+                default       => null,
+            };
+
+            // QR stays "pending" until user confirms via AJAX; free is instantly "completed"
+            $paymentStatus = match ($demoType) {
+                'free'        => 'completed',
+                'paid_online' => 'pending',
+                'paid_qr'     => 'pending',
+            };
+
+            $selection = DemoTypeSelection::updateOrCreate(
+                ['demo_user_id' => auth()->id()],
+                [
+                    'demo_type'      => $demoType,
+                    'payment_method' => $paymentMethod,
+                    'payment_status' => $paymentStatus,
+                    'amount'         => $amount,
+                    'session_id'     => $request->session()->getId(),
+                    'user_ip'        => $request->ip(),
+                ]
+            );
+
+            $request->session()->put('demo_type_selection_id', $selection->id);
+            $request->session()->put('demo_type', $demoType);
+
+            Log::info('Demo type selected', [
+                'selection_id' => $selection->id,
+                'demo_type'    => $demoType,
+            ]);
+
+            return match ($demoType) {
+                'paid_online' => redirect()->route('lms.paid.booking'),
+                // QR: handled via AJAX confirmQrPayment() — but if JS disabled, go to thank-you
+                'paid_qr'     => redirect()->route('lms.thankyou'),
+                'free'        => redirect()->route('lms.thankyou'),
+            };
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        } catch (Exception $e) {
+            Log::error('storeDemoType failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+            return back()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    /**
+     * AJAX: User ticks "I have paid" checkbox for QR flow.
+     * Marks the QR selection as completed and returns JSON.
+     */
+    // public function confirmQrPayment(Request $request)
+    // {
+    //     try {
+    //         $selection = DemoTypeSelection::where('demo_user_id', auth()->id())
+    //             ->where('demo_type', 'paid_qr')
+    //             ->latest()
+    //             ->first();
+
+    //         if (! $selection) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'No pending QR payment found. Please start over.',
+    //             ], 404);
+    //         }
+
+    //         if ($selection->payment_status === 'completed') {
+    //             // Already confirmed — idempotent
+    //             $request->session()->put('demo_type_selection_id', $selection->id);
+    //             $request->session()->put('demo_type', 'paid_qr');
+    //             return response()->json(['success' => true, 'already_confirmed' => true]);
+    //         }
+
+    //         $selection->update(['payment_status' => 'completed']);
+
+    //         $request->session()->put('demo_type_selection_id', $selection->id);
+    //         $request->session()->put('demo_type', 'paid_qr');
+
+    //         Log::info('QR payment confirmed by user', [
+    //             'selection_id' => $selection->id,
+    //             'user_id'      => auth()->id(),
+    //         ]);
+
+    //         // TODO: Fire confirmation email here
+    //         // Mail::to(auth()->user()->email)->send(new DemoConfirmationMail($selection));
+
+    //         return response()->json(['success' => true]);
+
+    //     } catch (Exception $e) {
+    //         Log::error('confirmQrPayment failed', [
+    //             'message' => $e->getMessage(),
+    //             'file'    => $e->getFile(),
+    //             'line'    => $e->getLine(),
+    //         ]);
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Server error. Please try again.',
+    //         ], 500);
+    //     }
+    // }
+    public function confirmQrPayment(Request $request)
+    {
+        try {
+            $selection = DemoTypeSelection::where('demo_user_id', auth()->id())
+                ->where('demo_type', 'paid_qr')
+                ->latest()
+                ->first();
+
+            if ($selection) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your demo slot is reserved and a confirmation email is on its way. Your payment is already paid',
+                ], 404);
+            }
+
+            $selection = DemoTypeSelection::firstOrCreate(
+                [
+                    'demo_user_id' => auth()->id(),
+                    'demo_type'    => 'paid_qr',
+                ],
+                [
+                    'status' => 'pending',
+                    'payment_method' => 'qr',
+                    'amount'         => 999.00,
+                    'session_id'     => $request->session()->getId(),
+                    'user_ip'        => $request->ip(),
+                ]
+            );
+
+            if ($selection->status === 'completed') {
+
+                $request->session()->put('demo_type_selection_id', $selection->id);
+                $request->session()->put('demo_type', 'paid_qr');
+
+                return response()->json([
+                    'success' => true,
+                    'already_confirmed' => true
+                ]);
+            }
+
+            $selection->update([
+                'status' => 'completed'
+            ]);
+
+            $request->session()->put('demo_type_selection_id', $selection->id);
+            $request->session()->put('demo_type', 'paid_qr');
+
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+
+            Log::error('confirmQrPayment failed', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error'
+            ], 500);
+        }
+    }
+    /**
+     * Generate and stream a simple PDF invoice for QR payments.
+     * Requires a PDF package (e.g. barryvdh/laravel-dompdf).
+     */
+    public function downloadQrInvoice(Request $request)
+    {
+        $selection = DemoTypeSelection::where('demo_user_id', auth()->id())
+            ->whereIn('demo_type', ['paid_qr', 'paid_online'])
+            ->where('status', 'completed')
+            ->latest()
+            ->first();
+
+        if (! $selection) {
+            return redirect()->route('lms.choose-type')
+                ->with('error', 'No confirmed payment found to generate invoice.');
+        }
+
+        $user = auth()->user();
+        $data = [
+            'invoice_number' => 'LMS-' . str_pad($selection->id, 6, '0', STR_PAD_LEFT),
+            'date'           => $selection->updated_at->format('d M Y'),
+            'user_name'      => $user->name,
+            'user_email'     => $user->email,
+            'amount'         => $selection->amount,
+            'demo_type'      => $selection->demo_type,
+            'payment_method' => $selection->payment_method,
+        ];
+
+        // Using barryvdh/laravel-dompdf:
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('demo.lms.invoice', $data);
+        return $pdf->download('LearnPro-Invoice-' . $data['invoice_number'] . '.pdf');
+    }
+
+    /**
+     * Thank-you page.
+     */
+    public function thankyou(Request $request)
+    {
+        $selectionId = $request->session()->get('demo_type_selection_id');
+        if (! $selectionId) {
+            return redirect()->route('lms.choose-type');
+        }
+
+        $demoType = $request->session()->get('demo_type');
+
+        return view('demo.lms.thankyou', [
+            'demoType' => $demoType,
+            'name'     => $request->session()->get('user_name'),
+            'email'    => $request->session()->get('user_email'),
         ]);
     }
 }
