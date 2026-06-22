@@ -165,7 +165,7 @@
         <a href="#" class="btn-secondary border" style="width:auto">
             <i class="fas fa-trophy"></i> View More Courses
         </a>
-         <a href="#" class="btn-primary" style="width:auto">
+         <a href="{{ route('lms.step6') }}" class="btn-primary" style="width:auto">
             <i class="fas fa-arrow-right"></i> Next
         </a>
     </div>

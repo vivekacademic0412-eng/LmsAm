@@ -94,16 +94,17 @@
 
     {{-- ================= CONTENT ================= --}}
    {{-- ================= CONTENT ================= --}}
-<section class="um-table-card">
+<section class="card">
 
     {{-- ================= HEADER ================= --}}
-    <div class="um-table-head">
+    <div class="page-head">
         <h2>
             Course List
             <span class="um-count-badge">{{ $courses->total() }}</span>
         </h2>
     </div>
-
+    </section>
+<section class="card">
     {{-- ================= TRAINER VIEW ================= --}}
     @if ($isTrainer)
 
@@ -227,7 +228,7 @@
     {{-- ================= ADMIN TABLE VIEW ================= --}}
     @else
 
-        <div class="um-table-wrap">
+        <div class="table-wrap">
 
             <table>
 

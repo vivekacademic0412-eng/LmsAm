@@ -14,6 +14,7 @@ use App\Models\EducationLevel;
 use App\Models\DemoUser;
 use App\Models\SubmittedDemos;
 use App\Models\Course;
+use App\Models\DemoAccessToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -417,7 +418,9 @@ class LmsController extends Controller
                     'completion_score' => 0,
                 ]
             );
-
+                    DemoAccessToken::where('user_id',auth()->id())->latest()->update([
+                           'is_completed' => true
+                       ]);
             Log::info('Step3 Completed', ['demo_id' => $demo->id]);
 
             return response()->json([
@@ -532,6 +535,28 @@ class LmsController extends Controller
             'reviews'     => $reviews,
         ]);
     }
+     public function step6()
+    {
+        // Look up the category id from the slug stored in session
+        $category = CourseCategory::where('slug', session('lms_interest'))->first();
+  $courseId = session('lms_course_id');
+        $course = Course::where('id', $courseId)
+            ->first();
+
+
+        $reviews = DemoFeedback::with('user', 'course')
+            ->whereNotNull('message')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('demo.lms.step6', [
+            'currentStep' => 6,
+            'course'     => $course,   // comma, not semicolon
+            'reviews'     => $reviews,
+        ]);
+    }
+    
 
     // ──────────────────────────────────────────
     // DASHBOARD

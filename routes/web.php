@@ -10,6 +10,7 @@ use App\Http\Controllers\CourseItemSubmissionController;
 use App\Http\Controllers\CourseMediaController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DemoAccessController;
 use App\Http\Controllers\DemoFeatureVideoController;
 use App\Http\Controllers\DemoReviewVideoController;
 use App\Http\Controllers\DemoTaskController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\LmsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TrafficController;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -175,15 +177,11 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
             // Step 5 – Recommendations
             Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
-
-            // Dashboard (post-completion)
-            Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
-
+ Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-            // Route::get('/booking',      [PaymentController::class, 'payment'])->name('paid.booking');
-            // Route::post('payment-store', [PaymentController::class, 'store'])->name('booking.store');
-            // Route::get('thankyou', [TrafficController::class, 'thankyou'])->name('thankyou');
+          
         });
+
         Route::middleware(['auth', 'verified'])->prefix('lms')->name('lms.')->group(function () {
 
             // Step 1 — Choose demo type
@@ -201,6 +199,7 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
             // Thank you page
             Route::get('/thankyou',             [TrafficController::class, 'thankyou'])->name('thankyou');
+             Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
         });
     });
 });
@@ -237,3 +236,24 @@ Route::prefix('api/demo')->group(function () {
     Route::get('course-levels', [LmsController::class, 'courseLevels']);
     Route::get('courses',       [LmsController::class, 'courses']);
 });
+Route::get('/mail-test', function () {
+
+    Mail::raw('Test Mail', function ($message) {
+        $message->to('yourmail@gmail.com')
+                ->subject('Laravel Test');
+    });
+
+    return 'Mail Sent';
+});
+Route::get('/mail-debug', function () {
+
+    return [
+        'mailer' => config('mail.default'),
+        'host' => config('mail.mailers.smtp.host'),
+        'port' => config('mail.mailers.smtp.port'),
+        'username' => config('mail.mailers.smtp.username'),
+        'password_length' => strlen(config('mail.mailers.smtp.password')),
+    ];
+
+});
+Route::get('/demo-access/{token}',[DemoAccessController::class,'access'])->name('demo.secure.login');

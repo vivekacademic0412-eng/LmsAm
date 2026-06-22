@@ -2,12 +2,18 @@
 
 namespace App\Livewire\Admin;
 
+use App\Mail\DemoLoginCredentialsMail;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Course;
+use App\Models\DemoAccessToken;
+use App\Models\DemoTypeSelection;
 use App\Models\DemoUser;
 use App\Models\SubmittedDemos;
 use App\Models\EducationLevel;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class DemoUserList extends Component
 {
@@ -47,20 +53,61 @@ class DemoUserList extends Component
         if ($this->sortField === $field) {
             $this->sortDirection =
                 $this->sortDirection === 'asc'
-                    ? 'desc'
-                    : 'asc';
+                ? 'desc'
+                : 'asc';
         } else {
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
     }
 
+
+    public function sendLoginMail($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $token = Str::uuid();
+
+        DemoAccessToken::create([
+            'user_id'    => $user->id,
+            'token'      => $token,
+            'expires_at' => now()->addDays(3),
+        ]);
+
+        $url = route('demo.secure.login', $token);
+
+        Mail::to($user->email)->send(
+            new DemoLoginCredentialsMail(
+                $user,
+                $url
+            )
+        );
+
+        $this->dispatch(
+            'success',
+            message: 'Secure demo link sent successfully.'
+        );
+    }
+    public function activateUser($userId)
+    {
+        //payment confirm
+        $user = DemoTypeSelection::where('demo_user_id',$userId)->update([
+            'is_confirm' =>2
+        ]);
+        $this->dispatch(
+            'success',
+            message: 'User activated successfully.'
+        );
+    }
     public function render()
     {
-        $query = DemoUser::with([
-            'educationLevel',
-            'course',
-            'submittedDemos'
+        $query = User::where('role', 'student')->with([
+            'demo.educationLevel',
+            'demo.course',
+            'demo.submittedDemos',
+            'paymentType.payment',
+            'paymentType.trafficSource'
+
         ]);
 
         if ($this->search) {
@@ -101,4 +148,3 @@ class DemoUserList extends Component
         ]);
     }
 }
-?>

@@ -113,4 +113,12 @@ class User extends Authenticatable
 
         return asset('storage/'.ltrim($this->avatar, '/'));
     }
+    public function demo(){
+          return $this->hasOne(DemoUser::class, 'user_id','id');
+    }
+
+    public function paymentType(){
+          return $this->hasOne(DemoTypeSelection::class, 'demo_user_id' ,'id');
+    }
+    
 }

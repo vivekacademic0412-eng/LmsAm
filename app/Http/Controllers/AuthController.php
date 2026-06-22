@@ -223,6 +223,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('lms.demo');
+
+        return redirect()->route('login');
     }
 }

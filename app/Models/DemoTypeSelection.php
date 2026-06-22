@@ -18,6 +18,8 @@ class DemoTypeSelection extends Model
         'amount',
         'demo_user_id',
         'payment_id',
+        'is_confirm ',
+        'status'
     ];
 
     protected $casts = [
@@ -38,7 +40,7 @@ class DemoTypeSelection extends Model
     // model doesn't need touching again once that table exists.
     public function payment()
     {
-        return $this->belongsTo(\App\Models\Payment::class);
+        return $this->belongsTo(\App\Models\Payment::class ,'demo_user_id');
     }
 
     public function isPaid(): bool
