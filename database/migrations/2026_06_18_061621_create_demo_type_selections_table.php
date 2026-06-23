@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('traffic_source_id')->nullable()->index();
             $table->string('session_id', 100)->nullable()->index();
             $table->string('user_ip', 45)->nullable();
- 
+             $table->tinyInteger('is_confirm')->default(1);
             // 'free' or 'paid'
             $table->enum('demo_type', ['paid_qr', 'paid_online','free'])->index();
           $table->enum('status', ['completed', 'pending','paid'])->index();
