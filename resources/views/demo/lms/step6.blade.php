@@ -1,7 +1,7 @@
 @extends('demo.layout')
 
 
-@section('title', 'Explore More Courses')
+@section('title', 'Certificate')
 
 
 @section('bitmoji-message', '🌟 You can be the next success story! Explore more courses and keep your momentum going!')
@@ -257,7 +257,7 @@
 
                 <h4>Actions</h4>
 
-                <a href="#"
+                <a href="{{ route('lms.certificate.download') }}"
                    class="btn-main">
 
                     <i class="fas fa-download"></i>

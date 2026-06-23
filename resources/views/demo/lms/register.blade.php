@@ -9,11 +9,11 @@
 @endpush
 
 @section('content')
-
+<div class="lms-landing">
     <section class="hero-section">
         <div class="hero-left">
             <div class="logo-tag">
-                🔴 LIVE DEMO SESSION
+                🔴 LIVE 
             </div>
             <h1>
                 Welcome to <span>LIVE Skills Training Programs</span>
@@ -25,14 +25,14 @@
             </p>
             <div class="hero-buttons">
                 <a href="#courses" class="btn-primary-custom">
-                    Explore Demo Courses
+                    Explore Courses
                 </a>
                 <a href="#reviews" class="btn-outline-custom">
                     Student Success Stories
                 </a>
             </div>
             <div class="hero-features">
-                <div class="feature-pill">Live Demo Classes</div>
+                <div class="feature-pill">Live  Classes</div>
                 <div class="feature-pill">Expert Trainers</div>
                 <div class="feature-pill">Hands-on Learning</div>
                 <div class="feature-pill">Career Growth</div>
@@ -44,7 +44,7 @@
             @livewire('demo.demo-register')
         </div>
     </section>
-
+</div>
 @endsection
 
 @push('scripts')

@@ -1,4 +1,4 @@
-﻿
+
 <x-demo.header/>
 <x-demo.navigation/>
  <link rel="stylesheet" href="{{ asset('theme/css/login.css') }}">

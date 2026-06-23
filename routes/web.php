@@ -35,6 +35,7 @@ Route::middleware(['guest', 'secure.headers'])->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
+Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
 
 Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -150,6 +151,8 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
     Route::middleware('role:student')->group(function (): void {
         Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses');
         Route::get('/my-courses/{course}', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.show');
+          Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
+        
         Route::get('/my-history', [CourseEnrollmentController::class, 'history'])->name('student.history');
         Route::get('/my-certificates', [CourseEnrollmentController::class, 'certificates'])->name('student.certificates');
         Route::get('/my-certificates/{enrollment}/download', [CourseEnrollmentController::class, 'downloadCertificate'])->name('student.certificates.download');
@@ -177,7 +180,8 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
             // Step 5 – Recommendations
             Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
- Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
+             Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
+              Route::get('/certificate-download',      [LmsController::class, 'Download'])->name('certificate.download');
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
           
         });
@@ -199,7 +203,7 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
             // Thank you page
             Route::get('/thankyou',             [TrafficController::class, 'thankyou'])->name('thankyou');
-             Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
+            //  Route::get('/dashboard',  [LmsController::class, 'dashboard'])->name('dashboard');
         });
     });
 });
@@ -216,9 +220,8 @@ Route::prefix('demo')->group(function () {
     Route::post('/choose-type', [TrafficController::class, 'storeDemoType'])
         ->name('lms.choose-type.store');
 });
-
 Route::get('/courses/{slug}', [LmsController::class, 'show'])->name('course.show');
-Route::get('/', [TrafficController::class, 'Home'])->name('lms.demo');
+
 
 Route::middleware('role:demo')->group(function (): void {
     Route::post('/demo-assignments/{assignment}/submit', [DemoTaskController::class, 'submit'])->name('demo-assignments.submit');

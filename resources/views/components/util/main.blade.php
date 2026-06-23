@@ -124,7 +124,7 @@
                     @else
                         {{ $initials }}
                     @endif</div>
-                <span class="profile-name">Super Admin</span>
+                <span class="profile-name">{{ auth()->user()->role ?? '' }}</span>
                 <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted)" aria-hidden="true"></i>
             </button>
 
@@ -140,7 +140,7 @@
                         <div class="pp-name">{{ $user->name }}</div>
                         <div class="pp-role"><i class="fa-solid fa-shield-check" style="font-size:9px"
                                 aria-hidden="true"></i>  {{ $roleLabels[$user->role] ?? $user->role }}</div>
-                        <div class="pp-email">admin@academicmantra.com</div>
+                        <div class="pp-email">{{ $user->email }}</div>
                     </div>
                 </div>
                 <div class="profile-popup-list">

@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     var root = document.documentElement;
     var storageKey = 'lms-theme';
 

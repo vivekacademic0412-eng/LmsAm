@@ -986,3 +986,49 @@
 
         .mobile-menu-btn { display: none; }
    
+
+        /* //images
+         */
+.image-back-mentor3 {
+  width: 200px;
+  height: 200px;
+  top: 70px;
+  left:775px;
+}
+.image-back-mentor1 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  left: -50px;
+}
+.image-back-mentor2 {
+  width: 300px;
+  height: 300px;
+  top: 90px;
+  right: 10px;
+  transform: rotate(10deg);
+}
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.shape-1 {
+    width: 220px;
+    height: 220px;
+    background:
+        rgba(122, 92, 255, .12);
+    top: -80px;
+    right: -70px;
+}
+
+
+.shape-2 {
+    width: 150px;
+    height: 150px;
+    background:
+        rgba(9, 71, 168, .08);
+    bottom: -100px;
+    left: -50px;
+}

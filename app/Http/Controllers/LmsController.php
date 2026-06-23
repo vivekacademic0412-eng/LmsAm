@@ -17,7 +17,7 @@ use App\Models\Course;
 use App\Models\DemoAccessToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -121,7 +121,7 @@ class LmsController extends Controller
             if (auth()->user()) {
                 $existingDemoUser = User::find(auth()->user()->id);
             }
-            if (!$existingDemoUser ) {
+            if (!$existingDemoUser) {
                 $existingDemoUser = DemoUser::where('user_id', session('demo_user_id'))
                     ->latest()
                     ->first();
@@ -162,7 +162,7 @@ class LmsController extends Controller
             ]);
 
             $payload = [
-                'user_id'             =>auth()->user()->id,
+                'user_id'             => auth()->user()->id,
                 'full_name'           => $data['full_name'],
                 'email'               => $data['email'],
                 'phone'               => $data['contact'],
@@ -418,9 +418,9 @@ class LmsController extends Controller
                     'completion_score' => 0,
                 ]
             );
-                    DemoAccessToken::where('user_id',auth()->id())->latest()->update([
-                           'is_completed' => true
-                       ]);
+            DemoAccessToken::where('user_id', auth()->id())->latest()->update([
+                'is_completed' => true
+            ]);
             Log::info('Step3 Completed', ['demo_id' => $demo->id]);
 
             return response()->json([
@@ -535,15 +535,13 @@ class LmsController extends Controller
             'reviews'     => $reviews,
         ]);
     }
-     public function step6()
+    public function step6()
     {
         // Look up the category id from the slug stored in session
         $category = CourseCategory::where('slug', session('lms_interest'))->first();
-  $courseId = session('lms_course_id');
+        $courseId = session('lms_course_id');
         $course = Course::where('id', $courseId)
             ->first();
-
-
         $reviews = DemoFeedback::with('user', 'course')
             ->whereNotNull('message')
             ->latest()
@@ -556,7 +554,20 @@ class LmsController extends Controller
             'reviews'     => $reviews,
         ]);
     }
-    
+    public function Download()
+    {
+         $courseId = session('lms_course_id');
+
+    $course = Course::findOrFail($courseId);
+
+    $pdf = Pdf::loadView('demo.lms.certificate', [
+        'course' => $course,
+        'user'   => auth()->user(),
+    ]);
+
+    return $pdf->download('certificate.pdf');
+    }
+
 
     // ──────────────────────────────────────────
     // DASHBOARD

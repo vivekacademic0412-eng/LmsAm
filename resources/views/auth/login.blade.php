@@ -1,4 +1,4 @@
-﻿@extends('layouts.auth')
+@extends('layouts.auth')
 @section('content')
 
     <button type="button" class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">

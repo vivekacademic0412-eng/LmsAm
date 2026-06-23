@@ -1,83 +1,107 @@
-<div class="container-fluid py-4">
 
-    <!-- HERO SECTION -->
-    <div class="card shadow-sm border-0 text-white mb-4"
-        style="background: linear-gradient(135deg,#1e3a8a,#111827); border-radius:16px;">
+<div class="profile-page">
 
-        <div class="card-body d-flex flex-column flex-md-row align-items-center gap-3 p-4">
+    {{-- ═══════════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════════ --}}
+    <div class="profile-hero" role="banner">
 
-            <!-- AVATAR -->
-            <div class="rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
-                style="width:90px;height:90px;background:#374151;">
-
+        {{-- Avatar --}}
+        <div class="profile-hero-avatar">
+            <div class="profile-hero-avatar-ring" aria-label="Profile photo for {{ $name }}">
                 @if ($selectedAvatar)
-                    <img src="{{ $selectedAvatar }}" style="width:100%;height:100%;object-fit:cover;">
+                    <img src="{{ $selectedAvatar }}" alt="{{ $name }}">
                 @else
-                    <span class="fw-bold fs-3 text-white">
-                        {{ strtoupper(substr($name, 0, 1)) }}
-                    </span>
+                    {{ strtoupper(substr($name, 0, 1)) }}
                 @endif
-
             </div>
-
-            <!-- USER INFO -->
-            <div class="text-center text-md-start flex-grow-1">
-
-                <h3 class="mb-1 fw-bold">{{ $name }}</h3>
-                <p class="mb-2 text-light opacity-75">{{ $email }}</p>
-
-                <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
-
-                    <span class="badge rounded-pill bg-primary px-3 py-2">
-                        <i class="fa-solid fa-user-graduate me-1"></i>
-                        {{ \App\Models\User::roleOptions()[$user->role] }}
-                    </span>
-
-                    <span class="badge rounded-pill {{ $user->is_active ? 'bg-success' : 'bg-danger' }} px-3 py-2">
-                        <i class="fa-solid fa-circle-check me-1"></i>
-                        {{ $user->is_active ? 'Active' : 'Inactive' }}
-                    </span>
-
-                </div>
-
-            </div>
-
+            <span class="profile-hero-avatar-online" title="Online now" aria-label="Online"></span>
         </div>
+
+        {{-- Info --}}
+        <div class="profile-hero-info">
+            <div class="profile-hero-name">{{ $name }}</div>
+            <div class="profile-hero-email">{{ $email }}</div>
+            <div class="profile-hero-badges">
+                <span class="profile-hero-badge">
+                    <i class="ti ti-user-circle" aria-hidden="true"></i>
+                    {{ \App\Models\User::roleOptions()[$user->role] ?? $user->role }}
+                </span>
+                <span class="profile-hero-badge {{ $user->is_active ? 'active' : 'inactive' }}">
+                    <i class="ti ti-{{ $user->is_active ? 'circle-check' : 'circle-x' }}" aria-hidden="true"></i>
+                    {{ $user->is_active ? 'Active Account' : 'Inactive Account' }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Quick stats --}}
+        <div class="profile-hero-stats" aria-label="Quick stats">
+            <div class="hero-quick-stat">
+                <div class="hero-quick-stat-val">{{ $user->created_at->format('Y') }}</div>
+                <div class="hero-quick-stat-label">Member Since</div>
+            </div>
+            <div class="hero-quick-stat">
+                <div class="hero-quick-stat-val">{{ $user->courses_count ?? '—' }}</div>
+                <div class="hero-quick-stat-label">Courses</div>
+            </div>
+            <div class="hero-quick-stat">
+                <div class="hero-quick-stat-val">{{ $user->certificates_count ?? '—' }}</div>
+                <div class="hero-quick-stat-label">Certificates</div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- STATS -->
-  <div class="d-stats-grid mb-4">
+    {{-- ═══════════════════════════════════════════
+         STAT CARDS
+    ═══════════════════════════════════════════ --}}
+    <div class="profile-stats-grid" role="region" aria-label="Account details">
 
-        
-            <div class="d-stat shadow-sm text-center " >
-                <i class="fa-solid fa-user d-stat-icon"></i>
-                <span class="stat-label">Role</span>
-                <h5 class="mb-0 d-stat-value">{{ \App\Models\User::roleOptions()[$user->role] }}</h5>
+        <div class="profile-stat-card">
+            <div class="profile-stat-icon blue" aria-hidden="true"><i class="ti ti-user"></i></div>
+            <div>
+                <div class="profile-stat-label">Role</div>
+                <div class="profile-stat-value">{{ \App\Models\User::roleOptions()[$user->role] ?? $user->role }}</div>
             </div>
-        
-            <div class="d-stat shadow-sm text-center " >
-                <i class="fa-solid fa-envelope  d-stat-icon"></i>
-                <span class="stat-label">Email</span>
-                <h6 class="mb-0 d-stat-value">{{ $email }}</h6>
-            </div>
-        
+        </div>
 
-       
-            <div class="d-stat shadow-sm text-center " >
-                <i class="fa-solid fa-shield-halved  d-stat-icon"></i>
-                <span class="stat-label">Status</span>
-                <h5 class="mb-0 d-stat-value">
+        <div class="profile-stat-card">
+            <div class="profile-stat-icon purple" aria-hidden="true"><i class="ti ti-mail"></i></div>
+            <div>
+                <div class="profile-stat-label">Email</div>
+                <div class="profile-stat-value" style="font-size:13px">{{ $email }}</div>
+            </div>
+        </div>
+
+        <div class="profile-stat-card">
+            <div class="profile-stat-icon {{ $user->is_active ? 'green' : 'amber' }}" aria-hidden="true">
+                <i class="ti ti-shield-{{ $user->is_active ? 'check' : 'off' }}"></i>
+            </div>
+            <div>
+                <div class="profile-stat-label">Status</div>
+                <div class="profile-stat-value" style="color: {{ $user->is_active ? 'var(--success)' : 'var(--danger)' }}">
                     {{ $user->is_active ? 'Active' : 'Inactive' }}
-                </h5>
+                </div>
             </div>
-       
+        </div>
+
+        <div class="profile-stat-card">
+            <div class="profile-stat-icon amber" aria-hidden="true"><i class="ti ti-calendar"></i></div>
+            <div>
+                <div class="profile-stat-label">Joined</div>
+                <div class="profile-stat-value" style="font-size:13px">{{ $user->created_at->format('d M Y') }}</div>
+            </div>
+        </div>
 
     </div>
 
-    <!-- VALIDATION ERRORS -->
+    {{-- ═══════════════════════════════════════════
+         VALIDATION ERRORS
+    ═══════════════════════════════════════════ --}}
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
+        <div class="error-alert" role="alert" aria-live="assertive">
+            <i class="ti ti-alert-circle" aria-hidden="true"></i>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -85,86 +109,372 @@
         </div>
     @endif
 
-    <!-- PROFILE FORM -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;">
-        <div class="card-body p-4">
+    {{-- ═══════════════════════════════════════════
+         PROFILE INFORMATION FORM
+    ═══════════════════════════════════════════ --}}
+    <div class="p-card">
+        <div class="p-card-head">
+            <div class="p-card-head-left">
+                <div class="p-card-head-icon" aria-hidden="true"><i class="ti ti-user-edit"></i></div>
+                <div>
+                    <div class="p-card-title">Profile Information</div>
+                    <div class="p-card-sub">Update your name, email and photo.</div>
+                </div>
+            </div>
+        </div>
+        <div class="p-card-body">
+            <div class="form-grid">
 
-            <h5 class="mb-1">Profile Information</h5>
-            <p class="text-muted mb-4">Update your account information.</p>
-
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label class="form-label">Name</label>
-                    <input type="text" wire:model="name" class="form-control" style="border-radius:10px;">
+                {{-- Name --}}
+                <div class="form-group">
+                    <label class="form-label" for="profile-name">
+                        Full Name <span class="req" aria-hidden="true">*</span>
+                    </label>
+                    <div class="input-wrap">
+                        <i class="ti ti-user input-icon" aria-hidden="true"></i>
+                        <input type="text"
+                               id="profile-name"
+                               wire:model="name"
+                               class="form-input @error('name') is-invalid @enderror"
+                               placeholder="Your full name"
+                               autocomplete="name"
+                               required
+                               aria-required="true"
+                               aria-describedby="name-error">
+                    </div>
+                    @error('name')
+                        <div class="field-error" id="name-error" role="alert">
+                            <i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input type="email" wire:model="email" class="form-control" style="border-radius:10px;">
+                {{-- Email --}}
+                <div class="form-group">
+                    <label class="form-label" for="profile-email">
+                        Email Address <span class="req" aria-hidden="true">*</span>
+                    </label>
+                    <div class="input-wrap">
+                        <i class="ti ti-mail input-icon" aria-hidden="true"></i>
+                        <input type="email"
+                               id="profile-email"
+                               wire:model="email"
+                               class="form-input @error('email') is-invalid @enderror"
+                               placeholder="you@example.com"
+                               autocomplete="email"
+                               inputmode="email"
+                               required
+                               aria-required="true"
+                               aria-describedby="email-error">
+                    </div>
+                    @error('email')
+                        <div class="field-error" id="email-error" role="alert">
+                            <i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
-                <div class="col-12">
-                    <label class="form-label">Upload Profile Photo</label>
-                    <input type="file" wire:model="avatarUpload" class="form-control" style="border-radius:10px;">
+                {{-- Photo upload --}}
+                <div class="form-group form-col-full">
+                    <label class="form-label" for="profile-avatar-upload">
+                        Upload Profile Photo
+                    </label>
+                    <div class="upload-zone" aria-label="Upload profile photo">
+                        <input type="file"
+                               id="profile-avatar-upload"
+                               wire:model="avatarUpload"
+                               accept="image/*"
+                               aria-label="Choose profile photo">
+                        <div class="upload-zone-icon" aria-hidden="true">
+                            <i class="ti ti-cloud-upload"></i>
+                        </div>
+                        <div class="upload-zone-title">Click or drag a photo here</div>
+                        <div class="upload-zone-sub">PNG, JPG or WEBP · Max 2 MB</div>
+                    </div>
+                    @error('avatarUpload')
+                        <div class="field-error" role="alert">
+                            <i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}
+                        </div>
+                    @enderror
+                    <div class="field-hint">
+                        <i class="ti ti-info-circle" style="font-size:12px" aria-hidden="true"></i>
+                        Uploading a photo will replace your selected avatar.
+                    </div>
                 </div>
 
             </div>
-
         </div>
     </div>
 
-    <!-- AVATAR SELECT -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius:16px;">
-        <div class="card-body p-4">
-
-            <h5 class="mb-1">Choose Avatar</h5>
-            <p class="text-muted mb-3">Select a generated avatar.</p>
-
-            <div class="d-flex flex-wrap gap-3">
-
+    {{-- ═══════════════════════════════════════════
+         AVATAR PICKER
+    ═══════════════════════════════════════════ --}}
+    <div class="p-card">
+        <div class="p-card-head">
+            <div class="p-card-head-left">
+                <div class="p-card-head-icon" aria-hidden="true"><i class="ti ti-mood-smile"></i></div>
+                <div>
+                    <div class="p-card-title">Choose Avatar</div>
+                    <div class="p-card-sub">Pick a pre-generated avatar as your profile picture.</div>
+                </div>
+            </div>
+            @if ($selectedAvatar)
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--success);font-weight:600;">
+                    <i class="ti ti-circle-check" aria-hidden="true"></i>
+                    Avatar selected
+                </div>
+            @endif
+        </div>
+        <div class="p-card-body">
+            <div class="avatar-grid" role="listbox" aria-label="Choose an avatar">
                 @foreach ($avatars as $avatar)
-                    <button type="button" wire:click="selectAvatar(@js($avatar))" class="border-0 p-1"
-                        style="
-            width:70px;
-            height:70px;
-            border-radius:50%;
-            overflow:hidden;
-            background: {{ $selectedAvatar === $avatar ? '#6366f1' : '#e5e7eb' }};
-            transform: {{ $selectedAvatar === $avatar ? 'scale(1.1)' : 'scale(1)' }};
-            transition:0.2s;
-        ">
-
-                        <img src="{{ $avatar }}"
-                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-
+                    <button type="button"
+                            wire:click="selectAvatar(@js($avatar))"
+                            class="avatar-item {{ $selectedAvatar === $avatar ? 'selected' : '' }}"
+                            role="option"
+                            aria-selected="{{ $selectedAvatar === $avatar ? 'true' : 'false' }}"
+                            aria-label="Select avatar {{ $loop->iteration }}">
+                        <img src="{{ $avatar }}" alt="Avatar option {{ $loop->iteration }}" loading="lazy">
                     </button>
                 @endforeach
             </div>
+        </div>
 
+        {{-- Save row inside avatar card --}}
+        <div class="save-row">
+            <button type="button" class="btn btn-ghost" wire:click="resetForm" aria-label="Discard changes">
+                <i class="ti ti-refresh" aria-hidden="true"></i>
+                Reset
+            </button>
+            <button type="button"
+                    class="btn btn-primary"
+                    wire:click="save"
+                    wire:loading.attr="disabled"
+                    aria-label="Save profile changes">
+                <span wire:loading.remove wire:target="save">
+                    <i class="ti ti-device-floppy" aria-hidden="true"></i>
+                    Save Changes
+                </span>
+                <span wire:loading wire:target="save"
+                      style="display:flex;align-items:center;gap:8px">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    Saving…
+                </span>
+            </button>
         </div>
     </div>
 
-    <!-- SAVE BUTTON -->
-    <div class="text-end">
-        <button wire:click="save" wire:loading.attr="disabled" class="btn btn-primary px-4 py-2"
-            style="border-radius:10px;">
+    {{-- ═══════════════════════════════════════════
+         CHANGE PASSWORD
+    ═══════════════════════════════════════════ --}}
+    <div class="p-card">
+        <div class="p-card-head">
+            <div class="p-card-head-left">
+                <div class="p-card-head-icon" aria-hidden="true"><i class="ti ti-lock"></i></div>
+                <div>
+                    <div class="p-card-title">Change Password</div>
+                    <div class="p-card-sub">Use a strong password you don't use elsewhere.</div>
+                </div>
+            </div>
+        </div>
+        <div class="p-card-body">
+            <div class="form-grid">
 
-            <span wire:loading.remove>
-                <i class="fa-solid fa-floppy-disk me-1"></i>
-                Save Profile
-            </span>
+                <div class="form-group form-col-full">
+                    <label class="form-label" for="current-password">Current Password</label>
+                    <div class="input-wrap">
+                        <i class="ti ti-lock input-icon" aria-hidden="true"></i>
+                        <input type="password"
+                               id="current-password"
+                               wire:model="currentPassword"
+                               class="form-input @error('currentPassword') is-invalid @enderror"
+                               placeholder="Enter current password"
+                               autocomplete="current-password">
+                    </div>
+                    @error('currentPassword')
+                        <div class="field-error" role="alert"><i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}</div>
+                    @enderror
+                </div>
 
-            <span wire:loading>
-                Saving...
-            </span>
+                <div class="form-group">
+                    <label class="form-label" for="new-password">New Password</label>
+                    <div class="input-wrap">
+                        <i class="ti ti-lock-open input-icon" aria-hidden="true"></i>
+                        <input type="password"
+                               id="new-password"
+                               wire:model="newPassword"
+                               class="form-input @error('newPassword') is-invalid @enderror"
+                               placeholder="Min. 8 characters"
+                               autocomplete="new-password">
+                    </div>
+                    @error('newPassword')
+                        <div class="field-error" role="alert"><i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}</div>
+                    @enderror
+                </div>
 
-        </button>
+                <div class="form-group">
+                    <label class="form-label" for="confirm-password">Confirm New Password</label>
+                    <div class="input-wrap">
+                        <i class="ti ti-lock-check input-icon" aria-hidden="true"></i>
+                        <input type="password"
+                               id="confirm-password"
+                               wire:model="confirmPassword"
+                               class="form-input @error('confirmPassword') is-invalid @enderror"
+                               placeholder="Repeat new password"
+                               autocomplete="new-password">
+                    </div>
+                    @error('confirmPassword')
+                        <div class="field-error" role="alert"><i class="ti ti-alert-circle" aria-hidden="true"></i> {{ $message }}</div>
+                    @enderror
+                </div>
+
+            </div>
+        </div>
+        <div class="save-row">
+            <button type="button"
+                    class="btn btn-primary"
+                    wire:click="updatePassword"
+                    wire:loading.attr="disabled"
+                    aria-label="Update password">
+                <span wire:loading.remove wire:target="updatePassword">
+                    <i class="ti ti-key" aria-hidden="true"></i>
+                    Update Password
+                </span>
+                <span wire:loading wire:target="updatePassword"
+                      style="display:flex;align-items:center;gap:8px">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    Updating…
+                </span>
+            </button>
+        </div>
     </div>
 
-</div>
+    {{-- ═══════════════════════════════════════════
+         DANGER ZONE
+    ═══════════════════════════════════════════ --}}
+    <div class="p-card danger-zone" role="region" aria-label="Danger zone">
+        <div class="p-card-head">
+            <div class="p-card-head-left">
+                <div class="p-card-head-icon" aria-hidden="true"><i class="ti ti-alert-triangle"></i></div>
+                <div>
+                    <div class="p-card-title">Danger Zone</div>
+                    <div class="p-card-sub">These actions are permanent and cannot be undone.</div>
+                </div>
+            </div>
+        </div>
+        <div class="p-card-body">
+            <div class="danger-row">
+                <div class="danger-row-text">
+                    <strong>Sign out everywhere</strong>
+                    <span>Log out from all devices and active sessions.</span>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm" aria-label="Sign out of all sessions">
+                        <i class="ti ti-logout" aria-hidden="true"></i>
+                        Sign Out All
+                    </button>
+                </form>
+            </div>
+            <div class="danger-row">
+                <div class="danger-row-text">
+                    <strong>Delete account</strong>
+                    <span>Permanently delete your account and all associated data.</span>
+                </div>
+                <button type="button"
+                        class="btn btn-danger btn-sm"
+                        onclick="confirmDeleteAccount()"
+                        aria-label="Delete my account permanently">
+                    <i class="ti ti-trash" aria-hidden="true"></i>
+                    Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
 
 
+
+{{-- ═══════════════════════════════════════════════
+     SWEETALERT2 — SUCCESS / ERROR EVENTS
+═══════════════════════════════════════════════ --}}
+<script>
+    function swalTheme() {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        return {
+            background: dark ? '#111d2e' : '#ffffff',
+            color:      dark ? '#f5f9ff' : '#0e1f36',
+        };
+    }
+
+    /* Livewire dispatches 'profile-saved' from the component */
+    window.addEventListener('profile-saved', () => {
+        const t = swalTheme();
+        Swal.fire({
+            icon:              'success',
+            title:             'Profile updated!',
+            text:              'Your changes have been saved successfully.',
+            showConfirmButton: false,
+            timer:             2000,
+            timerProgressBar:  true,
+            background:        t.background,
+            color:             t.color,
+            iconColor:         '#16a34a',
+            customClass:       { popup: 'swal-rounded' },
+        });
+    });
+
+    window.addEventListener('password-update', () => {
+        const t = swalTheme();
+        Swal.fire({
+            icon:              'success',
+            title:             'Password changed',
+            text:              'Your new password is active.',
+            showConfirmButton: false,
+            timer:             2000,
+            timerProgressBar:  true,
+            background:        t.background,
+            color:             t.color,
+            iconColor:         '#16a34a',
+            customClass:       { popup: 'swal-rounded' },
+        });
+    });
+
+    window.addEventListener('profile-error', event => {
+        const t = swalTheme();
+        Swal.fire({
+            icon:               'error',
+            title:              'Something went wrong',
+            text:               event.detail?.[0]?.message ?? 'Please check the form and try again.',
+            confirmButtonColor: '#dc2626',
+            background:         t.background,
+            color:              t.color,
+            customClass:        { popup: 'swal-rounded' },
+        });
+    });
+
+    /* Delete account confirmation */
+    function confirmDeleteAccount() {
+        const t = swalTheme();
+        Swal.fire({
+            icon:                 'warning',
+            title:                'Delete your account?',
+            text:                 'This will permanently remove all your data. This action cannot be undone.',
+            showCancelButton:     true,
+            confirmButtonText:    'Yes, delete my account',
+            cancelButtonText:     'Cancel',
+            confirmButtonColor:   '#dc2626',
+            cancelButtonColor:    'transparent',
+            reverseButtons:       true,
+            background:           t.background,
+            color:                t.color,
+            customClass:          { popup: 'swal-rounded', confirmButton: 'swal-btn-danger', cancelButton: 'swal-btn-cancel' },
+        }).then(result => {
+            if (result.isConfirmed) {
+                @this.deleteAccount();
+            }
+        });
+    }
+</script>
 
 <script>
     document.addEventListener('livewire:init', () => {
@@ -180,3 +490,4 @@
 
     });
 </script>
+</div>{{-- /.profile-page --}}

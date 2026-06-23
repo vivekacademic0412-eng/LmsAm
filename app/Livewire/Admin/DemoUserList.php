@@ -65,9 +65,7 @@ class DemoUserList extends Component
     public function sendLoginMail($userId)
     {
         $user = User::findOrFail($userId);
-
         $token = Str::uuid();
-
         DemoAccessToken::create([
             'user_id'    => $user->id,
             'token'      => $token,
@@ -82,7 +80,6 @@ class DemoUserList extends Component
                 $url
             )
         );
-
         $this->dispatch(
             'success',
             message: 'Secure demo link sent successfully.'

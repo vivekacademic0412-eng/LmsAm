@@ -20,9 +20,16 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.login');
+        return view('demo.lms.register');
     }
-
+    public function Register(Request $request)
+    {
+        return auth()->check()
+            ? redirect()->route('dashboard')
+            : view('demo.lms.register', [
+                'currentStep' => 0
+            ]);
+    }
     // public function login(Request $request): RedirectResponse
     // {
     //     $credentials = $request->validate([
@@ -219,7 +226,7 @@ class AuthController extends Controller
         }
 
         Auth::logout();
-    
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

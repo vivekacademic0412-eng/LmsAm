@@ -2,11 +2,16 @@
 
 namespace App\Livewire;
 
+use App\Mail\DemoLoginCredentialsMail;
 use Livewire\Component;
 use App\Models\State;
 use App\Models\City;
+use App\Models\DemoAccessToken;
+use App\Models\DemoTypeSelection;
 use App\Models\Payment;
-
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 class PaymentForm extends Component
 {
     public $name;
@@ -23,8 +28,9 @@ class PaymentForm extends Component
     {
    
         if (auth()->check()) {
-        $this->name = auth()->user()->name;
+        $this->name = auth()->user()->name .' '. auth()->user()->last_name;
         $this->email = auth()->user()->email;
+         $this->phone = auth()->user()->contact;
     }
         $this->states = State::orderBy('name')->get();
     }
@@ -54,6 +60,7 @@ class PaymentForm extends Component
         $this->validate();
 
         Payment::create([
+            'user_id'  =>auth()->user()->id,
             'name'      => $this->name,
             'email'     => $this->email,
             'phone'     => $this->phone,
@@ -63,7 +70,25 @@ class PaymentForm extends Component
             'status'    => 'success',
             'gateway'   => 'Direct',
         ]);
+         DemoTypeSelection::where('demo_user_id',auth()->user()->id)->update([
+            'is_confirm' =>2,
+            'status'=>'completed',
+        ]);
+        $user = User::findOrFail(auth()->user()->id);
+        $token = Str::uuid();
+        DemoAccessToken::create([
+            'user_id'    => $user->id,
+            'token'      => $token,
+            'expires_at' => now()->addDays(3),
+        ]);
+        $url = route('demo.secure.login', $token);
 
+        Mail::to($user->email)->send(
+            new DemoLoginCredentialsMail(
+                $user,
+                $url
+            )
+        );
         $this->showSuccess = true;
 
         $this->dispatch('payment-success');

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('user_ip', 45)->nullable();
  
             // 'free' or 'paid'
-            $table->enum('demo_type', ['paid_qr', 'paid_qr','free'])->index();
+            $table->enum('demo_type', ['paid_qr', 'paid_online','free'])->index();
           $table->enum('status', ['completed', 'pending','paid'])->index();
             // For paid demos, the price shown at selection time (snapshot —
             // protects historical reporting even if pricing changes later)

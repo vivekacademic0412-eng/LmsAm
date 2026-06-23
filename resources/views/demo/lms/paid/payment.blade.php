@@ -1,5 +1,5 @@
 {{-- resources/views/demo/lms/payment.blade.php --}}
-@extends('demo.layout')
+@extends('layouts.app')
 @section('title', 'Secure Enrollment Payment')
 
 @section('content')
@@ -350,7 +350,5 @@
     }
 
 </style>
-
-        <livewire:payment-form />
-
+  <livewire:payment-form />
 @endsection

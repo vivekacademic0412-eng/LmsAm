@@ -25,17 +25,8 @@ class TrafficController extends Controller
     // demo-type chooser. No login/registration required — that
     // happens later in Phase 5.
 
-    public function Home(Request $request)
-    {
-        
-       
-            return auth()->check()
-    ? redirect()->route('lms.choose-type')
-    : view('demo.lms.register', [
-        'currentStep' => 0
-    ]);
-    }
-  
+
+
     public function dashboardReport(Request $request)
     {
         $range = $request->query('range', 'today'); // today | week | month
@@ -98,9 +89,9 @@ class TrafficController extends Controller
 
         // ── Guard: check existing selection ────────────────────
         $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
- 
+
         if ($existing) {
-           
+
             // Completed paid payment → hard block, go to thank-you
             if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
                 // Restore session keys so thank-you page works
@@ -122,7 +113,8 @@ class TrafficController extends Controller
         return view('demo.lms.choose-type', [
             'currentStep' => 0,
             'paidPrice'   => 999.00,
-            'existingQrStatus'=>$existing->status ??'pending',
+            'existingQrStatus' => $existing->status ?? 'pending',
+            'existingType' => $existing->demo_type,
         ]);
     }
 
@@ -144,9 +136,11 @@ class TrafficController extends Controller
             if ($existing) {
                 // Already completed a paid method → block
                 if (
-                    in_array($existing->demo_type, ['paid_online', 'paid_qr']) &&
+                    $existing->demo_type === 'paid_qr' &&
                     $existing->status === 'completed'
                 ) {
+                    // Payment already completed
+                } {
                     $request->session()->put('demo_type_selection_id', $existing->id);
                     $request->session()->put('demo_type', $existing->demo_type);
                     return redirect()->route('lms.thankyou')
@@ -176,7 +170,7 @@ class TrafficController extends Controller
             $selection = DemoTypeSelection::updateOrCreate(
                 ['demo_user_id' => auth()->id()],
                 [
-                'traffic_source_id'=>session('traffic_source_id'),
+                    'traffic_source_id' => session('traffic_source_id'),
                     'demo_type'      => $demoType,
                     'payment_method' => $paymentMethod,
                     'payment_status' => $paymentStatus,

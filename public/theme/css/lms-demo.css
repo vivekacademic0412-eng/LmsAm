@@ -329,7 +329,7 @@ body {
 .container-fluid {
     width: 100%;
     /* max-width:80%;  */
-    padding: 24px 20px;
+    /* padding: 24px 20px; */
 }
 
 /* ── Bitmoji Guide ── */
@@ -3925,7 +3925,7 @@ textarea.form-control {
 
     gap: 50px;
 
-    padding: 50px 6%;
+    /* padding: 50px 6%; */
 
     background:
         radial-gradient(circle at top right,
@@ -4678,7 +4678,7 @@ textarea.form-control {
 
     border-top: 1px solid var(--line);
 
-    margin-top: 60px;
+    /* margin-top: 60px; */
 
     padding: 18px 5%;
 
@@ -4841,7 +4841,7 @@ textarea.form-control {
 /* ── Wrapper ─────────────────────────────────────────────── */
 .demo-register-wrap {
     width: 100%;
-    max-width: 440px;
+    /* max-width: 440px; */
     background: var(--bg-card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -4852,7 +4852,33 @@ textarea.form-control {
     gap: 1.25rem;
     animation: dreg-rise 0.5s cubic-bezier(.22,.68,0,1.2) both;
 }
+.dreg-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
 
+.dreg-row .dreg-field {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .dreg-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+.dreg-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .dreg-row {
+        grid-template-columns: 1fr;
+    }
+}
 @keyframes dreg-rise {
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }

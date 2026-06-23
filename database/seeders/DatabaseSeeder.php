@@ -33,17 +33,67 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            CourseLevelSeeder::class,
+            CourseTypeSeeder::class,
+            StateSeeder::class,
+            CitySeeder::class,
+            EducationLevelSeeder::class,
+
+        ]);
         $password = Hash::make('password');
         $faker = fake();
 
         $users = [
-            ['name' => 'Super Admin', 'email' => 'superadmin@lms.test', 'role' => User::ROLE_SUPERADMIN],
-            ['name' => 'Admin', 'email' => 'admin@lms.test', 'role' => User::ROLE_ADMIN],
-            ['name' => 'Manager HR', 'email' => 'manager.hr@lms.test', 'role' => User::ROLE_MANAGER_HR],
-            ['name' => 'IT', 'email' => 'it@lms.test', 'role' => User::ROLE_IT],
-            ['name' => 'Trainer', 'email' => 'trainer@lms.test', 'role' => User::ROLE_TRAINER],
-            ['name' => 'Student', 'email' => 'student@lms.test', 'role' => User::ROLE_STUDENT],
-            ['name' => 'Demo User', 'email' => 'demo@lms.test', 'role' => User::ROLE_DEMO],
+            [
+                'name' => 'Super Admin',
+                'email' => 'superadmin@lms.test',
+                'role' => User::ROLE_SUPERADMIN,
+                'contact' => '9388399939',
+                'gender' => 'male',
+            ],
+            [
+                'name' => 'Admin',
+                'email' => 'admin@lms.test',
+                'role' => User::ROLE_ADMIN,
+                'contact' => '9388399940',
+                'gender' => 'male',
+            ],
+            [
+                'name' => 'Manager HR',
+                'email' => 'manager.hr@lms.test',
+                'role' => User::ROLE_MANAGER_HR,
+                'contact' => '9388399941',
+                'gender' => 'female',
+            ],
+            [
+                'name' => 'IT',
+                'email' => 'it@lms.test',
+                'role' => User::ROLE_IT,
+                'contact' => '9388399942',
+                'gender' => 'male',
+            ],
+            [
+                'name' => 'Trainer',
+                'email' => 'trainer@lms.test',
+                'role' => User::ROLE_TRAINER,
+                'contact' => '9388399943',
+                'gender' => 'male',
+            ],
+            [
+                'name' => 'Student',
+                'email' => 'student@lms.test',
+                'role' => User::ROLE_STUDENT,
+                'contact' => '9388399944',
+                'gender' => 'other',
+            ],
+            [
+                'name' => 'Demo User',
+                'email' => 'demo@lms.test',
+                'role' => User::ROLE_DEMO,
+                'contact' => '9388399945',
+                'gender' => 'other',
+            ],
         ];
         $avatarFiles = [
             'avatars/seed-1.svg',
@@ -60,6 +110,8 @@ class DatabaseSeeder extends Seeder
                     'role' => $data['role'],
                     'is_active' => true,
                     'password' => $password,
+                    'contact'   => $data['contact'],
+                    'gender'    => $data['gender'],
                 ]
             );
             if (! $user->avatar) {
@@ -78,23 +130,26 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($bulkUsers as $role => $count) {
-            for ($i = 1; $i <= $count; $i++) {
-                $user = User::updateOrCreate(
-                    ['email' => "{$role}{$i}@lms.test"],
-                    [
-                        'name' => ucwords(str_replace('_', ' ', $role)) . " {$i}",
-                        'role' => $role,
-                        'is_active' => $faker->boolean(92),
-                        'password' => $password,
-                    ]
-                );
-                if (! $user->avatar) {
-                    $user->avatar = $avatarFiles[($i + strlen($role)) % count($avatarFiles)];
-                    $user->save();
-                }
-            }
-        }
+    for ($i = 1; $i <= $count; $i++) {
 
+        $user = User::updateOrCreate(
+            ['email' => "{$role}{$i}@lms.test"],
+            [
+                'name'      => ucwords(str_replace('_', ' ', $role)) . " {$i}",
+                'role'      => $role,
+                'is_active' => $faker->boolean(92),
+                'password'  => $password,
+                'contact'   => $faker->numerify('98########'),
+                'gender'    => $faker->randomElement(['male', 'female', 'other']),
+            ]
+        );
+
+        if (! $user->avatar) {
+            $user->avatar = $avatarFiles[($i + strlen($role)) % count($avatarFiles)];
+            $user->save();
+        }
+    }
+}
         // $categoryNames = [
         //     'HR Training',
         //     'IT Security',
@@ -245,21 +300,12 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
-        EducationLevel::insert([
-            ['name' => '10th Pass', 'slug' => '10th'],
-            ['name' => '12th Pass', 'slug' => '12th'],
-            ['name' => 'Graduate', 'slug' => 'graduate'],
-            ['name' => 'Post Graduate', 'slug' => 'postgraduate'],
-            ['name' => 'Other', 'slug' => 'other'],
-        ]);
+
         CourseType::insert([['name' => 'Basic', 'status' => 1,], ['name' => 'Professional', 'status' => 1,],]);
         CourseLevel::insert([['name' => 'Beginner', 'status' => 1,], ['name' => 'Intermediate', 'status' => 1,], ['name' => 'Advanced', 'status' => 1,],]);
         $basicType = CourseType::where('name', 'Basic')->first();
         $professionalType = CourseType::where('name', 'Professional')->first();
-
         $levels = CourseLevel::pluck('id', 'name');
-
-
         $creator = User::where('role', User::ROLE_SUPERADMIN)->first()
             ?? User::where('role', User::ROLE_ADMIN)->first();
 

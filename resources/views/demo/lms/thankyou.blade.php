@@ -1,5 +1,5 @@
 {{-- resources/views/demo/lms/thankyou.blade.php --}}
-@extends('demo.layout')
+@extends('layouts.app')
 @section('title', 'Booking Confirmed!')
 
 @section('content')
@@ -30,12 +30,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 32px 20px;
+            padding: 10px 20px;
         }
 
         .ty-shell {
             width: 100%;
-            max-width: 720px;
+            /* max-width:920px; */
         }
 
         /* ── TOP CONFETTI CARD ── */
@@ -646,11 +646,11 @@
 
             {{-- ── CTA BUTTONS ── --}}
             <div class="ty-actions">
-                <a href="#" class="ty-btn-primary">
+                <a href="{{ route('dashboard') }}" class="ty-btn-primary">
                     <i class="fas fa-layout-dashboard" aria-hidden="true"></i>
                     Go to Dashboard
                 </a>
-                <a href="#" class="ty-btn-outline">
+                <a href="{{ route('login') }}" class="ty-btn-outline">
                     <i class="fas fa-home" aria-hidden="true"></i>
                     Back to Home
                 </a>

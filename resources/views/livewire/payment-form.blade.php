@@ -1,4 +1,3 @@
-
 <div class="pay-page">
 
     {{-- ══ LEFT HERO ══ --}}
@@ -6,7 +5,7 @@
         <div class="pay-hero-deco"></div>
 
         <div class="pay-logo">
-            
+
             <span>Live Skills Traning Program</span>
         </div>
 
@@ -17,7 +16,8 @@
 
             <h1>Start Your <em>Learning Journey</em> Today</h1>
 
-            <p>Get instant access to our LMS platform, premium study material, recorded classes, assignments, assessments and expert mentor support.</p>
+            <p>Get instant access to our LMS platform, premium study material, recorded classes, assignments,
+                assessments and expert mentor support.</p>
 
             <div class="feat-grid">
                 <div class="feat-box">
@@ -51,7 +51,8 @@
             </div>
 
             <div class="hero-testimonial">
-                <p>"This platform completely changed how I approach learning. The structured path and mentor support made all the difference!"</p>
+                <p>"This platform completely changed how I approach learning. The structured path and mentor support
+                    made all the difference!"</p>
                 <div class="testi-author">
                     <div class="testi-avatar">RK</div>
                     <div>
@@ -74,7 +75,7 @@
 
     {{-- ══ RIGHT FORM ══ --}}
     <div class="pay-form-panel">
-<img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor3 shape">
+        <img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor3 shape">
         <div class="pf-header">
             <h2>Enrollment Checkout</h2>
             <p>Complete your payment to activate your LMS account instantly.</p>
@@ -97,19 +98,27 @@
             <div class="field-group">
                 <label>Full Name</label>
                 <input type="text" wire:model.blur="name" class="custom-input" placeholder="Enter your full name">
-                @error('name') <small class="error-text">{{ $message }}</small> @enderror
+                @error('name')
+                    <small class="error-text">{{ $message }}</small>
+                @enderror
             </div>
 
             <div class="field-group">
                 <label>Email Address</label>
-                <input type="email" wire:model.blur="email" class="custom-input" placeholder="Enter your email address">
-                @error('email') <small class="error-text">{{ $message }}</small> @enderror
+                <input type="email" wire:model.blur="email" class="custom-input"
+                    placeholder="Enter your email address">
+                @error('email')
+                    <small class="error-text">{{ $message }}</small>
+                @enderror
             </div>
 
             <div class="field-group">
                 <label>Mobile Number</label>
-                <input type="text" wire:model.blur="phone" class="custom-input" placeholder="Enter your mobile number">
-                @error('phone') <small class="error-text">{{ $message }}</small> @enderror
+                <input type="text" wire:model.blur="phone" class="custom-input"
+                    placeholder="Enter your mobile number">
+                @error('phone')
+                    <small class="error-text">{{ $message }}</small>
+                @enderror
             </div>
 
             <div class="field-row">
@@ -121,7 +130,9 @@
                             <option value="{{ $state->id }}">{{ $state->name }}</option>
                         @endforeach
                     </select>
-                    @error('state_id') <small class="error-text">{{ $message }}</small> @enderror
+                    @error('state_id')
+                        <small class="error-text">{{ $message }}</small>
+                    @enderror
                 </div>
                 <div class="field-group">
                     <label>City</label>
@@ -131,7 +142,9 @@
                             <option value="{{ $city->id }}">{{ $city->name }}</option>
                         @endforeach
                     </select>
-                    @error('city_id') <small class="error-text">{{ $message }}</small> @enderror
+                    @error('city_id')
+                        <small class="error-text">{{ $message }}</small>
+                    @enderror
                 </div>
             </div>
 
@@ -166,19 +179,26 @@
 
     {{-- ══ SUCCESS OVERLAY ══ --}}
     @if ($showSuccess)
-    <div class="success-overlay">
-        <div class="success-card">
-            <div class="success-icon-wrap">
-                <i class="fas fa-check"></i>
+        <div class="success-overlay">
+            <div class="success-card">
+                <div class="success-icon-wrap">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2>Payment Successful!</h2>
+                <p>
+                    Congratulations! Your enrollment is complete. We've sent your demo access link to your registered
+                    email address.
+                </p>
+
+                <div class="progress-track">
+                    <div class="progress-fill"></div>
+                </div>
+
+                <p class="redirect-txt">
+                    Taking you to your LMS Dashboard...
+                </p>
             </div>
-            <h2>Payment Successful!</h2>
-            <p>Your enrollment has been completed successfully. Welcome to LearnPro LMS!</p>
-            <div class="progress-track">
-                <div class="progress-fill"></div>
-            </div>
-            <p class="redirect-txt">Redirecting to LMS Dashboard...</p>
         </div>
-    </div>
     @endif
 
     @script
@@ -193,7 +213,7 @@
             //     showConfirmButton: false
             // });
             setTimeout(() => {
-                window.location.href = "{{ route('lms.landing') }}";
+                window.location.href = "{{ route('dashboard') }}";
             }, 3000);
         });
     </script>

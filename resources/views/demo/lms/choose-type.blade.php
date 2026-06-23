@@ -1,5 +1,5 @@
 {{-- resources/views/demo/lms/choose-type.blade.php --}}
-@extends('demo.layout')
+@extends('layouts.app')
 @section('title', 'Choose Your Demo Type')
 
 @section('content')
@@ -649,8 +649,8 @@
         }
 
         /* ══════════════════════════════════════════════════════════
-                   QR MODAL
-                ══════════════════════════════════════════════════════════ */
+                       QR MODAL
+                    ══════════════════════════════════════════════════════════ */
         .modal-backdrop {
             display: none;
             position: fixed;
@@ -1380,6 +1380,8 @@
 
     <script>
         const qrPaymentStatus = "{{ $existingQrStatus ?? 'pending' }}";
+        const qrPaymentType = "{{ $existingType ?? 'free' }}";
+
         /* ── DOM REFS ─────────────────────────────────────────── */
         const typeInput = document.getElementById('demoTypeInput');
         const submitBtn = document.getElementById('submitBtn');
@@ -1429,13 +1431,15 @@
 
         /* ── MODAL OPEN / CLOSE ───────────────────────────────── */
         function openQrModal() {
-            alert(qrPaymentStatus);
-            if (qrPaymentStatus === 'completed') {
 
+            if (
+                qrPaymentStatus === 'completed' &&
+                (qrPaymentType === 'paid_qr' || qrPaymentType === 'paid_online')
+            ) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Payment Already Completed',
-                    text: 'Your payment has already been confirmed.',
+                    text: 'Your payment has already been confirmed. Our team will contact you via email and activate your demo access.',
                     confirmButtonText: 'Continue'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -1444,11 +1448,11 @@
                 });
 
                 return;
-            }else{
-      qrModal.classList.add('open');
-            document.body.style.overflow = 'hidden';
+            } else {
+                qrModal.classList.add('open');
+                document.body.style.overflow = 'hidden';
             }
-            
+
         }
 
         function closeQrModal() {
@@ -1502,7 +1506,7 @@
                     }
                 })
                 .catch(() => {
-                    alert('Network error. Please check your connection and try again.');
+
                     btnConfirmPay.disabled = false;
                     btnConfirmPay.innerHTML = '<i class="fas fa-circle-check"></i> Confirm Payment & Continue';
                 });

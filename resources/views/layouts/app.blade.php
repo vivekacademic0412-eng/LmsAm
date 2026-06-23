@@ -1,10 +1,10 @@
-﻿<x-util.header />
+<x-util.header />
 <x-util.aside />
 <x-util.main />
 <!-- ══════════════ MAIN CONTENT ══════════════ -->
 <main class="main-content" id="main-content" role="main" tabindex="-1">
     <!-- Page header -->
-    <div class="page-header">
+    {{-- <div class="page-header">
         <div>
             <h1 class="page-title">Dashboard</h1>
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
@@ -23,7 +23,7 @@
                 Add Student
             </button>
         </div>
-    </div>
+    </div> --}}
     @yield('content')
 </main>
 <x-util.footer />

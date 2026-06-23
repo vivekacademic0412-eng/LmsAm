@@ -50,13 +50,20 @@
                class="sb-item {{ $isActive('student.courses') ? 'active' : '' }}"
                {{ $isActive('student.courses') ? 'aria-current=page' : '' }}>
                 <i class="ti ti-books item-icon" aria-hidden="true"></i>
-                <span class="item-label">My Courses</span>
+                <span class="item-label">Explore Courses</span>
             </a>
-            <a href="{{ route('student.history') }}"
-               class="sb-item {{ $isActive('student.history') ? 'active' : '' }}"
-               {{ $isActive('student.history') ? 'aria-current=page' : '' }}>
+            <a href="{{ route('lms.choose-type') }}"
+               class="sb-item {{ $isActive('lms.choose-type') ? 'active' : '' }}"
+               {{ $isActive('lms.choose-type') ? 'aria-current=page' : '' }}>
                 <i class="ti ti-history item-icon" aria-hidden="true"></i>
-                <span class="item-label">History</span>
+                <span class="item-label">Book Demo Session</span>
+            </a>
+            <a href="{{ route('student.certificates') }}"
+               class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
+               {{ $isActive('student.certificates') ? 'aria-current=page' : '' }}>
+                <i class="ti ti-bell item-icon" aria-hidden="true"></i>
+               
+                <span class="item-label">Latest Updates</span>
             </a>
             <a href="{{ route('student.certificates') }}"
                class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
