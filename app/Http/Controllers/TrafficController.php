@@ -113,8 +113,8 @@ class TrafficController extends Controller
         return view('demo.lms.choose-type', [
             'currentStep' => 0,
             'paidPrice'   => 999.00,
-            'existingQrStatus' => $existing->status ?? 'pending',
-            'existingType' => $existing->demo_type,
+            'existingQrStatus' => $existing?->status ?? 'pending',
+            'existingType' => $existing?->demo_type ?? null,
         ]);
     }
 

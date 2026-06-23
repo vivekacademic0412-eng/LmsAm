@@ -1380,7 +1380,7 @@
 
     <script>
         const qrPaymentStatus = "{{ $existingQrStatus ?? 'pending' }}";
-        const qrPaymentType = "{{ $existingType ?? 'free' }}";
+       
 
         /* ── DOM REFS ─────────────────────────────────────────── */
         const typeInput = document.getElementById('demoTypeInput');
@@ -1432,23 +1432,26 @@
         /* ── MODAL OPEN / CLOSE ───────────────────────────────── */
         function openQrModal() {
 
-            if (
-                qrPaymentStatus === 'completed' &&
-                (qrPaymentType === 'paid_qr' || qrPaymentType === 'paid_online')
-            ) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Payment Already Completed',
-                    text: 'Your payment has already been confirmed. Our team will contact you via email and activate your demo access.',
-                    confirmButtonText: 'Continue'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('lms.thankyou') }}";
-                    }
-                });
+           const qrPaymentType = "{{ $existingType ?? '' }}";
 
-                return;
-            } else {
+if (
+    qrPaymentType &&
+    qrPaymentStatus === 'completed' &&
+    (qrPaymentType === 'paid_qr' || qrPaymentType === 'paid_online')
+) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Payment Already Completed',
+        text: 'Your payment has already been confirmed. Our team will contact you via email.',
+        confirmButtonText: 'Continue'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{{ route('lms.thankyou') }}";
+        }
+    });
+
+    return;
+} else {
                 qrModal.classList.add('open');
                 document.body.style.overflow = 'hidden';
             }
