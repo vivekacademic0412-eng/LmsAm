@@ -19,7 +19,7 @@
     onclick="toggleSidebar()">
     <i class="ti ti-chevron-left"></i>
 </button>
-
+ @stack('script')
 @livewireScripts
 <!-- ═══════════════════════════════════════════════
          JAVASCRIPT

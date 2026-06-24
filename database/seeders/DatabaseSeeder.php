@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             StateSeeder::class,
             CitySeeder::class,
             EducationLevelSeeder::class,
+            HeroSectionSeeder::class,
 
         ]);
         $password = Hash::make('password');

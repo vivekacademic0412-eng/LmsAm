@@ -230,7 +230,7 @@
                 @php
                     $studentGroupActive = $isActive('enrollments.index') || $isActive('submissions.index');
                     $sysGroupActive     = $isActive('activity-logs.index') || $isActive('users.index') || $isActive('broadcast-notifications.index');
-                    $demoGroupActive    = $isActive('demo-tasks.create-page') || $isActive('demo-tasks.assign-page') || $isActive('demo-feature-video.index') || $isActive('demo-review-videos.index');
+                    $demoGroupActive    = $isActive('demo-tasks.create-page') || $isActive('demo-tasks.assign-page') || $isActive('demo-feature-video.index') || $isActive('demo-review-videos.index') || $isActive('admin.demo-hero');
                     $demoStagesActive   = $isActive('admin.feedbacks') || $isActive('admin.demo-students') || $isActive('admin.demo-submission-stage');
                 @endphp
 
@@ -334,6 +334,12 @@
                                {{ $isActive('demo-feature-video.index') ? 'aria-current=page' : '' }}>
                                 <i class="ti ti-video" aria-hidden="true"></i>
                                 Feature Video
+                            </a>
+                            <a href="{{ route('admin.demo-hero') }}"
+                               class="sb-sub-item {{ $isActive('admin.demo-hero') ? 'active' : '' }}"
+                               {{ $isActive('admin.demo-hero') ? 'aria-current=page' : '' }}>
+                                <i class="ti ti-video" aria-hidden="true"></i>
+                                Hero Section -Banner
                             </a>
                             <a href="{{ route('demo-review-videos.index') }}"
                                class="sb-sub-item {{ $isActive('demo-review-videos.index') ? 'active' : '' }}"

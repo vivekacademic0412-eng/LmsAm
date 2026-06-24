@@ -20,7 +20,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('demo.lms.register');
+        return view('auth.login');
     }
     public function Register(Request $request)
     {

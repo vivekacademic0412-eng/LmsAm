@@ -14,4 +14,7 @@ class DemoUserController extends Controller
     public function View(){
         return view('backend.demo-stages.submission-stage');
     }
+    public function HeroSection(){
+        return view('backend.admin.hero-section');
+    }
 }

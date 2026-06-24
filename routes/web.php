@@ -122,6 +122,8 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
         // ── Admin: Demo Students stages Onbording ────────────────────────────────────────────
         Route::get('/demo-students', [DemoUserController::class, 'adminIndex'])->name('admin.demo-students');
         Route::get('/demo-submission-stage', [DemoUserController::class, 'View'])->name('admin.demo-submission-stage');
+
+        Route::get('demo-hero-section', [DemoUserController::class, 'HeroSection'])->name('admin.demo-hero');
     });
 
     Route::get('/course-categories', [CourseCategoryController::class, 'index'])->name('course-categories.index');

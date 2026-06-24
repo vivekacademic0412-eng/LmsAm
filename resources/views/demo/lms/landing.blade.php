@@ -2,100 +2,96 @@
 @section('title', 'LIVE Skills Training Programs')
 @section('content')
     <div class="lms-landing">
-        
-        <section class="hero-section">
-            <div class="hero-left">
-                <div class="logo-tag">
-                    🔴 LIVE DEMO SESSION
+
+
+        @if ($hero)
+            <section class="hero-section">
+
+                <div class="hero-left">
+
+                    <div class="logo-tag">
+                        🔴 LIVE DEMO SESSION
+                    </div>
+
+                    <h1>
+                        {{ $hero->heading_prefix }}
+                        <span>{{ $hero->heading_highlight }}</span>
+                        {{ $hero->heading_bold }} {{ $hero->heading_suffix }}
+                    </h1>
+
+                    <p>
+                        {{ $hero->lede }}
+                    </p>
+
+                    <div class="hero-buttons">
+                        <a href="{{ $hero->cta_primary_url }}" class="btn-primary-custom">
+                            {{ $hero->cta_primary_label }}
+                        </a>
+
+                        <a href="{{ $hero->cta_secondary_url }}" class="btn-outline-custom">
+                            {{ $hero->cta_secondary_label }}
+                        </a>
+                    </div>
+
+                    <div class="hero-features">
+                        @foreach ($hero->stats as $stat)
+                            <div class="feature-pill">
+                                {{ $stat->label }}
+                            </div>
+                        @endforeach
+                    </div>
+
                 </div>
-                <h1>
-                    Welcome to <span>LIVE Skills Training Programs</span>
-                </h1>
-                <p>
-                    We’re excited to have you here! Explore your live demo session,
-                    interact with expert mentors, discover career-focused courses,
-                    and experience how practical learning can transform your future.
-                </p>
-                <div class="hero-buttons">
-                    <a href="#courses" class="btn-primary-custom">
-                       Explore Demo Courses
-                    </a>
-                    <a href="#reviews" class="btn-outline-custom">
-                       Student Success Stories
-                    </a>
-                </div>
-                <div class="hero-features">
 
-                    <div class="feature-pill">
-                         Live Demo Classes
-                    </div>
+                <div class="welcome-hero hero-right">
 
-                    <div class="feature-pill">
-                       Expert Trainers
-                    </div>
+                    <div class="mentor-assistant">
 
-                    <div class="feature-pill">
-                     Hands-on Learning
-                    </div>
+                        <div class="shape shape-1"></div>
+                        <div class="shape shape-2"></div>
 
-                    <div class="feature-pill">
-                       Career Growth
-                    </div>
-
-                </div>
-
-            </div>
-            <div class="welcome-hero hero-right">
-
-
-
-
-                <!-- AI Guide Bitmoji -->
-
-                <div class="mentor-assistant">
-                    <div class="shape shape-1"></div>
-                   
-                    <div class="shape shape-2"></div>
-                    <img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor1 shape">
-                     <img src="{{ asset('theme/images/am21.png') }}" alt="Mentor" title="Menntor" class="image-back-mentor2 shape">
-                    <div class="mentor-image">
-                        <img src="{{ asset('theme/images/hii-bitmoji.png') }}" alt="Mentor" title="Mentor">
-                        <span class="live-dot"></span>
-                    </div>
-
-                    <div class="mentor-content">
-
-                        <span class="mentor-label">
-                            Your Personal Guide
-                        </span>
-
-                        <h4>
-                            Hi, I'm Academic Mantra 👋
-                        </h4>
-
-                        <p>
-                            I'll guide you through this LIVE demo journey,
-                            show courses, videos and help you explore your future skills.
-                        </p>
-                        @if (!session('demo_user_id'))
-                            <button class="">
-                                <a href="{{ route('lms.step1') }}" style="text-decoration:none;color:white;">Start Demo
-                                    →</a>
-                            </button>
+                        {{-- Hand images --}}
+                        @if (is_array($hero->hand_images))
+                            @foreach ($hero->hand_images as $img)
+                                <img src="{{ asset($img) }}" class="image-back-mentor1 shape" alt="mentor">
+                            @endforeach
                         @endif
+
+                        <div class="mentor-image">
+                            <img src="{{ asset($hero->mascot_image) }}" alt="Mentor">
+                            <span class="live-dot"></span>
+                        </div>
+
+                        <div class="mentor-content">
+
+                            <span class="mentor-label">
+                                {{ $hero->guide_tag }}
+                            </span>
+
+                            <h4>
+                                {{ $hero->guide_name }} 👋
+                            </h4>
+
+                            <p>
+                                {{ $hero->guide_text }}
+                            </p>
+
+                            @if (!session('demo_user_id'))
+                                <button>
+                                    <a href="{{ route('lms.step1') }}" style="text-decoration:none;color:white;">
+                                        Start Demo →
+                                    </a>
+                                </button>
+                            @endif
+
+                        </div>
+
                     </div>
 
                 </div>
 
-
-
-
-
-            </div>
-
-
-        </section>
-
+            </section>
+        @endif
         @if (count($feedbacks) > 0)
             <section class="section review-section" id="reviews">
 
@@ -287,8 +283,8 @@
 
 
         <!-- ======================================
-                                                 CHOOSE YOUR LEARNING PATH
-                                            ====================================== -->
+                                                     CHOOSE YOUR LEARNING PATH
+                                                ====================================== -->
 
         <section class="section learning-path">
 
@@ -501,8 +497,8 @@
         </section>
 
         <!-- ======================================
-                                                 COURSE CATEGORIES (DYNAMIC)
-                                            ====================================== -->
+                                                     COURSE CATEGORIES (DYNAMIC)
+                                                ====================================== -->
 
         <section class="section">
 

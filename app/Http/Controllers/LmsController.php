@@ -15,6 +15,7 @@ use App\Models\DemoUser;
 use App\Models\SubmittedDemos;
 use App\Models\Course;
 use App\Models\DemoAccessToken;
+use App\Models\HeroSection;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -36,7 +37,12 @@ class LmsController extends Controller
             ->latest()
             ->take(10)
             ->get();
-        return view('demo.lms.landing', compact('categories', 'courses', 'feedbacks') + [
+            $hero = HeroSection::with(['stats', 'ratings'])
+    ->where('is_active', 1)
+    ->first();
+
+
+        return view('demo.lms.landing', compact('categories', 'courses', 'feedbacks','hero') + [
             'currentStep' => 1
         ]);
     }
