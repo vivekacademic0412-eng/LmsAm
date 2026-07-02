@@ -168,7 +168,7 @@
                     stroke-width="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-                Join Free Demo
+               Register
             </span>
             <span wire:loading class="dreg-loading">
                 <svg class="dreg-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none"
