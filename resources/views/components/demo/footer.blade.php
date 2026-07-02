@@ -15,13 +15,13 @@
            </div>
 
 
-           <div class="footer-links">
+           {{-- <div class="footer-links">
 
                <a href="#courses" title="Courses">
                    Courses
                </a>
 
-               <a href="#reviews" title="Reviews">
+               <a href="https://www.academicmantraservices.com/reviews" title="Reviews">
                    Reviews
                </a>
 
@@ -29,7 +29,7 @@
                    Support
                </a>
 
-           </div>
+           </div> --}}
            <div class="footer-copy">
                © {{ date('Y') }} Academic Mantra Services.
                All Rights Reserved.

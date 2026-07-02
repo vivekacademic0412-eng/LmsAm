@@ -12,7 +12,7 @@
         </div>
 
         <div class="form-header">
-            <h2>👋 Welcome Back</h2>
+            <h1>👋 Welcome Back</h1>
             <p>
                 Sign in to access your dashboard, continue your learning journey,
                 manage assignments, join live training sessions, and track your progress.
@@ -116,17 +116,11 @@
         </form>
 
         <div class="divider">
-            <hr><span>Secure Access For</span><hr><br>
-               <hr><a href="{{ route('lms.demo') }}" class="Register" style="text-decoration: none;">Register</a><hr>
+            <hr><span>Secure Access For</span><hr>
+               
         </div>
 
-        <div class="role-row">
-            <span class="role-badge super">Super Admin</span>
-            <span class="role-badge admin">Admin</span>
-            <span class="role-badge trainer">Trainer</span>
-            <span class="role-badge learner">Learner</span>
-        </div>
-
+      
     </section>
 
     {{-- RIGHT: HERO SIDE --}}

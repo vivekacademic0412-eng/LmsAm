@@ -1,7 +1,7 @@
 {{-- resources/views/demo/lms/choose-type.blade.php --}}
 @extends('demo.layout')
-@section('title', 'Register')
-
+@section('title', ' Register for AI Training & Internships | Academic Mantra Services')
+@section('meta_description', 'Create your Academic Mantra LMS account to enroll in AI-integrated training, live internships, certifications, and access your student dashboard.')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/demo-register.css') }}">
     {{-- Animate.css for SweetAlert transitions --}}

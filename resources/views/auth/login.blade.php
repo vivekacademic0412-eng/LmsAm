@@ -1,4 +1,6 @@
 @extends('layouts.auth')
+@section('title', 'Academic Mantra LMS Login | Student Portal Access Now')
+@section('meta_description', 'Log in to your Academic Mantra LMS account to access your courses, internships, assignments, learning dashboard, and student resources securely.')
 @section('content')
 
     <button type="button" class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">
@@ -98,12 +100,7 @@
 
             <div class="divider"><hr><span>Secure access for</span><hr></div>
 
-            <div class="role-row">
-                <span class="role-badge super">Super Admin</span>
-                <span class="role-badge admin">Admin</span>
-                <span class="role-badge trainer">Trainer</span>
-                <span class="role-badge learner">Learner</span>
-            </div>
+           
         </section>
 
         <section class="hero-side">
