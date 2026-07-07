@@ -88,13 +88,13 @@ class DatabaseSeeder extends Seeder
                 'contact' => '9388399944',
                 'gender' => 'other',
             ],
-            [
-                'name' => 'Demo User',
-                'email' => 'demo@lms.test',
-                'role' => User::ROLE_DEMO,
-                'contact' => '9388399945',
-                'gender' => 'other',
-            ],
+            // [
+            //     'name' => 'Demo User',
+            //     'email' => 'demo@lms.test',
+            //     'role' => User::ROLE_DEMO,
+            //     'contact' => '9388399945',
+            //     'gender' => 'other',
+            // ],
         ];
         $avatarFiles = [
             'avatars/seed-1.svg',
@@ -127,7 +127,7 @@ class DatabaseSeeder extends Seeder
             User::ROLE_IT => 8,
             User::ROLE_TRAINER => 12,
             User::ROLE_STUDENT => 40,
-            User::ROLE_DEMO => 6,
+            // User::ROLE_DEMO => 6,
         ];
 
         foreach ($bulkUsers as $role => $count) {
@@ -151,113 +151,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 }
-        // $categoryNames = [
-        //     'HR Training',
-        //     'IT Security',
-        //     'Leadership',
-        //     'Finance Basics',
-        //     'Project Management',
-        //     'Communication Skills',
-        //     'Data Analysis',
-        //     'Sales Excellence',
-        //     'Customer Support',
-        //     'Compliance and Policy',
-        // ];
-        // $categories = [];
-        // $thumbnailFiles = [
-        //     'images/course-1.svg',
-        //     'images/course-2.svg',
-        //     'images/course-3.svg',
-        //     'images/course-4.svg',
-        //     'images/course-5.svg',
-        //     'images/course-6.svg',
-        // ];
-
-        // foreach ($categoryNames as $name) {
-        //     $slug = Str::slug($name);
-        //     $thumb = $thumbnailFiles[array_search($name, $categoryNames, true) % count($thumbnailFiles)];
-        //     $categories[$slug] = CourseCategory::updateOrCreate(
-        //         ['slug' => $slug],
-        //         ['name' => $name, 'description' => $name.' related courses', 'thumbnail' => $thumb]
-        //     );
-        // }
-
-        // $creator = User::where('role', User::ROLE_SUPERADMIN)->first()
-        //     ?? User::where('role', User::ROLE_ADMIN)->first();
-
-        // if ($creator) {
-        //     $courseTitles = [
-        //         'Foundations',
-        //         'Beginner Track',
-        //         'Intermediate Workshop',
-        //         'Advanced Practice',
-        //         'Case Study Program',
-        //     ];
-
-        //     foreach ($categories as $categorySlug => $category) {
-        //         foreach ($courseTitles as $index => $courseTitle) {
-        //             $title = "{$category->name} {$courseTitle}";
-        //             $thumb = $thumbnailFiles[($index + strlen($categorySlug)) % count($thumbnailFiles)];
-        //             $course = Course::updateOrCreate(
-        //                 ['slug' => "{$categorySlug}-".($index + 1)],
-        //                 [
-        //                     'category_id' => $category->id,
-        //                     'title' => $title,
-        //                     'description' => "{$title} dummy content for LMS testing.",
-        //                     'duration_hours' => rand(2, 16),
-        //                     'thumbnail' => $thumb,
-        //                     'created_by' => $creator->id,
-        //                 ]
-        //             );
-
-        //             for ($weekNo = 1; $weekNo <= 2; $weekNo++) {
-        //                 $week = CourseWeek::updateOrCreate(
-        //                     [
-        //                         'course_id' => $course->id,
-        //                         'week_number' => $weekNo,
-        //                     ],
-        //                     [
-        //                         'title' => "Week {$weekNo} Learning",
-        //                     ]
-        //                 );
-
-        //                 for ($sessionNo = 1; $sessionNo <= 2; $sessionNo++) {
-        //                     $session = CourseSession::updateOrCreate(
-        //                         [
-        //                             'course_week_id' => $week->id,
-        //                             'session_number' => $sessionNo,
-        //                         ],
-        //                         [
-        //                             'title' => "Session {$sessionNo}",
-        //                         ]
-        //                     );
-
-        //                     $items = [
-        //                         [CourseSessionItem::TYPE_INTRO, 'Introduction Material', 'video_or_ppt'],
-        //                         [CourseSessionItem::TYPE_MAIN_VIDEO, 'Main Video', 'video'],
-        //                         [CourseSessionItem::TYPE_TASK, 'Task', null],
-        //                         [CourseSessionItem::TYPE_QUIZ, 'Quiz', null],
-        //                     ];
-
-        //                     foreach ($items as [$type, $titlePart, $resourceType]) {
-        //                         CourseSessionItem::updateOrCreate(
-        //                             [
-        //                                 'course_session_id' => $session->id,
-        //                                 'item_type' => $type,
-        //                             ],
-        //                             [
-        //                                 'title' => "{$titlePart} - Week {$weekNo} Session {$sessionNo}",
-        //                                 'resource_type' => $resourceType,
-        //                                 'content' => "Dummy {$titlePart} content for {$course->title}.",
-        //                                 'resource_url' => 'https://example.com/resource/'.Str::slug($course->title)."/{$weekNo}/{$sessionNo}/{$type}",
-        //                             ]
-        //                         );
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+      
 
         $categoryNames = [
             'AI-Integrated Digital Marketing Training Course',

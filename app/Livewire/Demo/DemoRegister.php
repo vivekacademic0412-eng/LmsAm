@@ -148,8 +148,12 @@ public function register()
         session()->flash('error', $e->getMessage());
 
         // Temporary debug
-        dd($e->getMessage());
+        // dd($e->getMessage());
     }
+}
+public function updated($property)
+{
+    $this->validateOnly($property);
 }
     public function render()
     {
