@@ -58,19 +58,19 @@
                 <i class="ti ti-history item-icon" aria-hidden="true"></i>
                 <span class="item-label">Book Demo Session</span>
             </a>
-            <a href="{{ route('student.certificates') }}"
+            {{-- <a href="{{ route('student.certificates') }}"
                class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
                {{ $isActive('student.certificates') ? 'aria-current=page' : '' }}>
                 <i class="ti ti-bell item-icon" aria-hidden="true"></i>
                
                 <span class="item-label">Latest Updates</span>
-            </a>
-            <a href="{{ route('student.certificates') }}"
+            </a> --}}
+            {{-- <a href="{{ route('student.certificates') }}"
                class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
                {{ $isActive('student.certificates') ? 'aria-current=page' : '' }}>
                 <i class="ti ti-certificate item-icon" aria-hidden="true"></i>
                 <span class="item-label">Certificates</span>
-            </a>
+            </a> --}}
 
             <div class="sb-section" aria-hidden="true">Account</div>
             <div class="sb-divider"></div>
@@ -297,6 +297,12 @@
                                {{ $isActive('broadcast-notifications.index') ? 'aria-current=page' : '' }}>
                                 <i class="ti ti-speakerphone" aria-hidden="true"></i>
                                 Broadcast
+                            </a>
+                             <a href="{{ route('admin.brocheres') }}"
+                               class="sb-sub-item {{ $isActive('admin.brocheres') ? 'active' : '' }}"
+                               {{ $isActive('admin.brocheres') ? 'aria-current=page' : '' }}>
+                                <i class="ti ti-speakerphone" aria-hidden="true"></i>
+                                Brochure
                             </a>
                         </div>
                     </div>

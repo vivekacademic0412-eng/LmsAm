@@ -4467,12 +4467,12 @@ textarea.form-control {
 
 @media(max-width:992px) {
 
-    .welcome-hero {
+    /* .welcome-hero {
 
         margin-top: 80px;
 
         padding-top: 90px;
-    }
+    } */
 
 
     .bitmoji-wrapper {

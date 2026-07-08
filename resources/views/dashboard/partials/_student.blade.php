@@ -56,24 +56,31 @@
                 </div>
 
             @else
-                <div>
-                    <div class="d-continue-cta" style="margin-bottom:10px;">↩ Resume Last Lesson</div>
-                    <h2 class="d-resume-title">Your learning space is ready</h2>
-                    <p class="d-resume-note">
-                        Once you enroll in courses and open lessons, your exact resume link will appear here automatically.
-                    </p>
-                    <a class="d-hero-btn" href="{{ route('student.courses') }}" style="margin-top:14px;display:inline-flex;">
-                        Open My Courses →
-                    </a>
-                </div>
+            <div>
+    <div class="d-continue-cta" style="margin-bottom:10px;">
+        🎓 Welcome to Academic Mantra LMS
+    </div>
+
+    <h2 class="d-resume-title">
+        Start Your Learning Journey Today
+    </h2>
+
+    <p class="d-resume-note">
+        Explore industry-focused courses, learn from expert mentors, complete real-world projects, and build the skills employers are looking for. Your enrolled courses and learning progress will appear here automatically.
+    </p>
+
+    <a class="d-hero-btn" href="{{ route('student.courses') }}" style="margin-top:14px;display:inline-flex;">
+        Explore Courses →
+    </a>
+</div>
             @endif
         </article>
 
         {{-- Learning Hub --}}
         <div class="d-col-group">
-            <span class="d-col-label">Learning Hub</span>
+            {{-- <span class="d-col-label">Learning Hub</span> --}}
 
-            @include('dashboard.partials._learning-grid', [
+            {{-- @include('dashboard.partials._learning-grid', [
                 'learningItems'       => $learningItems,
                 'learningTitle'       => $learningTitle,
                 'learningSubtitle'    => $learningSubtitle,
@@ -84,10 +91,10 @@
                 'isStudent'           => true,
                 'isTrainer'           => false,
                 'assignedCourseIds'   => $assignedCourseIds,
-            ])
+            ]) --}}
 
             {{-- My Submissions --}}
-            <section class="d-card">
+            {{-- <section class="d-card">
                 <div class="d-section-head">
                     <div>
                         <h2>My Submissions</h2>
@@ -151,10 +158,10 @@
                         </div>
                     @endforelse
                 </div>
-            </section>
+            </section> --}}
 
             {{-- Certificates --}}
-            <section class="d-card">
+            {{-- <section class="d-card">
                 <div class="d-section-head">
                     <div>
                         <h2>Certificates</h2>
@@ -188,7 +195,7 @@
                         <div class="d-sub-empty">Complete a course to unlock your first certificate.</div>
                     @endforelse
                 </div>
-            </section>
+            </section> --}}
         </div>{{-- /Learning Hub col-group --}}
 
         {{-- Discover More --}}
@@ -264,7 +271,7 @@
 
         {{-- Action Center --}}
         <div class="d-col-group">
-            <span class="d-col-label">Action Center</span>
+            {{-- <span class="d-col-label">Action Center</span>
 
             <section class="d-card d-card-sm">
                 <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);">Quick Actions</h3>
@@ -274,14 +281,14 @@
                         <a class="d-qa-link" href="{{ $action['route'] }}">{{ $action['label'] }}</a>
                     @endforeach
                 </div>
-            </section>
+            </section> --}}
 
-            @if ($notifications->isNotEmpty())
+            {{-- @if ($notifications->isNotEmpty())
                 <section class="d-card d-card-sm">
                     <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);">Notifications</h3>
                     @include('dashboard-notification-feed-v2', ['notifications' => $notifications])
                 </section>
-            @endif
+            @endif --}}
 
             @include('dashboard.partials._skills-topics', [
                 'skillProgress' => $skillProgress,

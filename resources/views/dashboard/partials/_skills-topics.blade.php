@@ -28,7 +28,7 @@
     <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);">Browse by Topic</h3>
     <div class="d-topic-grid">
         @forelse ($topics as $topic)
-            <a href="{{ route('courses.index') }}" class="d-topic">
+            <a href="{{ route('student.courses') }}" class="d-topic">
                 <div class="d-topic-bullet">{{ strtoupper(substr($topic['name'], 0, 2)) }}</div>
                 <div>
                     <strong>{{ $topic['name'] }}</strong>
