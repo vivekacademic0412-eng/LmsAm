@@ -804,10 +804,10 @@ th{
     transition: 0.2s ease;
 }
 
-.btn:hover,
+/* .btn:hover,
 .btn-soft:hover{
     background: var(--bg3);
-}
+} */
 
 .btn-danger{
     background: var(--coral);

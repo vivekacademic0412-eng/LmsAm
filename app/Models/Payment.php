@@ -11,14 +11,16 @@ class Payment extends Model
     'name',
     'email',
     'phone',
-    'city',
-    'state',
+    'city_id',
+    'state_id',
     'country',
     'amount',
     'paid_amount',
     'payment_id',
     'order_id',
     'transaction_id',
+    'razorpay_order_id',
+    'razorpay_payment_id',
     'invoice_no',
     'gateway',
     'status',
@@ -26,5 +28,10 @@ class Payment extends Model
     'source',
     'notes',
     'paid_at'
+];
+protected $casts = [
+    'paid_at'    => 'datetime',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
 ];
 }

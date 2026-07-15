@@ -26,4 +26,7 @@ class PaymentController extends Controller
             'paidPrice'   => 99.00,
         ]);
     }
+    public function Payments(){
+        return view('backend.admin.payment.transactions');
+    }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BroadcastNotificationController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CourseCategoryController;
 use App\Http\Controllers\CourseWeekController;
 use App\Http\Controllers\CourseEnrollmentController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\DemoReviewVideoController;
 use App\Http\Controllers\DemoTaskController;
 use App\Http\Controllers\DemoUserController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TrainerCourseItemsController;
@@ -26,7 +28,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TrafficController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 // Route::get('/', function () {
 //     return redirect()->route('lms.landing');
 // });
@@ -37,7 +40,7 @@ Route::middleware(['guest', 'secure.headers'])->group(function (): void {
 });
 Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
 
-Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(function (): void {
+Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/notifications/{notification}/read', [DashboardController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [DashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
@@ -74,6 +77,7 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
 
     Route::middleware('role:superadmin,admin')->group(function (): void {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+      
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::put('/users/{managedUser}', [UserManagementController::class, 'update'])->name('users.update');
         Route::delete('/users/{managedUser}', [UserManagementController::class, 'destroy'])->name('users.destroy');
@@ -152,6 +156,11 @@ Route::middleware(['auth', 'active', 'secure.headers', 'activity.log'])->group(f
     });
 
     Route::middleware('role:student')->group(function (): void {
+       
+
+        Route::get('/my-demos', [DemoTaskController::class, 'myDemos'])->name('demos');
+        //    Route::get('/student/courses', CourseCatalog::class)->name('student.courses.index');
+        Route::get('/student/courses/{course}/preview',[CourseEnrollmentController::class,'Preview'])->name('student.courses.preview');
         Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses');
         Route::get('/my-courses/{course}', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.show');
           Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
@@ -263,3 +272,27 @@ Route::get('/mail-debug', function () {
 
 });
 Route::get('/demo-access/{token}',[DemoAccessController::class,'access'])->name('demo.secure.login');
+
+  Route::middleware('auth')->group(function () {
+    Route::get('/invoice/{payment}/download', [InvoiceController::class, 'download'])
+        ->name('invoice.download');
+    Route::get('/payments',[PaymentController::class ,'Payments'])->name('payments.index');
+     Route::get('/certificate/{demo}/download', [CertificateController::class, 'download'])
+        ->name('certificate.download');
+});
+
+
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/dashboard')->with('verified', true);
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');

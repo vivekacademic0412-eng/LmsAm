@@ -1,6 +1,10 @@
-{{-- resources/views/demo/lms/payment.blade.php --}}
 @extends('layouts.app')
+
 @section('title', 'Secure Enrollment Payment')
+
+@section('meta_description', 'Complete your secure enrollment payment to get instant access to the Academic Mantra Services LMS platform, live training programs, recorded classes, study materials, assignments, assessments, and mentor support.')
+
+@section('meta_keywords', 'LMS payment, secure enrollment, Academic Mantra Services, online training, live skills training, course payment, recorded classes, mentor support, certification, online learning, LMS access')
 
 @section('content')
 <style>
@@ -350,5 +354,5 @@
     }
 
 </style>
-  <livewire:payment-form />
+  <livewire:payment-form/>
 @endsection

@@ -211,6 +211,11 @@ class CourseEnrollmentController extends Controller
             'enrolledCourseIds' => $user->enrollmentsAsStudent()->pluck('course_id')->all(),
         ]);
     }
+      public function Preview(Request $request): View
+    {
+       
+        return view('student.courses-preview', );
+    }
 
     public function history(Request $request): View
     {
@@ -301,67 +306,75 @@ class CourseEnrollmentController extends Controller
         ])->render();
     }
 
-    public function showEnrolledCourse(Request $request, Course $course): View
+//    public function showEnrolledCourse(Request $request, Course $course): View
+//     {
+//         $user = $request->user();
+//         abort_unless($user?->role === User::ROLE_STUDENT, 403);
+
+//         $enrollment = CourseEnrollment::with(['course.weeks.sessions.items', 'trainer', 'progressItems'])
+//             ->where('course_id', $course->id)
+//             ->where('student_id', $user->id)
+//             ->first();
+
+//         abort_unless($enrollment, 403, 'You can open only enrolled courses.');
+
+//         $itemIds = CourseSessionItem::whereHas('session.week', fn ($q) => $q->where('course_id', $course->id))->pluck('id');
+
+//         foreach ($itemIds as $itemId) {
+//             CourseProgress::firstOrCreate(
+//                 [
+//                     'course_enrollment_id' => $enrollment->id,
+//                     'course_session_item_id' => $itemId,
+//                 ],
+//                 [
+//                     'completed_at' => null,
+//                 ]
+//             );
+//         }
+
+//         $totalItems = $itemIds->count();
+//         $completedItems = $enrollment->progressItems()->whereNotNull('completed_at')->count();
+//         $enrollment = $enrollment->fresh(['course.weeks.sessions.items', 'trainer', 'progressItems']);
+
+//         $latestSubmissions = CourseItemSubmission::query()
+//             ->where('course_enrollment_id', $enrollment->id)
+//             ->latest('submitted_at')
+//             ->get()
+//             ->groupBy('course_session_item_id')
+//             ->map->first();
+
+//         $completedItemIds = $enrollment->progressItems
+//             ->whereNotNull('completed_at')
+//             ->pluck('course_session_item_id')
+//             ->map(fn ($id) => (int) $id)
+//             ->values()
+//             ->all();
+
+//         $nextPendingItemId = $enrollment->course->weeks
+//             ->flatMap->sessions
+//             ->flatMap->items
+//             ->pluck('id')
+//             ->map(fn ($id) => (int) $id)
+//             ->first(fn (int $itemId) => ! in_array($itemId, $completedItemIds, true));
+
+//         return view('student.course-show', [
+//             'enrollment' => $enrollment,
+//             'totalItems' => $totalItems,
+//             'completedItems' => $completedItems,
+//             'latestSubmissions' => $latestSubmissions,
+//             'completedItemIds' => $completedItemIds,
+//             'nextPendingItemId' => $nextPendingItemId,
+           
+//         ]);
+//     }
+ public function showEnrolledCourse(Request $request, Course $course): View
     {
-        $user = $request->user();
-        abort_unless($user?->role === User::ROLE_STUDENT, 403);
-
-        $enrollment = CourseEnrollment::with(['course.weeks.sessions.items', 'trainer', 'progressItems'])
-            ->where('course_id', $course->id)
-            ->where('student_id', $user->id)
-            ->first();
-
-        abort_unless($enrollment, 403, 'You can open only enrolled courses.');
-
-        $itemIds = CourseSessionItem::whereHas('session.week', fn ($q) => $q->where('course_id', $course->id))->pluck('id');
-
-        foreach ($itemIds as $itemId) {
-            CourseProgress::firstOrCreate(
-                [
-                    'course_enrollment_id' => $enrollment->id,
-                    'course_session_item_id' => $itemId,
-                ],
-                [
-                    'completed_at' => null,
-                ]
-            );
-        }
-
-        $totalItems = $itemIds->count();
-        $completedItems = $enrollment->progressItems()->whereNotNull('completed_at')->count();
-        $enrollment = $enrollment->fresh(['course.weeks.sessions.items', 'trainer', 'progressItems']);
-
-        $latestSubmissions = CourseItemSubmission::query()
-            ->where('course_enrollment_id', $enrollment->id)
-            ->latest('submitted_at')
-            ->get()
-            ->groupBy('course_session_item_id')
-            ->map->first();
-
-        $completedItemIds = $enrollment->progressItems
-            ->whereNotNull('completed_at')
-            ->pluck('course_session_item_id')
-            ->map(fn ($id) => (int) $id)
-            ->values()
-            ->all();
-
-        $nextPendingItemId = $enrollment->course->weeks
-            ->flatMap->sessions
-            ->flatMap->items
-            ->pluck('id')
-            ->map(fn ($id) => (int) $id)
-            ->first(fn (int $itemId) => ! in_array($itemId, $completedItemIds, true));
-
+        
         return view('student.course-show', [
-            'enrollment' => $enrollment,
-            'totalItems' => $totalItems,
-            'completedItems' => $completedItems,
-            'latestSubmissions' => $latestSubmissions,
-            'completedItemIds' => $completedItemIds,
-            'nextPendingItemId' => $nextPendingItemId,
+           
+            'course'=>$course
         ]);
     }
-
     private function authorizeManager(Request $request): void
     {
         abort_unless(

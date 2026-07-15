@@ -416,7 +416,7 @@ class LmsController extends Controller
                     'course_id'    => $courseId,
                 ],
                 [
-                    'user_id'          => $userId,
+                    'user_id'          => auth()->user()->id,
                     'demo_topic'       => $validated['demo_topic'],
                     'demo_description' => $validated['demo_description'],
                     'demo_video'       => $videoPath,

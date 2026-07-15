@@ -10,7 +10,7 @@ use App\Models\TrafficSource;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\SubmittedDemos; // add to imports
 class TrafficController extends Controller
 {
     // ──────────────────────────────────────────
@@ -67,6 +67,58 @@ class TrafficController extends Controller
         ]);
     }
 
+    // public function chooseDemoType(Request $request)
+    // {
+    //     // ── Traffic attribution ─────────────────────────────────
+    //     try {
+    //         $attributes = TrafficSource::attributesFromRequest($request);
+    //         $traffic    = TrafficSource::create($attributes);
+    //         $request->session()->put('traffic_source_id', $traffic->id);
+
+    //         Log::info('Traffic source captured', [
+    //             'traffic_source_id' => $traffic->id,
+    //             'source'            => $traffic->source,
+    //         ]);
+    //     } catch (Exception $e) {
+    //         Log::error('Traffic tracking failed', [
+    //             'message' => $e->getMessage(),
+    //             'file'    => $e->getFile(),
+    //             'line'    => $e->getLine(),
+    //         ]);
+    //     }
+
+    //     // ── Guard: check existing selection ────────────────────
+    //     $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
+
+    //     if ($existing) {
+
+    //         // Completed paid payment → hard block, go to thank-you
+    //         if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
+    //             // Restore session keys so thank-you page works
+    //             $request->session()->put('demo_type_selection_id', $existing->id);
+    //             $request->session()->put('demo_type', $existing->demo_type);
+    //             return redirect()->route('lms.thankyou');
+    //         }
+
+    //         // Online payment pending → send back to payment gateway
+    //         if ($existing->demo_type === 'paid_online' && $existing->status === 'pending') {
+    //             $request->session()->put('demo_type_selection_id', $existing->id);
+    //             $request->session()->put('demo_type', 'paid_online');
+    //             return redirect()->route('lms.paid.booking');
+    //         }
+
+    //         // QR pending OR free → allow re-access (fall through to show page)
+    //     }
+
+    //     return view('demo.lms.choose-type', [
+    //         'currentStep' => 0,
+    //         'paidPrice'   => 999.00,
+    //         'existingQrStatus' => $existing?->status ?? 'pending',
+    //         'existingType' => $existing?->demo_type ?? null,
+    //     ]);
+    // }
+
+
     public function chooseDemoType(Request $request)
     {
         // ── Traffic attribution ─────────────────────────────────
@@ -87,27 +139,32 @@ class TrafficController extends Controller
             ]);
         }
 
+        // ── NEW: Guard — demo already completed → go straight to demo details page ──
+        $completedDemo = SubmittedDemos::where('user_id', auth()->user()->id)
+            // ->whereIn('status', ['approved', 'completed'])
+            ->latest()
+            ->first();
+        
+        if ($completedDemo) {
+            return redirect()->route('demos');
+        }
+
         // ── Guard: check existing selection ────────────────────
         $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
 
         if ($existing) {
 
-            // Completed paid payment → hard block, go to thank-you
             if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
-                // Restore session keys so thank-you page works
                 $request->session()->put('demo_type_selection_id', $existing->id);
                 $request->session()->put('demo_type', $existing->demo_type);
                 return redirect()->route('lms.thankyou');
             }
 
-            // Online payment pending → send back to payment gateway
             if ($existing->demo_type === 'paid_online' && $existing->status === 'pending') {
                 $request->session()->put('demo_type_selection_id', $existing->id);
                 $request->session()->put('demo_type', 'paid_online');
                 return redirect()->route('lms.paid.booking');
             }
-
-            // QR pending OR free → allow re-access (fall through to show page)
         }
 
         return view('demo.lms.choose-type', [
@@ -117,7 +174,6 @@ class TrafficController extends Controller
             'existingType' => $existing?->demo_type ?? null,
         ]);
     }
-
     /**
      * Store the chosen demo type (form POST).
      */
@@ -132,17 +188,17 @@ class TrafficController extends Controller
 
             // ── Guard: prevent double-payment ──────────────────
             $existing = DemoTypeSelection::where('demo_user_id', auth()->id())->latest()->first();
-
             if ($existing) {
                 // Already completed a paid method → block
-                if (
-                    $existing->demo_type === 'paid_qr' &&
-                    $existing->status === 'completed'
-                ) {
+                if ($existing->demo_type === 'paid_online' && $existing->status === 'completed') {
                     // Payment already completed
+                  
                 } {
                     $request->session()->put('demo_type_selection_id', $existing->id);
                     $request->session()->put('demo_type', $existing->demo_type);
+                    if($demoType =='paid_online'){
+                       
+                    }
                     return redirect()->route('lms.thankyou')
                         ->with('info', 'You have already completed your payment.');
                 }
@@ -162,7 +218,7 @@ class TrafficController extends Controller
 
             // QR stays "pending" until user confirms via AJAX; free is instantly "completed"
             $paymentStatus = match ($demoType) {
-                'free'        => 'completed',
+                'free'        => 'pending',
                 'paid_online' => 'pending',
                 'paid_qr'     => 'pending',
             };

@@ -493,4 +493,9 @@ class DemoTaskController extends Controller
     {
         return Schema::hasColumn('demo_tasks', 'task_video_path');
     }
+
+    public function myDemos(){
+     
+        return view('student.demos.index');
+    }
 }

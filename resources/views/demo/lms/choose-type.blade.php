@@ -180,7 +180,7 @@
         /* ── TYPE CARDS ─────────────────────────────────────────── */
         .type-cards {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 14px;
             margin-bottom: 14px;
         }
@@ -453,7 +453,7 @@
             align-items: center;
             justify-content: center;
             gap: 7px;
-            width: 100%;
+            /* width: 100%; */
             padding: 11px 18px;
             background: transparent;
             border: 1.5px dashed var(--line);
@@ -1175,7 +1175,7 @@
                             <div class="card-feature"><i class="fas fa-check"></i> Secure UPI / Card / Net banking</div>
                         </div>
                     </div>
-
+                     {{-- 
                     <div class="type-card qr-card {{ old('demo_type') === 'paid_qr' ? 'selected' : '' }}"
                         onclick="handleQrClick(this)">
                         <div class="card-radio">
@@ -1189,7 +1189,7 @@
                             <div class="card-feature"><i class="fas fa-check"></i> 1-on-1 dedicated session</div>
                             <div class="card-feature"><i class="fas fa-check"></i> Instant booking on payment</div>
                         </div>
-                    </div>
+                    </div> --}}
 
                 </div>
 
@@ -1211,7 +1211,7 @@
 
                 <button type="button" class="skip-trigger" id="skipBtn" onclick="revealFree()">
                     <i class="fas fa-arrow-right"></i>
-                    Skip — I'll try the free demo instead
+                    Skip 
                 </button>
 
                 <button type="submit" class="submit-btn" id="submitBtn" disabled>

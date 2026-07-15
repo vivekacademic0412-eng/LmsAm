@@ -61,11 +61,14 @@ class SecurityHeadersMiddleware
                 . $viteScript
                 . " https://cdnjs.cloudflare.com"
                 . " https://cdn.jsdelivr.net"
-                . " https://static.cloudflareinsights.com",
-            "connect-src 'self'"
-                . $viteWs
-                . " https://lms.academicmantraservices.com"
-                . " https://cloudflareinsights.com",
+                . " https://static.cloudflareinsights.com"
+                . " https://checkout.razorpay.com",
+           "connect-src 'self'"
+    . $viteWs
+    . " https://lms.academicmantraservices.com"
+    . " https://cloudflareinsights.com"
+    . " https://api.razorpay.com"
+    . " https://checkout.razorpay.com",
             "font-src 'self' data:"
                 . $viteFont
                 . " https://cdnjs.cloudflare.com"

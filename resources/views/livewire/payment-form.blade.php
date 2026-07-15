@@ -178,6 +178,7 @@
     </div>
 
     {{-- ══ SUCCESS OVERLAY ══ --}}
+{{-- ══ SUCCESS OVERLAY ══ --}}
     @if ($showSuccess)
         <div class="success-overlay">
             <div class="success-card">
@@ -190,6 +191,15 @@
                     email address.
                 </p>
 
+                @if ($paymentId)
+                    <a href="{{ route('invoice.download', $paymentId) }}"
+                       target="_blank"
+                       class="pay-btn"
+                       style="display:inline-flex; margin-top: 10px; text-decoration:none;">
+                        <i class="fas fa-download"></i>&nbsp; Download Invoice
+                    </a>
+                @endif
+
                 <div class="progress-track">
                     <div class="progress-fill"></div>
                 </div>
@@ -201,22 +211,47 @@
         </div>
     @endif
 
-    @script
-    <script>
-        $wire.on('payment-success', () => {
-            // Swal.fire({
-            //     icon: 'success',
-            //     title: 'Payment Successful!',
-            //     text: 'Redirecting to LMS Dashboard...',
-            //     timer: 3000,
-            //     timerProgressBar: true,
-            //     showConfirmButton: false
-            // });
-            setTimeout(() => {
-                window.location.href = "{{ route('dashboard') }}";
-            }, 3000);
-        });
-    </script>
-    @endscript
+@script
+<script>
+    $wire.on('razorpay-checkout-open', (payload) => {
+        const data = Array.isArray(payload) ? payload[0] : payload;
 
+        const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            name: data.name,
+            description: data.description,
+            order_id: data.order_id,
+            prefill: data.prefill,
+            theme: { color: '#0d6efd' },
+            handler: function (response) {
+                $wire.verifyPayment({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                });
+            },
+            modal: {
+                ondismiss: function () {
+                    $wire.paymentFailed('Checkout closed by user');
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            $wire.paymentFailed(response.error.description);
+        });
+        rzp.open();
+    });
+
+    // NEW: redirects to lms.landing instead of dashboard, gives extra time to click "Download Invoice" first
+    $wire.on('payment-success', () => {
+        setTimeout(() => {
+            window.location.href = "{{ route('lms.landing') }}";
+        }, 5000);
+    });
+</script>
+@endscript
 </div>

@@ -13,7 +13,9 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained('courses')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('trainer_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('assigned_by')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('assigned_by')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->string('status');
+            $table->timestamp('enrolled_at');
             $table->timestamps();
 
             $table->unique(['course_id', 'student_id']);

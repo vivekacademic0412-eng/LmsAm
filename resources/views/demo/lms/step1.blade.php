@@ -323,7 +323,7 @@
                         <input type="tel" id="contact" name="contact"
                             class="finput @error('contact') is-invalid @enderror"
                             placeholder="e.g. 9876543210"
-                            value="{{ $rv['contact'] }}"
+                            value="{{$existingDemoUser['contact'] ?? $rv['contact'] }}"
                             maxlength="10" autocomplete="tel">
                         <span class="field-error" id="e_contact">
                             <i class="fas fa-exclamation-circle"></i>

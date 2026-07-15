@@ -146,6 +146,7 @@
         } catch (e) {}
     })();
 </script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 {{-- 
 <script src="{{ asset('theme/js/index.js') }}" defer></script>
 <script src="{{ asset('theme/js/header.js') }}" defer></script> --}}

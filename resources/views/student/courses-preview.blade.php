@@ -7,5 +7,5 @@
 @section('meta_keywords', 'my courses, enrolled courses, LMS dashboard, online courses, learning management system, Academic Mantra Services, professional training, digital marketing course, AI course, IT courses, HR training, graphic designing, content writing, student learning portal')
 
 @section('content')
-    <livewire:student.course-catalog/>
+    <livewire:student.course-preview/>
 @endsection

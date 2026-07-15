@@ -218,7 +218,7 @@
 
             /* ── Right column: registration card ─────────────────────────── */
             .hero-right {
-                background: var(--lms-card-bg);
+                /* background: var(--lms-card-bg); */
                 border-radius: 22px;
                 /* box-shadow: var(--lms-card-shadow); */
                 padding: 2.25rem 2.25rem 2rem;
@@ -344,5 +344,5 @@
 
 @push('scripts')
     {{-- SweetAlert2 --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
 @endpush

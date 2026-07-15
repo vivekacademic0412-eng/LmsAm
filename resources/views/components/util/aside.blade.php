@@ -58,6 +58,13 @@
                 <i class="ti ti-history item-icon" aria-hidden="true"></i>
                 <span class="item-label">Book Demo Session</span>
             </a>
+             <a href="{{ route('payments.index') }}"
+               class="sb-item {{ $isActive('payments.index') ? 'active' : '' }}"
+               {{ $isActive('payments.index') ? 'aria-current=page' : '' }}>
+                <i class="ti ti-currency-rupee item-icon" aria-hidden="true"></i>
+                <span class="item-label">Payments Transactions</span>
+            </a>
+             
             {{-- <a href="{{ route('student.certificates') }}"
                class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
                {{ $isActive('student.certificates') ? 'aria-current=page' : '' }}>
@@ -228,13 +235,14 @@
                     \App\Models\User::ROLE_ADMIN,
                 ]))
                 @php
-                    $studentGroupActive = $isActive('enrollments.index') || $isActive('submissions.index');
+                    $studentGroupActive = $isActive('enrollments.index') || $isActive('submissions.index') || $isActive('payments.index');
                     $sysGroupActive     = $isActive('activity-logs.index') || $isActive('users.index') || $isActive('broadcast-notifications.index');
                     $demoGroupActive    = $isActive('demo-tasks.create-page') || $isActive('demo-tasks.assign-page') || $isActive('demo-feature-video.index') || $isActive('demo-review-videos.index') || $isActive('admin.demo-hero');
                     $demoStagesActive   = $isActive('admin.feedbacks') || $isActive('admin.demo-students') || $isActive('admin.demo-submission-stage');
                 @endphp
 
                 {{-- Students --}}
+               
                 <div class="sb-section" aria-hidden="true">Students</div>
 
                 <div class="sb-group {{ $studentGroupActive ? 'open' : '' }}" id="grp-students">
@@ -260,6 +268,12 @@
                                {{ $isActive('submissions.index') ? 'aria-current=page' : '' }}>
                                 <i class="ti ti-git-pull-request" aria-hidden="true"></i>
                                 Submission Review
+                            </a>
+                             <a href="{{ route('payments.index') }}"
+                               class="sb-sub-item {{ $isActive('payments.index') ? 'active' : '' }}"
+                               {{ $isActive('payments.index') ? 'aria-current=page' : '' }}>
+                               <i class="ti ti-currency-rupee item-icon" aria-hidden="true"></i>
+                               Payments Transactions
                             </a>
                         </div>
                     </div>

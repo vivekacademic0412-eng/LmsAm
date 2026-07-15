@@ -8,6 +8,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DemoApprovedMail;
 use App\Mail\DemoRejectedMail;
+
 class SubmittedDemoList extends Component
 {
     public $search = '';
@@ -17,44 +18,44 @@ class SubmittedDemoList extends Component
 
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-public function approve($id)
-{
-    $demo = SubmittedDemos::with('user')->findOrFail($id);
+    public function approve($id)
+    {
+        $demo = SubmittedDemos::with('user')->findOrFail($id);
 
-    $demo->update([
-        'status' => 'approved'
-    ]);
+        $demo->update([
+            'status' => 'approved'
+        ]);
 
-    // if ($demo->user?->email) {
-    //     Mail::to($demo->user->email)
-    //         ->send(new DemoApprovedMail($demo));
-    // }
+        // if ($demo->user?->email) {
+        //     Mail::to($demo->user->email)
+        //         ->send(new DemoApprovedMail($demo));
+        // }
 
-    $this->dispatch(
-        'swal',
-        icon: 'success',
-        title: 'Demo Approved Successfully'
-    );
-}
-   public function reject($id)
-{
-    $demo = SubmittedDemos::with('user')->findOrFail($id);
+        $this->dispatch(
+            'swal',
+            icon: 'success',
+            title: 'Demo Approved Successfully'
+        );
+    }
+    public function reject($id)
+    {
+        $demo = SubmittedDemos::with('user')->findOrFail($id);
 
-    $demo->update([
-        'status' => 'rejected'
-    ]);
+        $demo->update([
+            'status' => 'rejected'
+        ]);
 
-    // if ($demo->user?->email) {
-    //     Mail::to($demo->user->email)
-    //         ->send(new DemoRejectedMail($demo));
-    // }
+        // if ($demo->user?->email) {
+        //     Mail::to($demo->user->email)
+        //         ->send(new DemoRejectedMail($demo));
+        // }
 
-    $this->dispatch(
-        'swal',
-        icon: 'success',
-        title: 'Demo Rejected Successfully'
-    );
-}
+        $this->dispatch(
+            'swal',
+            icon: 'success',
+            title: 'Demo Rejected Successfully'
+        );
+    }
     public function render()
     {
         $query = SubmittedDemos::with([
@@ -93,13 +94,15 @@ public function approve($id)
             $this->sortDirection
         );
 
-        return view('livewire.admin.submitted-demo-list',
-            ['demos' => $query->paginate($this->perPage),
+        return view(
+            'livewire.admin.submitted-demo-list',
+            [
+                'demos' => $query->paginate($this->perPage),
                 'courses' => Course::orderBy('title')->get(),
-                'totalDemos' =>SubmittedDemos::count(),
-                'approvedDemos' =>SubmittedDemos::where('status', 'approved')->count(),
-                'pendingDemos' =>SubmittedDemos::where('status','pending')->count(),
-                'totalCourses' =>SubmittedDemos::distinct('course_id')->count('course_id'),
+                'totalDemos' => SubmittedDemos::count(),
+                'approvedDemos' => SubmittedDemos::where('status', 'approved')->count(),
+                'pendingDemos' => SubmittedDemos::where('status', 'pending')->count(),
+                'totalCourses' => SubmittedDemos::distinct('course_id')->count('course_id'),
             ]
         );
     }
