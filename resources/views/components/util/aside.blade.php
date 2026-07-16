@@ -64,7 +64,12 @@
                 <i class="ti ti-currency-rupee item-icon" aria-hidden="true"></i>
                 <span class="item-label">Payments Transactions</span>
             </a>
-             
+             <a href="#"
+               class="sb-item "
+               >
+               <i class="fa-solid fa-certificate"></i>
+                <span class="item-label">Certificates</span>
+            </a>
             {{-- <a href="{{ route('student.certificates') }}"
                class="sb-item {{ $isActive('student.certificates') ? 'active' : '' }}"
                {{ $isActive('student.certificates') ? 'aria-current=page' : '' }}>

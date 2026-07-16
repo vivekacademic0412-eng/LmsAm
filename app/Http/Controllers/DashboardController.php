@@ -68,6 +68,7 @@ class DashboardController extends Controller
             $studentPendingActionSummary = $studentDashboard['pendingActionSummary'];
             $studentRecentSubmissions = $studentDashboard['recentSubmissions'];
             $studentCertificates = $studentDashboard['certificates'];
+            
         } else {
             $learningItems = $this->resolveLearningItems($user);
         }

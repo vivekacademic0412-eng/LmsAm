@@ -3,7 +3,7 @@
     <div class="nav-inner">
 
         {{-- Logo --}}
-        <a href="{{ url('/') }}" class="nav-logo">
+        <a href="https://www.academicmantraservices.com" class="nav-logo">
             {{-- <img src="{{ asset('theme/images/logo.png') }}" alt="Academic Mantra" loading="lazy"> --}}
             <img src="{{ asset('theme/images/am35.png') }}" alt="LIVE Skills" class="brand-logo"
                 title="LIVE Skills Training Programs" loading="lazy"></a>

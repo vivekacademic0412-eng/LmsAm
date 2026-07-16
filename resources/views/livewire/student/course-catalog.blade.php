@@ -6,7 +6,7 @@
    PAGE LAYOUT
 ═══════════════════════════════════════════════ */
 .courses-page { display: flex; flex-direction: column; gap: 24px; position: relative; }
-
+.price-gst { font-size: 10px; font-weight: 600; color: var(--text-muted); }
 /* ═══════════════════════════════════════════════
    PAGE HERO HEADER
 ═══════════════════════════════════════════════ */
@@ -403,7 +403,7 @@
     color: #fff;
     box-shadow: 0 3px 10px rgba(9,71,168,.25);
 }
-.btn-primary:hover:not(:disabled) { opacity: .88; box-shadow: 0 5px 16px rgba(9,71,168,.32); transform: translateY(-1px); }
+/* .btn-primary:hover:not(:disabled) { opacity: .88; box-shadow: 0 5px 16px rgba(9,71,168,.32); transform: translateY(-1px); } */
 .btn-success {
     background: rgba(22,163,74,.1);
     color: var(--success);
@@ -566,6 +566,22 @@
     .category-tabs-wrap { padding: 0 14px; }
     .subcategory-row    { padding: 12px 14px 0; }
     .cart-drawer { width: 100vw; max-width: 100vw; }
+}
+.filter-select {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--input-bg);
+    font-family: inherit;
+}
+.category-dropdown-wrap { display: none; padding: 0 24px; margin-bottom: 12px; }
+
+@media (max-width: 640px) {
+    .category-tabs-wrap { display: none; }
+    .category-dropdown-wrap { display: block; padding: 12px 14px 0; }
 }
 </style>
 
@@ -735,7 +751,15 @@
             </button>
         @endforeach
     </div>
-
+<div class="category-dropdown-wrap">
+    <select id="categoryDropdown" class="filter-select">
+        @foreach ($categories as $index => $category)
+            <option value="{{ $category->id }}" {{ $index === 0 ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
     {{-- Tab panels --}}
     @foreach ($categories as $index => $category)
         @php
@@ -926,25 +950,26 @@
         @error('payment') <small class="error-text">{{ $message }}</small> @enderror
     </div>
 
-    <div class="cart-drawer-foot">
-        <div class="cart-total-row">
-            <span>Total</span>
-            <span>{{ $this->cartTotal > 0 ? '₹'.number_format($this->cartTotal) : 'Free' }}</span>
-        </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;"
-                type="button"
-                wire:click="checkout"
-                wire:loading.attr="disabled"
-                wire:target="checkout"
-                @if(empty($cartIds)) disabled @endif>
-            <span wire:loading.remove wire:target="checkout">
-                <i class="ti ti-credit-card"></i> Checkout
-            </span>
-            <span wire:loading wire:target="checkout">
-                <i class="ti ti-loader-2"></i> Processing...
-            </span>
-        </button>
+   <div class="cart-drawer-foot">
+    <div class="cart-total-row" style="font-size:13px;font-weight:500;">
+        <span>Subtotal</span>
+        <span>₹{{ number_format($this->cartSubtotal, 2) }}</span>
     </div>
+    <div class="cart-total-row" style="font-size:13px;font-weight:500;">
+        <span>GST</span>
+        <span>₹{{ number_format($this->cartGst, 2) }}</span>
+    </div>
+    <div class="cart-total-row">
+        <span>Total</span>
+        <span>{{ $this->cartTotal > 0 ? '₹'.number_format($this->cartTotal, 2) : 'Free' }}</span>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px;"
+            type="button" wire:click="checkout" wire:loading.attr="disabled" wire:target="checkout"
+            @if(empty($cartIds)) disabled @endif>
+        <span wire:loading.remove wire:target="checkout"><i class="ti ti-credit-card"></i> Checkout</span>
+        <span wire:loading wire:target="checkout"><i class="ti ti-loader-2"></i> Processing...</span>
+    </button>
+</div>
 </div>
 
 <button class="cart-fab" type="button" onclick="openAmCart()" aria-label="Open cart">
@@ -1099,12 +1124,42 @@
         rzp.open();
     });
 
-    $wire.on('payment-success', (e) => {
-        closeAmCart();
-        const count = Array.isArray(e) ? e[0]?.courseCount : e?.courseCount;
-        alert(`Enrollment successful! You now have access to ${count ?? ''} course(s).`);
+ $wire.on('payment-success', (e) => {
+    closeAmCart();
+
+    const data = Array.isArray(e) ? e[0] : e;
+    const count = data?.courseCount;
+    const invoiceUrl = data?.invoiceUrl;
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Payment Successful!',
+        html: `
+            <p>You have successfully enrolled in <strong>${count ?? 0}</strong> course(s).</p>
+            <p>Do you want to download your invoice?</p>
+        `,
+        confirmButtonText: 'Download Invoice',
+        showCancelButton: true,
+        cancelButtonText: 'Later',
+        confirmButtonColor: '#0947a8',
+        cancelButtonColor: '#6c757d',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed && invoiceUrl) {
+            window.open(invoiceUrl, '_blank');
+        }
+
         window.location.reload();
     });
+});
+    function amInitCategoryDropdown() {
+    const dropdown = document.getElementById('categoryDropdown');
+    if (!dropdown) return;
+    dropdown.addEventListener('change', function () {
+        document.querySelector(`.cat-tab[data-tab="${this.value}"]`)?.click();
+    });
+}
+amInitCategoryDropdown();
 </script>
 @endscript
 

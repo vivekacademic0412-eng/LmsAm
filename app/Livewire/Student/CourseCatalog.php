@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Student;
 
+use App\Mail\AdminCoursePurchaseNotification;
+use App\Mail\CoursePurchaseThankYou;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\CourseEnrollment;
-use App\Models\Enrollment;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\SignatureVerificationError;
@@ -54,13 +56,26 @@ class CourseCatalog extends Component
         return Course::whereIn('id', $this->cartIds)->get();
     }
 
-    public function getCartTotalProperty()
+    /** Sum of discounted course prices (before GST). */
+    public function getCartSubtotalProperty()
     {
         return $this->cartCourses->sum(fn ($c) => $c->price ?? 0);
     }
 
+    /** Sum of GST across all cart courses (each course can have its own gst %). */
+    public function getCartGstProperty()
+    {
+        return round($this->cartCourses->sum(fn ($c) => ($c->price ?? 0) * (($c->gst ?? 0) / 100)), 2);
+    }
+
+    /** What actually gets charged — subtotal + GST. */
+    public function getCartTotalProperty()
+    {
+        return round($this->cartSubtotal + $this->cartGst, 2);
+    }
+
     /**
-     * Step 1: create Razorpay order for the whole cart, open checkout modal.
+     * Step 1: create Razorpay order for the whole cart (GST included), open checkout modal.
      */
     public function checkout()
     {
@@ -69,11 +84,10 @@ class CourseCatalog extends Component
             return;
         }
 
-        $amount = $this->cartTotal;
+        $total = $this->cartTotal;
 
-        // Free courses — skip payment gateway, enroll directly
-        if ($amount <= 0) {
-            $this->enrollCart(null, null, null, 'Free');
+        if ($total <= 0) {
+            $this->enrollCart(null, null, 0, 'Free');
             return;
         }
 
@@ -81,7 +95,7 @@ class CourseCatalog extends Component
 
         $order = $api->order->create([
             'receipt'         => 'cart_' . auth()->id() . '_' . time(),
-            'amount'          => $amount * 100,
+            'amount'          => $total * 100,
             'currency'        => 'INR',
             'payment_capture' => 1,
             'notes'           => [
@@ -92,11 +106,11 @@ class CourseCatalog extends Component
 
         $this->dispatch('razorpay-checkout-open', [
             'key'         => config('razorpay.key'),
-            'amount'      => $amount * 100,
+            'amount'      => $total * 100,
             'currency'    => 'INR',
             'order_id'    => $order['id'],
             'name'        => 'Academic Mantra LMS',
-            'description' => count($this->cartIds) . ' course(s) enrollment',
+            'description' => count($this->cartIds) . ' course(s) enrollment (incl. GST)',
             'prefill'     => [
                 'name'    => auth()->user()->name,
                 'email'   => auth()->user()->email,
@@ -136,26 +150,31 @@ class CourseCatalog extends Component
 
     protected function enrollCart($orderId, $paymentId, $amount, $gateway)
     {
-        $courses = $this->cartCourses;
+        $courses  = $this->cartCourses;
+        $subtotal = $this->cartSubtotal;
+        $gst      = $this->cartGst;
+        $total    = $amount ?? $this->cartTotal;
 
-        if ($amount > 0) {
-            Payment::create([
-                'user_id'             => auth()->id(),
-                'name'                => auth()->user()->name,
-                'email'               => auth()->user()->email,
-                'phone'               => auth()->user()->contact ?? null,
-                'amount'              => $amount,
-                'paid_amount'         => $amount,
-                'gateway'             => $gateway,
-                'razorpay_order_id'   => $orderId,
-                'razorpay_payment_id' => $paymentId,
-                'invoice_no'          => 'INV-' . now()->format('YmdHis') . '-' . auth()->id(),
-                'status'              => 'success',
-                'source'              => 'Website',
-                'notes'               => json_encode(['course_ids' => $courses->pluck('id')]),
-                'paid_at'             => now(),
-            ]);
-        }
+        // Always record a payment row (even for Free) so invoice + emails stay consistent.
+        $payment = Payment::create([
+            'user_id'             => auth()->id(),
+            'name'                => auth()->user()->name,
+            'email'               => auth()->user()->email,
+            'phone'               => auth()->user()->contact ?? null,
+            'amount'              => $total,
+            'subtotal'            => $subtotal,
+            'gst_amount'          => $gst,
+            'total_amount'        => $total,
+            'paid_amount'         => $total,
+            'gateway'             => $gateway,
+            'razorpay_order_id'   => $orderId,
+            'razorpay_payment_id' => $paymentId,
+            'invoice_no'          => 'INV-' . now()->format('YmdHis') . '-' . auth()->id(),
+            'status'              => 'success',
+            'source'              => 'Website',
+            'notes'               => json_encode(['course_ids' => $courses->pluck('id')]),
+            'paid_at'             => now(),
+        ]);
 
         foreach ($courses as $course) {
             CourseEnrollment::firstOrCreate(
@@ -164,10 +183,19 @@ class CourseCatalog extends Component
             );
         }
 
+        // Thank-you mail to student
+        Mail::to(auth()->user()->email)->send(new CoursePurchaseThankYou($payment, $courses));
+
+        // Notify admin to activate the account
+        Mail::to('abhijeet@gmail.com')->send(new AdminCoursePurchaseNotification(auth()->user(), $payment, $courses));
+
         $this->cartIds = [];
         $this->syncSession();
 
-        $this->dispatch('payment-success', courseCount: $courses->count());
+        $this->dispatch('payment-success', [
+            'courseCount' => $courses->count(),
+            'invoiceUrl'  => route('student.invoice.download', $payment->id),
+        ]);
     }
 
     public function paymentFailed($error = null)

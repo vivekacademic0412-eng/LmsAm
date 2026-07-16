@@ -16,6 +16,14 @@
     <div class="shell">
 
         <section class="form-panel">
+            <a href="https://www.academicmantraservices.com" class="hero-back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.4">
+                        <path d="M19 12H5M11 18l-6-6 6-6" />
+                    </svg>
+                    Back to Home
+                </a>
+
             <div class="brand-mini">
                 <img src="{{ asset('theme/images/am35.png') }}" alt="Academic Mantra" title="logo" >
                 <span>Learning Management System</span>
@@ -98,8 +106,7 @@
                 </button>
             </form>
 
-            <div class="divider"><hr><span>Secure access for</span><hr></div>
-
+           
            
         </section>
 

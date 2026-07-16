@@ -394,6 +394,7 @@
                             'learningSubtitle'           => $learningSubtitle,
                             'learningActionLabel'        => $learningActionLabel,
                             'assignedCourseIds'          => $assignedCourseIds ?? [],
+                            
                         ])
                     @else
                         @include('dashboard.partials._trainer-admin-shared', [

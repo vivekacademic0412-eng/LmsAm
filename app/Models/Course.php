@@ -24,9 +24,11 @@ class Course extends Model
         'language',
         'thumbnail',
         'duration_hours',
+        'original_price',
+        'price',
+        'gst',
         'created_by',
     ];
-
     protected function casts(): array
     {
         return [
@@ -38,7 +40,7 @@ class Course extends Model
     {
         return $this->belongsTo(CourseCategory::class, 'category_id');
     }
-  
+
 
     public function courseType()
     {
@@ -50,7 +52,7 @@ class Course extends Model
         return $this->belongsTo(CourseLevel::class, 'course_level_id');
     }
 
-    
+
 
     public function demoFeatureVideos()
     {
@@ -92,6 +94,6 @@ class Course extends Model
             return $this->thumbnail;
         }
 
-        return asset('storage/'.ltrim($this->thumbnail, '/'));
+        return asset('storage/' . ltrim($this->thumbnail, '/'));
     }
 }

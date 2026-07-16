@@ -729,7 +729,7 @@
             color: #fff;
             border-color: var(--brand-primary);
         }
-        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+        .btn-primary:hover { background: var(--primary); border-color: var(--primary-dark); }
         .btn-outline {
             background: transparent;
             color: var(--text-muted);

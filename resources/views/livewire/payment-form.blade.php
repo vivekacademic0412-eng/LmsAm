@@ -178,7 +178,7 @@
     </div>
 
     {{-- ══ SUCCESS OVERLAY ══ --}}
-{{-- ══ SUCCESS OVERLAY ══ --}}
+    {{-- ══ SUCCESS OVERLAY ══ --}}
     @if ($showSuccess)
         <div class="success-overlay">
             <div class="success-card">
@@ -249,7 +249,7 @@
     // NEW: redirects to lms.landing instead of dashboard, gives extra time to click "Download Invoice" first
     $wire.on('payment-success', () => {
         setTimeout(() => {
-            window.location.href = "{{ route('lms.landing') }}";
+            window.location.href = "{{ route('lms.thankyou') }}";
         }, 5000);
     });
 </script>

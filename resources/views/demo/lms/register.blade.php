@@ -317,14 +317,14 @@
                     and experience how practical learning can transform your future.
                 </p>
 
-                <div class="hero-buttons">
+                {{-- <div class="hero-buttons">
                     <a href="https://www.academicmantraservices.com/it-training-program" class="btn-primary-custom">
                         Explore Courses
                     </a>
                     <a href="https://www.academicmantraservices.com/reviews" class="btn-outline-custom">
                         Student Success Stories
                     </a>
-                </div>
+                </div> --}}
 
                 <div class="hero-features">
                     <div class="feature-pill">Live Classes</div>
