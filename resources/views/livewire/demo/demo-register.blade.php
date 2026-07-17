@@ -10,6 +10,25 @@
 
     {{-- ── Form ── --}}
     <form wire:submit.prevent="register" class="dreg-form" novalidate>
+        @if (session()->has('success'))
+    <div class="dreg-success-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17l-5-5"/>
+        </svg>
+
+        <div>
+            <strong>Registration Successful!</strong><br>
+            {{ session('success') }}
+        </div>
+    </div>
+@endif
+
+@if (session()->has('error'))
+    <div class="dreg-error-box">
+        {{ session('error') }}
+    </div>
+@endif
         <div class="dreg-row">
 
             <div class="dreg-field @error('first_name') dreg-field--error @enderror">

@@ -1,30 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: 'Inter', Arial, sans-serif; background: #f4f8ff; margin: 0; padding: 0; }
-        .wrap { max-width: 560px; margin: 0 auto; padding: 30px 20px; }
-        .card { background: #fff; border-radius: 14px; padding: 30px; box-shadow: 0 8px 24px rgba(14,31,54,.08); }
-        h2 { font-size: 18px; color: #0e1f36; margin: 0 0 18px; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 8px 0; font-size: 13.5px; border-bottom: 1px solid #e2e8f0; }
-        td.label { color: #5a718a; width: 130px; }
-        td.value { color: #0e1f36; font-weight: 600; }
-    </style>
-</head>
-<body>
-    <div class="wrap">
-        <div class="card">
-            <h2>🎓 New Student Registered</h2>
-            <table>
-                <tr><td class="label">Name</td><td class="value">{{ $student->name }} {{ $student->last_name }}</td></tr>
-                <tr><td class="label">Email</td><td class="value">{{ $student->email }}</td></tr>
-                <tr><td class="label">Contact</td><td class="value">{{ $student->contact }}</td></tr>
-                <tr><td class="label">Gender</td><td class="value">{{ ucfirst($student->gender) }}</td></tr>
-                <tr><td class="label">Registered At</td><td class="value">{{ $student->created_at->format('d M Y, h:i A') }}</td></tr>
-            </table>
-        </div>
-    </div>
-</body>
-</html>
+{{-- resources/views/emails/new-student-registered.blade.php --}}
+@extends('emails.layout')
+
+@section('title', 'New Student Registration')
+
+@php
+    $preheader = 'A new student just registered: ' . $user->name . ' ' . $user->last_name;
+    $heroLabel = 'New Registration';
+    $heroTitle = 'A new student just signed up';
+@endphp
+
+@section('body')
+
+    <p style="margin:0 0 16px 0;">Hi there,</p>
+
+    <p style="margin:0 0 20px 0;">
+        A new student account was just created on Academic Mantra LMS. Here are the details:
+    </p>
+
+    {{-- ── Details card ── --}}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px;">
+        <tr>
+            <td style="padding:18px 20px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+                    <tr>
+                        <td style="padding:6px 0; color:#64748B; width:120px;">Name</td>
+                        <td style="padding:6px 0; color:#0F172A; font-weight:600;">{{ $user->name }} {{ $user->last_name }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748B;">Email</td>
+                        <td style="padding:6px 0; color:#0F172A; font-weight:600;">{{ $user->email }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748B;">Contact</td>
+                        <td style="padding:6px 0; color:#0F172A; font-weight:600;">{{ $user->contact }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748B;">Gender</td>
+                        <td style="padding:6px 0; color:#0F172A; font-weight:600; text-transform:capitalize;">{{ $user->gender }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748B;">Registered</td>
+                        <td style="padding:6px 0; color:#0F172A; font-weight:600;">{{ $user->created_at?->format('d M Y, h:i A') }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:20px 0 0 0; font-size:13px; color:#64748B;">
+        The student has been sent a verification link and will gain dashboard access once their email is confirmed.
+    </p>
+
+    {{-- ── CTA ── --}}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0 8px 0;">
+        <tr>
+            <td align="center">
+                <a href="{{ route('login') }}"
+                   style="display:inline-block; background-color:#1E3A8A; color:#FFFFFF; font-size:14px; font-weight:600; text-decoration:none; padding:12px 28px; border-radius:8px;">
+                    Open Admin Panel
+                </a>
+            </td>
+        </tr>
+    </table>
+
+@endsection

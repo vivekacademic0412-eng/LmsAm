@@ -17,6 +17,7 @@
             --brand-secondary: #7a5cff;
             --brand-accent: #f0b35a;
             --brand-green: #16a34a;
+            --brand-warn: #b45309;
             --primary-glow: rgba(26, 63, 170, .12);
             --bg: #f4f6fb;
             --bg-card: #ffffff;
@@ -153,7 +154,7 @@
             line-height: 1.6;
         }
 
-        /* ERROR / SUCCESS BANNERS */
+        /* ERROR / SUCCESS / WARNING BANNERS */
         .banner-err {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -177,12 +178,35 @@
             gap: 8px;
         }
 
+        .banner-warn {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--brand-warn);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.55;
+        }
+
+        .banner-warn i {
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
         /* ── TYPE CARDS ─────────────────────────────────────────── */
         .type-cards {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 14px;
             margin-bottom: 14px;
+        }
+
+        .type-cards.single-card {
+            grid-template-columns: 1fr;
         }
 
         .type-card {
@@ -456,7 +480,7 @@
             /* width: 100%; */
             padding: 11px 18px;
             background: transparent;
-            border: 1.5px dashed var(--line);
+            /* border: 1.5px dashed var(--line); */
             border-radius: var(--radius-md);
             color: var(--text-muted);
             font-size: 13px;
@@ -466,11 +490,11 @@
             margin-bottom: 18px;
         }
 
-        .skip-trigger:hover {
-            border-color: var(--brand-green);
-            color: var(--brand-green);
-            background: rgba(22, 163, 74, .04);
-        }
+        /* .skip-trigger:hover {
+                border-color: var(--brand-green);
+                color: var(--brand-green);
+                background: rgba(22, 163, 74, .04);
+            } */
 
         /* ── SUBMIT BTN ─────────────────────────────────────────── */
         .submit-btn {
@@ -649,8 +673,8 @@
         }
 
         /* ══════════════════════════════════════════════════════════
-                       QR MODAL
-                    ══════════════════════════════════════════════════════════ */
+                           QR MODAL
+                        ══════════════════════════════════════════════════════════ */
         .modal-backdrop {
             display: none;
             position: fixed;
@@ -1153,12 +1177,20 @@
                 <div class="banner-err">{{ session('error') }}</div>
             @endif
 
+            {{-- NEW: Free-demo already availed / verification window expired --}}
+            @if (!empty($freeDemoMessage))
+                <div class="banner-warn">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>{{ $freeDemoMessage }}</span>
+                </div>
+            @endif
+
             <form action="{{ route('lms.choose-type.store') }}" method="POST" id="demoTypeForm">
                 @csrf
                 <input type="hidden" name="demo_type" id="demoTypeInput" value="{{ old('demo_type', '') }}">
 
                 {{-- PAID + QR CARDS --}}
-                <div class="type-cards">
+                <div class="type-cards {{ $freeDemoBlocked ?? false ? 'single-card' : '' }}">
 
                     <div class="type-card paid-card {{ old('demo_type') === 'paid_online' ? 'selected' : '' }}"
                         onclick="selectType('paid_online', this)">
@@ -1175,7 +1207,7 @@
                             <div class="card-feature"><i class="fas fa-check"></i> Secure UPI / Card / Net banking</div>
                         </div>
                     </div>
-                     {{-- 
+                    {{-- 
                     <div class="type-card qr-card {{ old('demo_type') === 'paid_qr' ? 'selected' : '' }}"
                         onclick="handleQrClick(this)">
                         <div class="card-radio">
@@ -1193,26 +1225,30 @@
 
                 </div>
 
-                {{-- FREE section --}}
-                <div class="free-section" id="freeSection">
-                    <div class="free-card-full {{ old('demo_type') === 'free' ? 'selected' : '' }}"
-                        onclick="selectType('free', this)" id="freeCard">
-                        <div class="free-card-radio">
-                            <div class="free-card-radio-dot"></div>
+                {{-- Free option — hidden entirely once the user has availed / expired their free demo --}}
+             @if($existingType === 'free')
+                @unless ($freeDemoBlocked ?? false)
+                    <div class="free-section" id="freeSection">
+                        <div class="free-card-full {{ old('demo_type') === 'free' ? 'selected' : '' }}"
+                            onclick="selectType('free', this)" id="freeCard">
+                            <div class="free-card-radio">
+                                <div class="free-card-radio-dot"></div>
+                            </div>
+                            <div class="free-icon"><i class="fas fa-gift"></i></div>
+                            <div class="free-info">
+                                <div class="free-name">Free Self-Guided Demo</div>
+                                <div class="free-sub">Explore at your own pace — no payment, no commitment.</div>
+                            </div>
+                            <div class="free-badge">₹0 Free</div>
                         </div>
-                        <div class="free-icon"><i class="fas fa-gift"></i></div>
-                        <div class="free-info">
-                            <div class="free-name">Free Self-Guided Demo</div>
-                            <div class="free-sub">Explore at your own pace — no payment, no commitment.</div>
-                        </div>
-                        <div class="free-badge">₹0 Free</div>
                     </div>
-                </div>
-
-                <button type="button" class="skip-trigger" id="skipBtn" onclick="revealFree()">
-                    <i class="fas fa-arrow-right"></i>
-                    Skip 
-                </button>
+                      
+                    <button type="button" class="skip-trigger" id="skipBtn" onclick="revealFree()">
+                        <i class="fas fa-arrow-right"></i>
+                        Skip
+                    </button>
+                @endunless
+                @endif
 
                 <button type="submit" class="submit-btn" id="submitBtn" disabled>
                     <i class="fas fa-arrow-right"></i>
@@ -1380,14 +1416,14 @@
 
     <script>
         const qrPaymentStatus = "{{ $existingQrStatus ?? 'pending' }}";
-       
+        const freeDemoBlocked = @json($freeDemoBlocked ?? false);
 
         /* ── DOM REFS ─────────────────────────────────────────── */
         const typeInput = document.getElementById('demoTypeInput');
         const submitBtn = document.getElementById('submitBtn');
         const submitLbl = document.getElementById('submitLabel');
-        const skipBtn = document.getElementById('skipBtn');
-        const freeSection = document.getElementById('freeSection');
+        const skipBtn = document.getElementById('skipBtn'); // may be null when free demo is blocked
+        const freeSection = document.getElementById('freeSection'); // may be null when free demo is blocked
         const qrModal = document.getElementById('qrModal');
         const confirmCheck = document.getElementById('payConfirmCheck');
         const btnConfirmPay = document.getElementById('btnConfirmPay');
@@ -1419,6 +1455,7 @@
 
         /* ── FREE REVEAL ──────────────────────────────────────── */
         function revealFree() {
+            if (freeDemoBlocked || !freeSection || !skipBtn) return;
             freeSection.classList.add('visible');
             skipBtn.style.display = 'none';
             freeSection.scrollIntoView({
@@ -1432,26 +1469,26 @@
         /* ── MODAL OPEN / CLOSE ───────────────────────────────── */
         function openQrModal() {
 
-           const qrPaymentType = "{{ $existingType ?? '' }}";
+            const qrPaymentType = "{{ $existingType ?? '' }}";
 
-if (
-    qrPaymentType &&
-    qrPaymentStatus === 'completed' &&
-    (qrPaymentType === 'paid_qr' || qrPaymentType === 'paid_online')
-) {
-    Swal.fire({
-        icon: 'success',
-        title: 'Payment Already Completed',
-        text: 'Your payment has already been confirmed. Our team will contact you via email.',
-        confirmButtonText: 'Continue'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "{{ route('lms.thankyou') }}";
-        }
-    });
+            if (
+                qrPaymentType &&
+                qrPaymentStatus === 'completed' &&
+                (qrPaymentType === 'paid_qr' || qrPaymentType === 'paid_online')
+            ) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Already Completed',
+                    text: 'Your payment has already been confirmed. Our team will contact you via email.',
+                    confirmButtonText: 'Continue'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('lms.thankyou') }}";
+                    }
+                });
 
-    return;
-} else {
+                return;
+            } else {
                 qrModal.classList.add('open');
                 document.body.style.overflow = 'hidden';
             }
@@ -1527,10 +1564,11 @@ if (
 
         /* ── RESTORE STATE ON VALIDATION ERROR ─────────────────── */
         const oldType = typeInput.value;
-        if (oldType) {
-            if (oldType === 'free') revealFree();
+        if (oldType && oldType !== 'free') {
             const card = document.querySelector(`[onclick*="${oldType}"]`);
             if (card) selectType(oldType, card);
+        } else if (oldType === 'free' && !freeDemoBlocked) {
+            revealFree();
         }
     </script>
 @endsection

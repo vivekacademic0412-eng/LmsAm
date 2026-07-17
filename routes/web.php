@@ -29,6 +29,7 @@ use App\Http\Controllers\TrafficController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Http\Request;
 // Route::get('/', function () {
 //     return redirect()->route('lms.landing');
@@ -77,7 +78,7 @@ Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
 
     Route::middleware('role:superadmin,admin')->group(function (): void {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-      
+
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::put('/users/{managedUser}', [UserManagementController::class, 'update'])->name('users.update');
         Route::delete('/users/{managedUser}', [UserManagementController::class, 'destroy'])->name('users.destroy');
@@ -128,7 +129,7 @@ Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
         Route::get('/demo-submission-stage', [DemoUserController::class, 'View'])->name('admin.demo-submission-stage');
 
         Route::get('demo-hero-section', [DemoUserController::class, 'HeroSection'])->name('admin.demo-hero');
-         Route::get('brochures-manager', [DemoUserController::class, 'Brochures'])->name('admin.brocheres');
+        Route::get('brochures-manager', [DemoUserController::class, 'Brochures'])->name('admin.brocheres');
     });
 
     Route::get('/course-categories', [CourseCategoryController::class, 'index'])->name('course-categories.index');
@@ -156,15 +157,15 @@ Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
     });
 
     Route::middleware('role:student')->group(function (): void {
-       
+
 
         Route::get('/my-demos', [DemoTaskController::class, 'myDemos'])->name('demos');
         //    Route::get('/student/courses', CourseCatalog::class)->name('student.courses.index');
-        Route::get('/student/courses/{course}/preview',[CourseEnrollmentController::class,'Preview'])->name('student.courses.preview');
+        Route::get('/student/courses/{course}/preview', [CourseEnrollmentController::class, 'Preview'])->name('student.courses.preview');
         Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses');
         Route::get('/my-courses/{course}', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.show');
-          Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
-        
+        Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
+
         Route::get('/my-history', [CourseEnrollmentController::class, 'history'])->name('student.history');
         Route::get('/my-certificates', [CourseEnrollmentController::class, 'certificates'])->name('student.certificates');
         Route::get('/my-certificates/{enrollment}/download', [CourseEnrollmentController::class, 'downloadCertificate'])->name('student.certificates.download');
@@ -192,10 +193,9 @@ Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
 
             // Step 5 – Recommendations
             Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
-             Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
-              Route::get('/certificate-download',      [LmsController::class, 'Download'])->name('certificate.download');
+            Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
+            Route::get('/certificate-download',      [LmsController::class, 'Download'])->name('certificate.download');
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-          
         });
 
         Route::middleware(['auth', 'verified'])->prefix('lms')->name('lms.')->group(function () {
@@ -255,7 +255,7 @@ Route::get('/mail-test', function () {
 
     Mail::raw('Test Mail', function ($message) {
         $message->to('yourmail@gmail.com')
-                ->subject('Laravel Test');
+            ->subject('Laravel Test');
     });
 
     return 'Mail Sent';
@@ -269,15 +269,14 @@ Route::get('/mail-debug', function () {
         'username' => config('mail.mailers.smtp.username'),
         'password_length' => strlen(config('mail.mailers.smtp.password')),
     ];
-
 });
-Route::get('/demo-access/{token}',[DemoAccessController::class,'access'])->name('demo.secure.login');
+Route::get('/demo-access/{token}', [DemoAccessController::class, 'access'])->name('demo.secure.login');
 
-  Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/invoice/{payment}/download', [InvoiceController::class, 'download'])
         ->name('invoice.download');
-    Route::get('/payments',[PaymentController::class ,'Payments'])->name('payments.index');
-     Route::get('/certificate/{demo}/download', [CertificateController::class, 'download'])
+    Route::get('/payments', [PaymentController::class, 'Payments'])->name('payments.index');
+    Route::get('/certificate/{demo}/download', [CertificateController::class, 'download'])
         ->name('certificate.download');
 });
 
@@ -287,10 +286,7 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('/dashboard')->with('verified', true);
-})->middleware(['auth', 'signed'])->name('verification.verify');
+
 
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
@@ -300,3 +296,23 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::get('/student/invoice/{payment}/download', [InvoiceController::class, 'downloadCourseInvoice'])
     ->middleware('auth')
     ->name('student.invoice.download');
+
+Route::middleware('guest')->group(function () {
+
+    // Existing login routes...
+
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])
+        ->name('password.request');
+
+    Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])
+        ->name('password.reset');
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->middleware('auth')->name('verification.notice');
+});
+
+ 
+Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+ 

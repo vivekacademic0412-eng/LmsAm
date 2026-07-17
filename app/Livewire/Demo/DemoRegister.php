@@ -5,11 +5,10 @@ namespace App\Livewire\Demo;
 use App\Mail\NewStudentRegisteredMail;
 use App\Mail\StudentThankYouMail;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class DemoRegister extends Component
@@ -66,11 +65,16 @@ class DemoRegister extends Component
 
     public function register()
     {
-        // Let ValidationException bubble up to Livewire normally —
-        // this is what populates $errors for @error() in the view.
         $validated = $this->validate();
 
+        $user = null;
+
+        /* ── Step 1: create the account. DB only — no mail here.
+           If anything below throws, the user row must NOT vanish
+           just because an email template had a bug. ── */
         try {
+            DB::beginTransaction();
+
             Log::info('Registration Started', [
                 'first_name' => $this->first_name,
                 'last_name'  => $this->last_name,
@@ -79,46 +83,21 @@ class DemoRegister extends Component
             ]);
 
             $user = User::create([
-                'name'       => $validated['first_name'],
-                'last_name'  => $validated['last_name'],
-                'contact'    => $validated['contact'],
-                'email'      => $validated['email'],
-                'password'   => Hash::make($validated['password']),
-                'role'       => User::ROLE_STUDENT,
-                'gender'     => $validated['gender'],
-                'is_active'  => true,
+                'name'      => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'contact'   => $validated['contact'],
+                'email'     => $validated['email'],
+                'password'  => Hash::make($validated['password']),
+                'role'      => User::ROLE_STUDENT,
+                'gender'    => $validated['gender'],
+                'is_active' => true,
             ]);
 
-            Auth::login($user);
+            DB::commit();
 
-            // ── 1. Email verification link to the new user ──
-            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            DB::rollBack();
 
-            // ── 2. Thank-you email to the new user ──
-            Mail::to($user->email)->send(new StudentThankYouMail($user));
-
-            // ── 3. Notification email to superadmin(s) ──
-            $admins = User::where('role', User::ROLE_SUPERADMIN)->get();
-            if ($admins->isEmpty()) {
-                $admins = User::where('role', User::ROLE_ADMIN)->get();
-            }
-            foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new NewStudentRegisteredMail($user));
-            }
-
-            $this->dispatch(
-                'registration-success',
-                name: $user->name . ' ' . $user->last_name
-            );
-
-            $this->reset([
-                'first_name', 'last_name', 'contact', 'email',
-                'password', 'password_confirmation', 'gender',
-            ]);
-
-            $this->success = true;
-
-        } catch (\Exception $e) {
             Log::error('Registration Failed', [
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),
@@ -126,8 +105,67 @@ class DemoRegister extends Component
                 'trace'   => $e->getTraceAsString(),
             ]);
 
-            session()->flash('error', 'Something went wrong while creating your account. Please try again.');
+            session()->flash('error', 'Registration failed. Please try again.');
+
+            return;
         }
+
+        /* ── Step 2: emails. The account already exists at this point,
+           so each send gets its own try/catch — one bad template or a
+           down mail server logs an error but never undoes the signup. ── */
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::error('Verification email failed to send', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            Mail::to($user->email)->send(new StudentThankYouMail($user));
+        } catch (\Throwable $e) {
+            Log::error('Thank-you email failed to send', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            $admins = User::where('role', User::ROLE_SUPERADMIN)->get();
+
+            if ($admins->isEmpty()) {
+                $admins = User::where('role', User::ROLE_ADMIN)->get();
+            }
+
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new NewStudentRegisteredMail($user));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Admin notification email failed to send', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        session()->flash(
+            'success',
+            'Registration successful! A verification email has been sent to '
+            . $user->email .
+            '. Please verify your email before logging in.'
+        );
+
+        $this->reset([
+            'first_name',
+            'last_name',
+            'contact',
+            'email',
+            'password',
+            'password_confirmation',
+            'gender',
+        ]);
+
+        $this->success = true;
     }
 
     public function updated($property)

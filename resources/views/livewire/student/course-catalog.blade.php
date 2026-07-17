@@ -3,10 +3,20 @@
 
 <style>
 /* ═══════════════════════════════════════════════
-   PAGE LAYOUT
+   PAGE LAYOUT + NEW LEVEL COLOR SYSTEM
 ═══════════════════════════════════════════════ */
-.courses-page { display: flex; flex-direction: column; gap: 24px; position: relative; }
+.courses-page {
+    display: flex; flex-direction: column; gap: 24px; position: relative;
+
+    /* Level palette — scoped here so it doesn't collide with your global theme */
+    --level-beginner: #16a34a;      --level-beginner-soft: rgba(22,163,74,.12);
+    --level-intermediate: #d97706;  --level-intermediate-soft: rgba(217,119,6,.12);
+    --level-advanced: #7c3aed;      --level-advanced-soft: rgba(124,58,237,.12);
+    --level-expert: #e11d48;        --level-expert-soft: rgba(225,29,72,.12);
+    --level-default: #64748b;       --level-default-soft: rgba(100,116,139,.12);
+}
 .price-gst { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+
 /* ═══════════════════════════════════════════════
    PAGE HERO HEADER
 ═══════════════════════════════════════════════ */
@@ -85,6 +95,7 @@
     display: flex; align-items: center; gap: 8px;
 }
 .section-card-title i { color: var(--brand-primary); font-size: 17px; }
+.section-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 .section-card-body { padding: 24px; }
 .section-card-count {
     font-size: 12px; font-weight: 600;
@@ -93,6 +104,71 @@
     padding: 4px 10px;
     border-radius: 20px;
 }
+.sort-note {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    color: var(--brand-primary);
+    background: var(--primary-glow);
+    border: 1px solid rgba(9,71,168,.18);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY + LEVEL OVERVIEW (first-time-user orientation)
+═══════════════════════════════════════════════ */
+.category-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    padding: 22px 24px 26px;
+}
+.category-overview-card {
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    display: flex; flex-direction: column; gap: 12px;
+    text-align: left;
+    font-family: inherit;
+}
+.category-overview-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--brand-primary);
+}
+.cov-top { display: flex; align-items: flex-start; gap: 12px; }
+.cov-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; color: #fff;
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    box-shadow: 0 4px 12px rgba(9,71,168,.22);
+}
+.cov-title { font-size: 14.5px; font-weight: 800; color: var(--text); line-height: 1.3; }
+.cov-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.cov-levels { display: flex; gap: 6px; flex-wrap: wrap; }
+.cov-level-chip {
+    font-size: 10px; font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+.cov-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+}
+.cov-price-range { font-size: 13.5px; font-weight: 800; color: var(--brand-primary); }
+.cov-price-range small { display: block; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; }
+.cov-arrow { color: var(--text-muted); font-size: 16px; transition: transform .18s, color .18s; }
+.category-overview-card:hover .cov-arrow { color: var(--brand-primary); transform: translateX(3px); }
 
 /* ═══════════════════════════════════════════════
    SEARCH + FILTER BAR
@@ -161,12 +237,41 @@
 }
 
 /* ═══════════════════════════════════════════════
+   LEVEL SNAPSHOT PILLS (per category)
+═══════════════════════════════════════════════ */
+.level-snapshot-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 16px 24px 0;
+}
+.level-snapshot-label {
+    font-size: 10px; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: .6px; flex-shrink: 0;
+}
+.level-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 13px;
+    border-radius: 20px;
+    font-size: 11.5px; font-weight: 700;
+    border: 1.5px solid var(--line);
+    background: var(--bg2);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.level-pill:hover { transform: translateY(-1px); }
+.level-pill .level-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.level-pill.active { background: var(--bg-card); box-shadow: 0 0 0 1.5px currentColor inset; }
+
+/* ═══════════════════════════════════════════════
    SUBCATEGORY PILLS
 ═══════════════════════════════════════════════ */
 .subcategory-row {
     display: flex; align-items: center; gap: 8px;
     flex-wrap: wrap;
-    padding: 16px 24px 0;
+    padding: 12px 24px 0;
 }
 .subcategory-label {
     font-size: 10px; font-weight: 700;
@@ -209,6 +314,30 @@
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ═══════════════════════════════════════════════
+   LEVEL SECTIONS (grouped, sorted low→high price)
+═══════════════════════════════════════════════ */
+.level-section { padding: 0 24px; margin-top: 20px; }
+.level-section:first-of-type { margin-top: 14px; }
+.level-section-head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.level-section-head .level-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.level-section-head h4 { font-size: 14px; font-weight: 800; color: var(--text); }
+.level-section-count {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    background: var(--bg2); color: var(--text-muted);
+}
+.level-section-price {
+    font-size: 12px; font-weight: 800;
+    color: var(--brand-primary);
+    margin-left: auto;
+    display: flex; align-items: center; gap: 5px;
+}
+.level-section .course-grid { padding: 0 0 4px; }
 
 /* ═══════════════════════════════════════════════
    COURSE GRID
@@ -322,6 +451,29 @@
     z-index: 2;
 }
 
+/* Level badge (locked/browse tiles only — top-left) */
+.course-level-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-size: 10px; font-weight: 800;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    z-index: 4;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    backdrop-filter: blur(4px);
+}
+
+/* Inline level tag (enrolled tiles — inside meta row) */
+.course-level-tag {
+    font-size: 10px; font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
 /* Lock overlay */
 .course-lock-overlay {
     position: absolute; inset: 0;
@@ -403,7 +555,6 @@
     color: #fff;
     box-shadow: 0 3px 10px rgba(9,71,168,.25);
 }
-/* .btn-primary:hover:not(:disabled) { opacity: .88; box-shadow: 0 5px 16px rgba(9,71,168,.32); transform: translateY(-1px); } */
 .btn-success {
     background: rgba(22,163,74,.1);
     color: var(--success);
@@ -565,6 +716,9 @@
     .section-card-body  { padding: 14px; }
     .category-tabs-wrap { padding: 0 14px; }
     .subcategory-row    { padding: 12px 14px 0; }
+    .level-snapshot-row { padding: 12px 14px 0; }
+    .level-section       { padding: 0 14px; }
+    .category-overview-grid { padding: 16px 14px 20px; grid-template-columns: 1fr; }
     .cart-drawer { width: 100vw; max-width: 100vw; }
 }
 .filter-select {
@@ -586,6 +740,22 @@
 </style>
 
 @php
+    use Illuminate\Support\Str;
+
+    // ── Level color map (single source of truth for badges/pills/sections) ──
+    $levelColorMap = [
+        'beginner'     => ['fg' => '#16a34a', 'soft' => 'rgba(22,163,74,.14)'],
+        'intermediate' => ['fg' => '#d97706', 'soft' => 'rgba(217,119,6,.14)'],
+        'advanced'     => ['fg' => '#7c3aed', 'soft' => 'rgba(124,58,237,.14)'],
+        'expert'       => ['fg' => '#e11d48', 'soft' => 'rgba(225,29,72,.14)'],
+        'pro'          => ['fg' => '#e11d48', 'soft' => 'rgba(225,29,72,.14)'],
+    ];
+    $defaultLevelColor = ['fg' => '#64748b', 'soft' => 'rgba(100,116,139,.14)'];
+    $levelColor = fn ($level) => $levelColorMap[strtolower(trim($level ?: 'beginner'))] ?? $defaultLevelColor;
+
+    // Sort order for known level names; anything unrecognized sorts last, alphabetically.
+    $levelPriority = ['beginner' => 1, 'intermediate' => 2, 'advanced' => 3, 'expert' => 4, 'pro' => 4];
+
     $enrolledCourses = $categories
         ->flatMap(fn ($cat) => $cat->courses)
         ->filter(fn ($course) => in_array($course->id, $enrolledCourseIds, true))
@@ -593,6 +763,25 @@
         ->values();
 
     $totalCourses = $categories->flatMap(fn($c) => $c->courses->concat($c->children->flatMap->courses))->unique('id')->count();
+
+    // ── Category + level overview (first-time-user orientation) ──
+    $categoryOverview = $categories->map(function ($category) use ($levelPriority) {
+        $courses = $category->courses->concat($category->children->flatMap->courses)->unique('id');
+        $levels  = $courses->map(fn ($c) => trim($c->level ?: 'Beginner'))->unique()
+            ->sortBy(fn ($lvl) => $levelPriority[strtolower($lvl)] ?? 99)
+            ->values();
+        $prices  = $courses->map(fn ($c) => $c->price ?? 0);
+
+        return (object) [
+            'category'  => $category,
+            'count'     => $courses->count(),
+            'levels'    => $levels,
+            'minPrice'  => $prices->min() ?? 0,
+            'maxPrice'  => $prices->max() ?? 0,
+        ];
+    })->filter(fn ($row) => $row->count > 0)->values();
+
+    $categoryIcons = ['ti-code', 'ti-chart-bar', 'ti-palette', 'ti-speakerphone', 'ti-briefcase', 'ti-camera', 'ti-device-laptop', 'ti-brand-figma'];
 @endphp
 
 {{-- ══════════════════════════════════════════════════════════
@@ -606,7 +795,7 @@
         <div>
             <div class="courses-hero-title">My Courses</div>
             <div class="courses-hero-sub">
-                Browse enrolled courses and unlock new ones to keep learning.
+                Browse every category and skill level — sorted low to high price so you always see the best entry point first.
             </div>
         </div>
     </div>
@@ -634,6 +823,55 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════
+     NEW: CATEGORY + LEVEL OVERVIEW — orientation for every visitor,
+     especially first-time users who haven't picked a category yet.
+══════════════════════════════════════════════════════════ --}}
+<div class="section-card">
+    <div class="section-card-head">
+        <div>
+            <div class="section-card-title">
+                <i class="ti ti-layout-grid" aria-hidden="true"></i>
+                Explore by Category &amp; Level
+            </div>
+            <div class="section-card-sub">See how many skill levels each category has, and their price range, before you dive in.</div>
+        </div>
+        <span class="section-card-count">{{ $categoryOverview->count() }} categor{{ $categoryOverview->count() === 1 ? 'y' : 'ies' }}</span>
+    </div>
+
+    <div class="category-overview-grid">
+        @foreach ($categoryOverview as $i => $row)
+            <button type="button" class="category-overview-card" data-jump="{{ $row->category->id }}">
+                <div class="cov-top">
+                    <div class="cov-icon"><i class="ti {{ $categoryIcons[$i % count($categoryIcons)] }}"></i></div>
+                    <div>
+                        <div class="cov-title">{{ $row->category->name }}</div>
+                        <div class="cov-sub">{{ $row->count }} course{{ $row->count !== 1 ? 's' : '' }} · {{ $row->levels->count() }} level{{ $row->levels->count() !== 1 ? 's' : '' }}</div>
+                    </div>
+                </div>
+
+                <div class="cov-levels">
+                    @foreach ($row->levels as $lvl)
+                        @php $lc = $levelColor($lvl); @endphp
+                        <span class="cov-level-chip" style="color:{{ $lc['fg'] }};background:{{ $lc['soft'] }};">{{ $lvl }}</span>
+                    @endforeach
+                </div>
+
+                <div class="cov-foot">
+                    <div class="cov-price-range">
+                        <small>Price range</small>
+                        {{ $row->minPrice > 0 ? '₹'.number_format($row->minPrice) : 'Free' }}
+                        @if($row->maxPrice > $row->minPrice)
+                            – ₹{{ number_format($row->maxPrice) }}
+                        @endif
+                    </div>
+                    <i class="ti ti-arrow-right cov-arrow" aria-hidden="true"></i>
+                </div>
+            </button>
+        @endforeach
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
      ENROLLED COURSES
 ══════════════════════════════════════════════════════════ --}}
 <div class="section-card">
@@ -651,6 +889,7 @@
                 $thumb = $course->thumbnail_url ?: '';
                 $bg    = $thumb ? "url('{$thumb}')" : 'linear-gradient(135deg, #0947a8 0%, #7a5cff 100%)';
                 $progress = $course->progress ?? 0;
+                $lc = $levelColor($course->level ?? 'Beginner');
             @endphp
 
             <a class="course-tile"
@@ -670,6 +909,8 @@
 
                 <div class="course-body">
                     <div class="course-meta">
+                        <span class="course-level-tag" style="color:{{ $lc['fg'] }};background:{{ $lc['soft'] }};">{{ $course->level ?? 'Beginner' }}</span>
+                        <span class="course-meta-dot" aria-hidden="true"></span>
                         <i class="ti ti-folder" aria-hidden="true" style="font-size:13px"></i>
                         {{ $course->category?->name ?? 'General' }}
                         <span class="course-meta-dot" aria-hidden="true"></span>
@@ -712,7 +953,7 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════
-     BROWSE ALL COURSES
+     BROWSE ALL COURSES — grouped by level, sorted low → high price
 ══════════════════════════════════════════════════════════ --}}
 <div class="section-card">
     <div class="section-card-head">
@@ -721,6 +962,7 @@
             Browse All Courses
         </div>
         <div class="filter-bar">
+            <span class="sort-note"><i class="ti ti-sort-ascending" aria-hidden="true"></i> Sorted: Low → High Price</span>
             <div class="filter-search">
                 <i class="ti ti-search" aria-hidden="true"></i>
                 <input type="search"
@@ -767,12 +1009,33 @@
                 ->concat($category->children->flatMap->courses)
                 ->unique('id')
                 ->values();
+
+            $levelGroups = $tabCourses
+                ->groupBy(fn ($c) => trim($c->level ?: 'Beginner'))
+                ->sortBy(fn ($courses, $levelName) => $levelPriority[strtolower($levelName)] ?? 99, SORT_REGULAR, false);
         @endphp
 
         <div class="tab-panel {{ $index === 0 ? 'active' : '' }}"
              id="panel-{{ $category->id }}"
              role="tabpanel"
              data-tab-panel="{{ $category->id }}">
+
+            {{-- Level snapshot pills --}}
+            @if ($levelGroups->count() > 0)
+                <div class="level-snapshot-row">
+                    <span class="level-snapshot-label" aria-hidden="true">Levels:</span>
+                    <button class="level-pill active" type="button" data-level="all" style="color:var(--brand-primary);">
+                        <span class="level-dot" style="background:var(--brand-primary);"></span> All
+                    </button>
+                    @foreach ($levelGroups as $levelName => $levelCourses)
+                        @php $lc = $levelColor($levelName); $slug = Str::slug($levelName); @endphp
+                        <button class="level-pill" type="button" data-level="{{ $slug }}" style="color:{{ $lc['fg'] }};">
+                            <span class="level-dot" style="background:{{ $lc['fg'] }};"></span>
+                            {{ $levelName }} · {{ $levelCourses->count() }} · ₹{{ number_format($levelCourses->min('price')) }}–₹{{ number_format($levelCourses->max('price')) }}
+                        </button>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- Sub-category pills --}}
             @if ($category->children->isNotEmpty())
@@ -787,129 +1050,155 @@
                 </div>
             @endif
 
-            {{-- Courses --}}
-            <div class="course-grid">
-                @forelse ($tabCourses as $course)
-                    @php
-                        $thumb      = $course->thumbnail_url ?: '';
-                        $bg         = $thumb ? "url('{$thumb}')" : 'linear-gradient(135deg, #0947a8 0%, #7a5cff 100%)';
-                        $enrolled   = in_array($course->id, $enrolledCourseIds, true);
-                        $inCart     = in_array($course->id, $cartIds, true);
-                        $catLabel   = $course->subcategory?->name ?? $course->category?->name ?? $category->name;
-                        $subCatId   = $course->subcategory?->id ? (string) $course->subcategory->id : 'none';
-                        $price      = $course->price ?? 0;
-                        $priceLabel = $price > 0 ? '₹' . number_format($price) : 'Free';
-                    @endphp
+            {{-- Level-grouped course sections --}}
+            @forelse ($levelGroups as $levelName => $levelCourses)
+                @php
+                    $lc = $levelColor($levelName);
+                    $slug = Str::slug($levelName);
+                    $sortedCourses = $levelCourses->sortBy('price')->values();
+                @endphp
 
-                    @if ($enrolled)
-                        {{-- ENROLLED TILE --}}
-                        <a class="course-tile"
-                           href="{{ route('student.courses.show', $course) }}"
-                           data-subcat="{{ $subCatId }}"
-                           data-title="{{ strtolower($course->title) }}"
-                           aria-label="Open {{ $course->title }}">
+                <div class="level-section" data-level-section="{{ $slug }}">
+                    <div class="level-section-head">
+                        <span class="level-dot" style="background:{{ $lc['fg'] }};"></span>
+                        <h4>{{ $levelName }}</h4>
+                        <span class="level-section-count">{{ $sortedCourses->count() }} course{{ $sortedCourses->count() !== 1 ? 's' : '' }}</span>
+                        <span class="level-section-price">
+                            <i class="ti ti-sort-ascending" aria-hidden="true"></i>
+                            ₹{{ number_format($sortedCourses->min('price')) }} – ₹{{ number_format($sortedCourses->max('price')) }}
+                        </span>
+                    </div>
 
-                            <div class="course-thumb" style="background-image: {{ $bg }};">
-                                <div class="course-thumb-overlay" aria-hidden="true"></div>
-                                <span class="course-enrolled-badge">
-                                    <i class="ti ti-check" aria-hidden="true"></i> Enrolled
-                                </span>
-                                <h3>{{ $course->title }}</h3>
-                            </div>
+                    <div class="course-grid">
+                        @foreach ($sortedCourses as $course)
+                            @php
+                                $thumb      = $course->thumbnail_url ?: '';
+                                $bg         = $thumb ? "url('{$thumb}')" : 'linear-gradient(135deg, #0947a8 0%, #7a5cff 100%)';
+                                $enrolled   = in_array($course->id, $enrolledCourseIds, true);
+                                $inCart     = in_array($course->id, $cartIds, true);
+                                $catLabel   = $course->subcategory?->name ?? $course->category?->name ?? $category->name;
+                                $subCatId   = $course->subcategory?->id ? (string) $course->subcategory->id : 'none';
+                                $price      = $course->price ?? 0;
+                                $priceLabel = $price > 0 ? '₹' . number_format($price) : 'Free';
+                            @endphp
 
-                            <div class="course-body">
-                                <div class="course-meta">
-                                    <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
-                                    {{ $catLabel }}
-                                </div>
-                                <div class="course-foot">
-                                    <span class="btn btn-success btn-sm">
-                                        <i class="ti ti-player-play" aria-hidden="true"></i>
-                                        Open Course
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
+                            @if ($enrolled)
+                                {{-- ENROLLED TILE --}}
+                                <a class="course-tile"
+                                   href="{{ route('student.courses.show', $course) }}"
+                                   data-subcat="{{ $subCatId }}"
+                                   data-level="{{ $slug }}"
+                                   data-title="{{ strtolower($course->title) }}"
+                                   aria-label="Open {{ $course->title }}">
 
-                    @else
-                        {{-- LOCKED TILE --}}
-                        <div class="course-tile is-locked"
-                             wire:key="course-tile-{{ $course->id }}"
-                             data-subcat="{{ $subCatId }}"
-                             data-title="{{ strtolower($course->title) }}"
-                             tabindex="0"
-                             role="article"
-                             aria-label="{{ $course->title }} — locked, price {{ $priceLabel }}">
+                                    <div class="course-thumb" style="background-image: {{ $bg }};">
+                                        <div class="course-thumb-overlay" aria-hidden="true"></div>
+                                        <span class="course-enrolled-badge">
+                                            <i class="ti ti-check" aria-hidden="true"></i> Enrolled
+                                        </span>
+                                        <h3>{{ $course->title }}</h3>
+                                    </div>
 
-                            <a href="{{ route('student.courses.preview', $course) }}" style="text-decoration:none;color:inherit;">
-                                <div class="course-thumb" style="background-image: {{ $bg }};">
-                                    <div class="course-thumb-overlay" aria-hidden="true"></div>
-                                    <div class="course-lock-overlay" aria-hidden="true">
-                                        <div class="course-lock-icon">
-                                            <i class="ti ti-lock"></i>
+                                    <div class="course-body">
+                                        <div class="course-meta">
+                                            <span class="course-level-tag" style="color:{{ $lc['fg'] }};background:{{ $lc['soft'] }};">{{ $levelName }}</span>
+                                            <span class="course-meta-dot" aria-hidden="true"></span>
+                                            <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
+                                            {{ $catLabel }}
+                                        </div>
+                                        <div class="course-foot">
+                                            <span class="btn btn-success btn-sm">
+                                                <i class="ti ti-player-play" aria-hidden="true"></i>
+                                                Open Course
+                                            </span>
                                         </div>
                                     </div>
-                                    @if ($inCart)
-                                        <span class="course-cart-badge"><i class="ti ti-shopping-cart"></i> In Cart</span>
-                                    @endif
-                                    <h3>{{ $course->title }}</h3>
-                                </div>
-                            </a>
+                                </a>
 
-                            <div class="course-body">
-                                <div class="course-meta">
-                                    <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
-                                    {{ $catLabel }}
-                                    @if ($course->duration)
-                                        <span class="course-meta-dot" aria-hidden="true"></span>
-                                        <i class="ti ti-clock" style="font-size:13px" aria-hidden="true"></i>
-                                        {{ $course->duration }}
-                                    @endif
-                                </div>
+                            @else
+                                {{-- LOCKED TILE --}}
+                                <div class="course-tile is-locked"
+                                     wire:key="course-tile-{{ $course->id }}"
+                                     data-subcat="{{ $subCatId }}"
+                                     data-level="{{ $slug }}"
+                                     data-title="{{ strtolower($course->title) }}"
+                                     tabindex="0"
+                                     role="article"
+                                     aria-label="{{ $course->title }} — locked, price {{ $priceLabel }}, level {{ $levelName }}">
 
-                                <div class="course-foot">
-                                    <div class="price-tag" aria-label="Price: {{ $priceLabel }}">
-                                        @if ($price > 0)
-                                            <span class="price-currency">₹</span>
-                                            <span>{{ number_format($price) }}</span>
-                                            @if ($course->original_price && $course->original_price > $price)
-                                                <span class="price-old">₹{{ number_format($course->original_price) }}</span>
+                                    <a href="{{ route('student.courses.preview', $course) }}" style="text-decoration:none;color:inherit;">
+                                        <div class="course-thumb" style="background-image: {{ $bg }};">
+                                            <div class="course-thumb-overlay" aria-hidden="true"></div>
+                                            <div class="course-lock-overlay" aria-hidden="true">
+                                                <div class="course-lock-icon">
+                                                    <i class="ti ti-lock"></i>
+                                                </div>
+                                            </div>
+                                            <span class="course-level-badge" style="background:{{ $lc['fg'] }};">{{ $levelName }}</span>
+                                            @if ($inCart)
+                                                <span class="course-cart-badge"><i class="ti ti-shopping-cart"></i> In Cart</span>
                                             @endif
-                                        @else
-                                            <span class="price-free">Free</span>
-                                        @endif
-                                    </div>
+                                            <h3>{{ $course->title }}</h3>
+                                        </div>
+                                    </a>
 
-                                    <div style="display:flex;gap:6px;">
-                                        <a href="{{ route('student.courses.preview', $course) }}" class="btn btn-outline btn-sm btn-icon" aria-label="Preview {{ $course->title }}">
-                                            <i class="ti ti-eye"></i>
-                                        </a>
-                                        @if ($inCart)
-                                            <button class="btn btn-success btn-sm" type="button" wire:click="removeFromCart({{ $course->id }})">
-                                                <i class="ti ti-check"></i> In Cart
-                                            </button>
-                                        @else
-                                            <button class="btn btn-unlock btn-sm"
-                                                    type="button"
-                                                    wire:click="addToCart({{ $course->id }})"
-                                                    aria-label="Add {{ $course->title }} to cart, price {{ $priceLabel }}">
-                                                <i class="ti ti-shopping-cart-plus" aria-hidden="true"></i>
-                                                Add to Cart
-                                            </button>
-                                        @endif
+                                    <div class="course-body">
+                                        <div class="course-meta">
+                                            <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
+                                            {{ $catLabel }}
+                                            @if ($course->duration)
+                                                <span class="course-meta-dot" aria-hidden="true"></span>
+                                                <i class="ti ti-clock" style="font-size:13px" aria-hidden="true"></i>
+                                                {{ $course->duration }}
+                                            @endif
+                                        </div>
+
+                                        <div class="course-foot">
+                                            <div class="price-tag" aria-label="Price: {{ $priceLabel }}">
+                                                @if ($price > 0)
+                                                    <span class="price-currency">₹</span>
+                                                    <span>{{ number_format($price) }}</span>
+                                                    @if ($course->original_price && $course->original_price > $price)
+                                                        <span class="price-old">₹{{ number_format($course->original_price) }}</span>
+                                                    @endif
+                                                @else
+                                                    <span class="price-free">Free</span>
+                                                @endif
+                                            </div>
+
+                                            <div style="display:flex;gap:6px;">
+                                                <a href="{{ route('student.courses.preview', $course) }}" class="btn btn-outline btn-sm btn-icon" aria-label="Preview {{ $course->title }}">
+                                                    <i class="ti ti-eye"></i>
+                                                </a>
+                                                @if ($inCart)
+                                                    <button class="btn btn-success btn-sm" type="button" wire:click="removeFromCart({{ $course->id }})">
+                                                        <i class="ti ti-check"></i> In Cart
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-unlock btn-sm"
+                                                            type="button"
+                                                            wire:click="addToCart({{ $course->id }})"
+                                                            aria-label="Add {{ $course->title }} to cart, price {{ $priceLabel }}">
+                                                        <i class="ti ti-shopping-cart-plus" aria-hidden="true"></i>
+                                                        Add to Cart
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    @endif
-
-                @empty
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @empty
+                <div class="course-grid">
                     <div class="empty-state">
                         <i class="ti ti-mood-empty" aria-hidden="true"></i>
                         <p>No courses available in this category yet.</p>
                     </div>
-                @endforelse
-            </div>
+                </div>
+            @endforelse
 
         </div>{{-- /.tab-panel --}}
     @endforeach
@@ -986,7 +1275,29 @@
 
 @script
 <script>
-    /* ── Category tabs ──────────────────────────────────── */
+    /* ── Combined filter: subcategory + level + search, all AND'd together ── */
+    function amApplyFilters(panel) {
+        const activeSub   = panel.querySelector('.sub-pill.active')?.dataset.subtab || 'all';
+        const activeLevel = panel.querySelector('.level-pill.active')?.dataset.level || 'all';
+        const query       = (document.getElementById('courseSearch')?.value || '').toLowerCase().trim();
+
+        panel.querySelectorAll('.course-tile').forEach(tile => {
+            const subMatch    = activeSub   === 'all' || tile.dataset.subcat === activeSub;
+            const levelMatch  = activeLevel === 'all' || tile.dataset.level  === activeLevel;
+            const title       = tile.dataset.title || '';
+            const searchMatch = !query || title.includes(query);
+            tile.style.display = (subMatch && levelMatch && searchMatch) ? '' : 'none';
+        });
+
+        panel.querySelectorAll('.level-section').forEach(section => {
+            const visible = [...section.querySelectorAll('.course-tile')].some(t => t.style.display !== 'none');
+            section.style.display = visible ? '' : 'none';
+        });
+
+        amCheckEmpty(panel);
+    }
+
+    /* ── Category tabs, level pills, subcategory pills ─────────── */
     function amInitTabs() {
         document.querySelectorAll('.cat-tab').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1003,48 +1314,41 @@
 
                 const activePanel = document.querySelector(`.tab-panel[data-tab-panel="${id}"]`);
                 if (activePanel) {
-                    activePanel.querySelectorAll('.sub-pill').forEach((p, i) => p.classList.toggle('active', i === 0));
-                    amFilterBySubtab(activePanel, 'all');
+                    activePanel.querySelectorAll('.sub-pill').forEach(p => p.classList.toggle('active', p.dataset.subtab === 'all'));
+                    activePanel.querySelectorAll('.level-pill').forEach(p => p.classList.toggle('active', p.dataset.level === 'all'));
+                    amApplyFilters(activePanel);
                 }
             });
         });
 
-        document.querySelectorAll('.subcategory-row').forEach(row => {
-            row.querySelectorAll('.sub-pill').forEach(pill => {
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.querySelectorAll('.sub-pill').forEach(pill => {
                 pill.addEventListener('click', () => {
-                    row.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
+                    panel.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
                     pill.classList.add('active');
+                    amApplyFilters(panel);
+                });
+            });
 
-                    const panel = pill.closest('.tab-panel');
-                    amFilterBySubtab(panel, pill.dataset.subtab);
+            panel.querySelectorAll('.level-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    panel.querySelectorAll('.level-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    amApplyFilters(panel);
                 });
             });
         });
     }
 
-    function amFilterBySubtab(panel, subtabId) {
-        panel.querySelectorAll('.course-tile').forEach(tile => {
-            const match = subtabId === 'all' || tile.dataset.subcat === subtabId;
-            tile.style.display = match ? '' : 'none';
-        });
-        amCheckEmpty(panel);
-    }
-
-    /* ── Search ─────────────────────────────────────────── */
+    /* ── Search (applies across every panel so state stays consistent when switching tabs) ── */
     function amInitSearch() {
         const input = document.getElementById('courseSearch');
         if (!input) return;
         input.addEventListener('input', function () {
-            const q = this.value.toLowerCase().trim();
-
-            document.querySelectorAll('.sub-pill[data-subtab="all"]').forEach(p => p.click());
-
             document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.querySelectorAll('.course-tile').forEach(tile => {
-                    const title = tile.dataset.title ?? '';
-                    tile.style.display = (!q || title.includes(q)) ? '' : 'none';
-                });
-                amCheckEmpty(panel);
+                panel.querySelectorAll('.sub-pill').forEach(p => p.classList.toggle('active', p.dataset.subtab === 'all'));
+                panel.querySelectorAll('.level-pill').forEach(p => p.classList.toggle('active', p.dataset.level === 'all'));
+                amApplyFilters(panel);
             });
         });
     }
@@ -1054,18 +1358,33 @@
         let empty = panel.querySelector('.course-grid .empty-state-dynamic');
         if (visible.length === 0) {
             if (!empty) {
-                empty = document.createElement('div');
-                empty.className = 'empty-state empty-state-dynamic';
-                empty.innerHTML = '<i class="ti ti-mood-empty"></i><p>No courses match your search.</p>';
-                panel.querySelector('.course-grid')?.appendChild(empty);
+                const firstGrid = panel.querySelector('.course-grid');
+                if (firstGrid) {
+                    empty = document.createElement('div');
+                    empty.className = 'empty-state empty-state-dynamic';
+                    empty.innerHTML = '<i class="ti ti-mood-empty"></i><p>No courses match your search.</p>';
+                    firstGrid.appendChild(empty);
+                }
             }
         } else {
             empty?.remove();
         }
     }
 
+    /* ── Category overview cards jump to the matching tab ─────────── */
+    function amInitCategoryOverview() {
+        document.querySelectorAll('.category-overview-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.dataset.jump;
+                document.querySelector(`.cat-tab[data-tab="${id}"]`)?.click();
+                document.getElementById('categoryTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
     amInitTabs();
     amInitSearch();
+    amInitCategoryOverview();
 
     /* ── Cart drawer ─────────────────────────────────────── */
     window.openAmCart = function () {

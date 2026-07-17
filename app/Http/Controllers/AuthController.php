@@ -144,7 +144,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         /* ── Inactive account ── */
-        if (! $user?->is_active) {
+        if (! $user->is_active) {
             ActivityLogger::log(
                 actor: $user,
                 module: 'Authentication',
@@ -152,8 +152,8 @@ class AuthController extends Controller
                 description: 'Blocked a login attempt for an inactive account.',
                 context: [
                     'subject_type'  => User::class,
-                    'subject_id'    => $user?->id,
-                    'subject_label' => $user?->name ? $user->name . ' | ' . $user->email : $credentials['email'],
+                    'subject_id'    => $user->id,
+                    'subject_label' => $user->name . ' | ' . $user->email,
                     'route_name'    => 'login.attempt',
                     'method'        => $request->method(),
                     'url'           => $request->fullUrl(),
@@ -171,6 +171,39 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Your account is inactive. Contact Super Admin.',
                 'errors'  => ['email' => ['Your account is inactive. Contact Super Admin.']],
+            ], 403);
+        }
+
+        /* ── NEW: Unverified email ──
+       Mirrors the register → verify → login flow: block dashboard
+       access until the student has clicked the verification link. */
+        if (! $user->hasVerifiedEmail()) {
+            ActivityLogger::log(
+                actor: $user,
+                module: 'Authentication',
+                action: 'blocked_login',
+                description: 'Blocked a login attempt for an unverified email.',
+                context: [
+                    'subject_type'  => User::class,
+                    'subject_id'    => $user->id,
+                    'subject_label' => $user->name . ' | ' . $user->email,
+                    'route_name'    => 'login.attempt',
+                    'method'        => $request->method(),
+                    'url'           => $request->fullUrl(),
+                    'ip_address'    => $request->ip(),
+                    'user_agent'    => (string) $request->userAgent(),
+                    'properties'    => [
+                        'remember' => $request->boolean('remember'),
+                        'status'   => 'unverified',
+                    ],
+                ]
+            );
+
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Please verify your email before signing in. Check your inbox for the verification link.',
+                'errors'  => ['email' => ['Please verify your email before signing in.']],
             ], 403);
         }
 
@@ -232,5 +265,17 @@ class AuthController extends Controller
 
 
         return redirect()->route('login');
+    }
+     public function forgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function resetPassword(Request $request, string $token)
+    {
+        return view('auth.password-reset', [
+            'token' => $token,
+            'email' => $request->email,
+        ]);
     }
 }

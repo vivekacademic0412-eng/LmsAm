@@ -6,6 +6,12 @@
     {{-- ── MAIN COLUMN ──────────────────────────────────────────── --}}
     <div class="d-student-main">
 
+        {{-- Demo → Purchase promo banner.
+             Livewire checks `submitted_demos` for the logged-in user:
+             no record  → promote the ₹999 demo
+             has record → promote purchasing the full course --}}
+        <livewire:dashboard.student-demo-promo />
+
         {{-- Resume panel --}}
         <article class="d-resume">
             @if (!empty($studentResumeItem))

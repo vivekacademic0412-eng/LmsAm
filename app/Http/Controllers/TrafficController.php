@@ -67,58 +67,10 @@ class TrafficController extends Controller
         ]);
     }
 
-    // public function chooseDemoType(Request $request)
-    // {
-    //     // ── Traffic attribution ─────────────────────────────────
-    //     try {
-    //         $attributes = TrafficSource::attributesFromRequest($request);
-    //         $traffic    = TrafficSource::create($attributes);
-    //         $request->session()->put('traffic_source_id', $traffic->id);
+    
 
-    //         Log::info('Traffic source captured', [
-    //             'traffic_source_id' => $traffic->id,
-    //             'source'            => $traffic->source,
-    //         ]);
-    //     } catch (Exception $e) {
-    //         Log::error('Traffic tracking failed', [
-    //             'message' => $e->getMessage(),
-    //             'file'    => $e->getFile(),
-    //             'line'    => $e->getLine(),
-    //         ]);
-    //     }
-
-    //     // ── Guard: check existing selection ────────────────────
-    //     $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
-
-    //     if ($existing) {
-
-    //         // Completed paid payment → hard block, go to thank-you
-    //         if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
-    //             // Restore session keys so thank-you page works
-    //             $request->session()->put('demo_type_selection_id', $existing->id);
-    //             $request->session()->put('demo_type', $existing->demo_type);
-    //             return redirect()->route('lms.thankyou');
-    //         }
-
-    //         // Online payment pending → send back to payment gateway
-    //         if ($existing->demo_type === 'paid_online' && $existing->status === 'pending') {
-    //             $request->session()->put('demo_type_selection_id', $existing->id);
-    //             $request->session()->put('demo_type', 'paid_online');
-    //             return redirect()->route('lms.paid.booking');
-    //         }
-
-    //         // QR pending OR free → allow re-access (fall through to show page)
-    //     }
-
-    //     return view('demo.lms.choose-type', [
-    //         'currentStep' => 0,
-    //         'paidPrice'   => 999.00,
-    //         'existingQrStatus' => $existing?->status ?? 'pending',
-    //         'existingType' => $existing?->demo_type ?? null,
-    //     ]);
-    // }
-
-
+     private const PAID_DEMO_PRICE = 999.00;
+ 
     public function chooseDemoType(Request $request)
     {
         // ── Traffic attribution ─────────────────────────────────
@@ -126,7 +78,7 @@ class TrafficController extends Controller
             $attributes = TrafficSource::attributesFromRequest($request);
             $traffic    = TrafficSource::create($attributes);
             $request->session()->put('traffic_source_id', $traffic->id);
-
+ 
             Log::info('Traffic source captured', [
                 'traffic_source_id' => $traffic->id,
                 'source'            => $traffic->source,
@@ -138,116 +90,150 @@ class TrafficController extends Controller
                 'line'    => $e->getLine(),
             ]);
         }
-
-        // ── NEW: Guard — demo already completed → go straight to demo details page ──
-        $completedDemo = SubmittedDemos::where('user_id', auth()->user()->id)
+ 
+        // ── Guard: demo already completed & approved → straight to demo details page ──
+        $completedDemo = SubmittedDemos::where('user_id', auth()->id())
             // ->whereIn('status', ['approved', 'completed'])
             ->latest()
             ->first();
-        
+ 
         if ($completedDemo) {
             return redirect()->route('demos');
         }
-
-        // ── Guard: check existing selection ────────────────────
-        $existing = DemoTypeSelection::where('demo_user_id', auth()->user()->id)->latest()->first();
-
+ 
+        // ── Guard: check existing demo type selection ────────────────────
+        $existing = DemoTypeSelection::where('demo_user_id', auth()->id())->latest()->first();
+ 
+        $freeDemoBlocked = false;
+        $freeDemoMessage = null;
+ 
         if ($existing) {
-
+ 
+            // Paid (online or QR) already completed → thank you page
             if (in_array($existing->demo_type, ['paid_online', 'paid_qr']) && $existing->status === 'completed') {
                 $request->session()->put('demo_type_selection_id', $existing->id);
                 $request->session()->put('demo_type', $existing->demo_type);
                 return redirect()->route('lms.thankyou');
             }
-
+ 
+            // Paid online payment still pending → resume the booking/payment step
             if ($existing->demo_type === 'paid_online' && $existing->status === 'pending') {
                 $request->session()->put('demo_type_selection_id', $existing->id);
                 $request->session()->put('demo_type', 'paid_online');
                 return redirect()->route('lms.paid.booking');
             }
+ 
+            // ── Free demo already-availed guard ──
+            // Free is written as status = 'completed' the instant it's chosen
+            // (see storeDemoType()). Any lingering 'pending' free row is treated
+            // as stale/expired and closed out below rather than left dangling.
+            if ($existing->demo_type === 'free') {
+ 
+                if ($existing->status === 'completed') {
+                    // Free demo fully availed → no second free demo, but paid is still open
+                    $freeDemoBlocked = true;
+                    $freeDemoMessage = 'Need faster access? If your Free Demo is taking a little longer to be scheduled due to high demand, you can book a Priority 1-on-1 Paid Demo for just ₹'
+                        . number_format(self::PAID_DEMO_PRICE, 0)
+                        . ' and connect with an expert at your preferred time.';
+                } elseif ($existing->status === 'pending') {
+                    // Stale pending free row — close it out and push to paid
+                    $existing->update(['status' => 'expired']);
+ 
+                    $freeDemoBlocked = true;
+                    $freeDemoMessage = 'Need faster access? If your Free Demo is taking a little longer to be scheduled due to high demand, you can book a Priority 1-on-1 Paid Demo for just ₹'
+                        . number_format(self::PAID_DEMO_PRICE, 0)
+                        . ' and connect with an expert at your preferred time.';
+                }
+            }
         }
-
+ 
         return view('demo.lms.choose-type', [
-            'currentStep' => 0,
-            'paidPrice'   => 999.00,
+            'currentStep'      => 0,
+            'paidPrice'        => self::PAID_DEMO_PRICE,
             'existingQrStatus' => $existing?->status ?? 'pending',
-            'existingType' => $existing?->demo_type ?? null,
+            'existingType'     => $existing?->demo_type ?? null,
+            'freeDemoBlocked'  => $freeDemoBlocked,
+            'freeDemoMessage'  => $freeDemoMessage,
         ]);
     }
-    /**
-     * Store the chosen demo type (form POST).
-     */
+ 
     public function storeDemoType(Request $request)
     {
         try {
             $request->validate([
                 'demo_type' => ['required', 'in:paid_online,paid_qr,free'],
             ]);
-
+ 
             $demoType = $request->demo_type;
-
+ 
             // ── Guard: prevent double-payment ──────────────────
+            // Only blocks when the user already has a PAID selection that is
+            // already COMPLETED. A user coming from a completed FREE demo is
+            // deliberately NOT blocked here — they're allowed to go pay ₹999.
             $existing = DemoTypeSelection::where('demo_user_id', auth()->id())->latest()->first();
-            if ($existing) {
-                // Already completed a paid method → block
-                if ($existing->demo_type === 'paid_online' && $existing->status === 'completed') {
-                    // Payment already completed
-                  
-                } {
-                    $request->session()->put('demo_type_selection_id', $existing->id);
-                    $request->session()->put('demo_type', $existing->demo_type);
-                    if($demoType =='paid_online'){
-                       
-                    }
-                    return redirect()->route('lms.thankyou')
-                        ->with('info', 'You have already completed your payment.');
-                }
+ 
+            if (
+                $existing
+                && in_array($existing->demo_type, ['paid_online', 'paid_qr'])
+                && $existing->status === 'completed'
+            ) {
+                $request->session()->put('demo_type_selection_id', $existing->id);
+                $request->session()->put('demo_type', $existing->demo_type);
+ 
+                return redirect()->route('lms.thankyou')
+                    ->with('info', 'You have already completed your payment.');
             }
-
+ 
             // ── Resolve payment attributes ──────────────────────
             $amount = match ($demoType) {
-                'paid_online', 'paid_qr' => 999.00,
+                'paid_online', 'paid_qr' => self::PAID_DEMO_PRICE,
                 default                  => null,
             };
-
+ 
             $paymentMethod = match ($demoType) {
                 'paid_online' => 'online',
                 'paid_qr'     => 'qr',
                 default       => null,
             };
-
-            // QR stays "pending" until user confirms via AJAX; free is instantly "completed"
-            $paymentStatus = match ($demoType) {
-                'free'        => 'pending',
+ 
+            // Free demo needs no confirmation step → completed the moment it's chosen.
+            // Paid methods stay "pending" until payment is actually confirmed
+            // (paid_online via the booking/payment form, paid_qr via the AJAX confirm).
+            $status = match ($demoType) {
+                'free'        => 'completed',
                 'paid_online' => 'pending',
                 'paid_qr'     => 'pending',
             };
-
+ 
             $selection = DemoTypeSelection::updateOrCreate(
                 ['demo_user_id' => auth()->id()],
                 [
                     'traffic_source_id' => session('traffic_source_id'),
                     'demo_type'      => $demoType,
                     'payment_method' => $paymentMethod,
-                    'payment_status' => $paymentStatus,
+                    'status'         => $status,
                     'amount'         => $amount,
                     'session_id'     => $request->session()->getId(),
                     'user_ip'        => $request->ip(),
                 ]
             );
-
+ 
             $request->session()->put('demo_type_selection_id', $selection->id);
             $request->session()->put('demo_type', $demoType);
-
+ 
             Log::info('Demo type selected', [
                 'selection_id' => $selection->id,
                 'demo_type'    => $demoType,
+                'status'       => $status,
             ]);
-
+ 
             return match ($demoType) {
+                // Always send to the payment form — whether this is a fresh
+                // paid selection or a free-demo user upgrading to paid.
                 'paid_online' => redirect()->route('lms.paid.booking'),
                 // QR: handled via AJAX confirmQrPayment() — but if JS disabled, go to thank-you
                 'paid_qr'     => redirect()->route('lms.thankyou'),
+                // Free demo is complete the instant it's chosen
                 'free'        => redirect()->route('lms.thankyou'),
             };
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -261,119 +247,34 @@ class TrafficController extends Controller
             return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
-
-    /**
-     * AJAX: User ticks "I have paid" checkbox for QR flow.
-     * Marks the QR selection as completed and returns JSON.
-     */
-    // public function confirmQrPayment(Request $request)
-    // {
-    //     try {
-    //         $selection = DemoTypeSelection::where('demo_user_id', auth()->id())
-    //             ->where('demo_type', 'paid_qr')
-    //             ->latest()
-    //             ->first();
-
-    //         if (! $selection) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'No pending QR payment found. Please start over.',
-    //             ], 404);
-    //         }
-
-    //         if ($selection->payment_status === 'completed') {
-    //             // Already confirmed — idempotent
-    //             $request->session()->put('demo_type_selection_id', $selection->id);
-    //             $request->session()->put('demo_type', 'paid_qr');
-    //             return response()->json(['success' => true, 'already_confirmed' => true]);
-    //         }
-
-    //         $selection->update(['payment_status' => 'completed']);
-
-    //         $request->session()->put('demo_type_selection_id', $selection->id);
-    //         $request->session()->put('demo_type', 'paid_qr');
-
-    //         Log::info('QR payment confirmed by user', [
-    //             'selection_id' => $selection->id,
-    //             'user_id'      => auth()->id(),
-    //         ]);
-
-    //         // TODO: Fire confirmation email here
-    //         // Mail::to(auth()->user()->email)->send(new DemoConfirmationMail($selection));
-
-    //         return response()->json(['success' => true]);
-
-    //     } catch (Exception $e) {
-    //         Log::error('confirmQrPayment failed', [
-    //             'message' => $e->getMessage(),
-    //             'file'    => $e->getFile(),
-    //             'line'    => $e->getLine(),
-    //         ]);
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Server error. Please try again.',
-    //         ], 500);
-    //     }
-    // }
-    public function confirmQrPayment(Request $request)
+ 
+    public function thankyou(Request $request)
     {
-        try {
-            $selection = DemoTypeSelection::where('demo_user_id', auth()->id())
-                ->where('demo_type', 'paid_qr')
-                ->latest()
+        $selectionId = $request->session()->get('demo_type_selection_id');
+ 
+        if (!$selectionId) {
+            return redirect()->route('lms.choose-type');
+        }
+ 
+        $demoType = $request->session()->get('demo_type');
+ 
+        if ($demoType === 'paid_online') {
+            $selection = DemoTypeSelection::where('id', $selectionId)
+                ->where('demo_user_id', auth()->id())
                 ->first();
-
+ 
             if ($selection) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Your demo slot is reserved and a confirmation email is on its way. Your payment is already paid',
-                ], 404);
-            }
-
-            $selection = DemoTypeSelection::firstOrCreate(
-                [
-                    'demo_user_id' => auth()->id(),
-                    'demo_type'    => 'paid_qr',
-                ],
-                [
-                    'status' => 'pending',
-                    'payment_method' => 'qr',
-                    'amount'         => 999.00,
-                    'session_id'     => $request->session()->getId(),
-                    'user_ip'        => $request->ip(),
-                ]
-            );
-
-            if ($selection->status === 'completed') {
-
-                $request->session()->put('demo_type_selection_id', $selection->id);
-                $request->session()->put('demo_type', 'paid_qr');
-
-                return response()->json([
-                    'success' => true,
-                    'already_confirmed' => true
+                $selection->update([
+                    'status' => 'completed',
                 ]);
             }
-
-            $selection->update([
-                'status' => 'completed'
-            ]);
-
-            $request->session()->put('demo_type_selection_id', $selection->id);
-            $request->session()->put('demo_type', 'paid_qr');
-
-            return response()->json(['success' => true]);
-        } catch (Exception $e) {
-
-            Log::error('confirmQrPayment failed', [
-                'message' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error'
-            ], 500);
         }
+ 
+        return view('demo.lms.thankyou', [
+            'demoType' => $demoType,
+            'name'     => $request->session()->get('user_name'),
+            'email'    => $request->session()->get('user_email'),
+        ]);
     }
     /**
      * Generate and stream a simple PDF invoice for QR payments.
@@ -411,19 +312,5 @@ class TrafficController extends Controller
     /**
      * Thank-you page.
      */
-    public function thankyou(Request $request)
-    {
-        $selectionId = $request->session()->get('demo_type_selection_id');
-        if (! $selectionId) {
-            return redirect()->route('lms.choose-type');
-        }
-
-        $demoType = $request->session()->get('demo_type');
-
-        return view('demo.lms.thankyou', [
-            'demoType' => $demoType,
-            'name'     => $request->session()->get('user_name'),
-            'email'    => $request->session()->get('user_email'),
-        ]);
-    }
+    
 }

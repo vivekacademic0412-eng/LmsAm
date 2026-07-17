@@ -89,7 +89,7 @@
         border-right: 1px solid var(--line);
         position: relative;
         overflow: hidden;
-        min-height: 100vh;
+        min-height: 70vh;
     }
 
     /* subtle top-left glow */
@@ -353,17 +353,17 @@
     }
 
     /* animated mesh / noise */
-    .hero-bg {
+    /* .hero-bg {
         position: absolute;
         inset: 0;
         background:
             radial-gradient(ellipse 70% 60% at 80% 20%, rgba(122,92,255,.45) 0%, transparent 65%),
             radial-gradient(ellipse 50% 50% at 10% 80%, rgba(240,179,90,.18) 0%, transparent 60%),
             radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,255,255,.04) 0%, transparent 70%);
-    }
+    } */
 
     /* floating blobs */
-    .hero-bg::before,
+    /* .hero-bg::before,
     .hero-bg::after {
         content: '';
         position: absolute;
@@ -374,14 +374,14 @@
     .hero-bg::before {
         width: 420px; height: 420px;
         background: var(--brand-secondary);
-        top: -120px; right: -80px;
+        top: -60px; right: -80px;
     }
     .hero-bg::after {
         width: 280px; height: 280px;
         background: var(--brand-accent);
         bottom: -60px; left: 40px;
         animation-delay: -4s;
-    }
+    } */
     @keyframes blob {
         from { transform: scale(1) translate(0, 0); }
         to   { transform: scale(1.12) translate(20px, -20px); }
@@ -478,7 +478,7 @@
 
     /* bitmoji */
     .bitmoji {
-        position: absolute;
+        /* position: absolute; */
         bottom: 0;
         right: 40px;
         height: 70%;
@@ -513,3 +513,30 @@
         .stats { flex-wrap: wrap; }
         .stats > div + div { border-left: none; border-top: 1px solid rgba(255,255,255,.18); }
     }
+   /* Back link — deliberately quiet: no border, no fill, just a hint
+           of motion on hover. It sits above everything else so it reads as
+           navigation, not a call-to-action. */
+            .hero-back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: .4rem;
+                margin-bottom: 1.5rem;
+                padding: .3rem 0;
+                font-size: .875rem;
+                font-weight: 600;
+                color: var(--lms-text-muted);
+                text-decoration: none;
+                transition: color .15s ease, transform .15s ease;
+            }
+
+            .hero-back-link svg {
+                transition: transform .15s ease;
+            }
+
+            .hero-back-link:hover {
+                color: var(--lms-blue);
+            }
+
+            .hero-back-link:hover svg {
+                transform: translateX(-3px);
+            }

@@ -285,6 +285,31 @@
                     margin-bottom: 1.1rem;
                 }
             }
+            .dreg-success-box{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    background:#ecfdf5;
+    border:1px solid #86efac;
+    color:#166534;
+    padding:16px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+.dreg-success-box svg{
+    flex-shrink:0;
+    margin-top:2px;
+}
+
+.dreg-error-box{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    color:#b91c1c;
+    padding:16px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
         </style>
  
 

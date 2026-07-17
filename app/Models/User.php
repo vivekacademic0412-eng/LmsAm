@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use App\Notifications\VerifyEmailNotification;
 
 class User extends Authenticatable
 {
@@ -114,14 +115,23 @@ class User extends Authenticatable
             return $this->avatar;
         }
 
-        return asset('storage/'.ltrim($this->avatar, '/'));
+        return asset('storage/' . ltrim($this->avatar, '/'));
     }
-    public function demo(){
-          return $this->hasOne(DemoUser::class, 'user_id','id');
+    public function demo()
+    {
+        return $this->hasOne(DemoUser::class, 'user_id', 'id');
     }
 
-    public function paymentType(){
-          return $this->hasOne(DemoTypeSelection::class, 'demo_user_id' ,'id');
+    public function paymentType()
+    {
+        return $this->hasOne(DemoTypeSelection::class, 'demo_user_id', 'id');
     }
-    
+
+
+ 
+public function sendEmailVerificationNotification()
+{
+    $this->notify(new VerifyEmailNotification());
+}
+ 
 }

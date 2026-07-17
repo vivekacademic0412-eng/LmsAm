@@ -38,6 +38,7 @@
 
        </div>
    </footer>
+   <script src="{{ asset('theme/js/login.js') }}" defer></script>
    <script src="{{ asset('theme/js/demo.js') }}" defer></script>
    @yield('scripts')
    @livewireScripts
