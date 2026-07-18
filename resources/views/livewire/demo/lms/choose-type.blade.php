@@ -6,7 +6,7 @@
     internships, certifications, and access your student dashboard.')
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-{{-- <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script> --}}
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
 
 <style>
     [x-cloak] { display: none !important; }
@@ -17,8 +17,8 @@
        pages. Pair with demo-register.css (dreg-* classes) for the form.
     ═══════════════════════════════════════════════════════════════ */
 
-    .lms-landing1 {
-        --lms-navy: #1a4fc4;
+    .lms-landing {
+        --lms-navy: #0e1f5c;
         --lms-navy-deep: #0a1642;
         --lms-blue: #2952e3;
         --lms-blue-light: #4d6bef;
@@ -26,30 +26,29 @@
         --lms-text: #101828;
         --lms-text-muted: #5b6472;
         --lms-card-bg: #ffffff;
-        --lms-card-shadow: 0 20px 50px rgba(20, 33, 90, .18), 0 4px 14px rgba(20, 33, 90, .08) ;
+        --lms-card-shadow: 0 20px 50px rgba(20, 33, 90, .18), 0 4px 14px rgba(20, 33, 90, .08);
 
-        /* min-height: 100vh; */
-      background: linear-gradient(to right, #f8fbff 0%, #98add3 35%, #2c4d87 70%, #092865 100%) !important;
-        /* padding-bottom: 3rem; */
+        min-height: 100vh;
+        background: linear-gradient(135deg, #eef1fc 0%, #c4d1f7 42%, #6f89e0 78%, #5573dd 100%);
+        padding-bottom: 3rem;
     }
 
-    [data-theme="dark"] 
-    .lms-landing1 {
+    [data-theme="dark"] .lms-landing {
         --lms-text: #eef2ff;
         --lms-text-muted: #a9b3d6;
         --lms-card-bg: #131c3a;
-        background: linear-gradient(135deg, #0a1030 0%, #101a44 42%, #1a2b6b 78%, #223a8c 100%) !important;
+        background: linear-gradient(135deg, #0a1030 0%, #101a44 42%, #1a2b6b 78%, #223a8c 100%);
     }
 
-    .hero-section2 {
+    .hero-section {
         margin: 0 auto;
         display: grid;
         grid-template-columns: 1.05fr .95fr;
         align-items: center;
         gap: 3rem;
         min-height: calc(100vh - 140px);
-        /* max-width: 1320px; */
-        padding: 0rem 2rem;
+        max-width: 1320px;
+        padding: 3rem 2rem;
     }
 
     /* ── Left column ─────────────────────────────────────────────── */
@@ -111,12 +110,12 @@
 
     /* ── Right column: auth card ─────────────────────────────────── */
     .hero-right {
-        /* background: var(--lms-card-bg);
+        background: var(--lms-card-bg);
         border-radius: 22px;
-        box-shadow: var(--lms-card-shadow); */
+        box-shadow: var(--lms-card-shadow);
         padding: 2rem 2.25rem 2.25rem;
         width: 100%;
-        max-width: 580px;
+        max-width: 480px;
         margin-left: auto;
     }
 
@@ -216,9 +215,9 @@
 </style>
 
 @section('content')
-    <div class="lms-landing1" x-data="{ tab: 'register' }" @go-to-login.window="tab = 'login'">
+    <div class="lms-landing" x-data="{ tab: 'register' }" @switch-to-login.window="tab = 'login'">
 
-        <section class="hero-section2">
+        <section class="hero-section">
             <div class="hero-left">
 
                 <a href="https://www.academicmantraservices.com" class="hero-back-link">

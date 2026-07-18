@@ -36,10 +36,11 @@ use Illuminate\Http\Request;
 // });
 
 Route::middleware(['guest', 'secure.headers'])->group(function (): void {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', [AuthController::class, 'Register'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+    Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
 });
-Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
+
 
 Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

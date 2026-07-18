@@ -204,31 +204,44 @@
     {{-- ── SweetAlert2 trigger ── --}}
     @push('scripts')
         <script>
-            document.addEventListener('livewire:initialized', () => {
-                Livewire.on('registration-success', (event) => {
-                    const name = event.name ?? 'there';
-                    Swal.fire({
-                        icon: 'success',
-                        title: `Welcome, ${name}! `,
-                        html: `Your <strong>Student</strong> account has been created.<br>Check your email to get started.`,
-                        confirmButtonText: 'Go to Dashboard',
-                        confirmButtonColor: 'var(--brand-primary)',
-                        background: 'var(--bg-card)',
-                        color: 'var(--text)',
-                        iconColor: 'var(--brand-green)',
-                        showClass: {
-                            popup: 'animate__animated animate__fadeInDown'
-                        },
-                        hideClass: {
-                            popup: 'animate__animated animate__fadeOutUp'
-                        },
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/dashboard';
-                        }
-                    });
-                });
-            });
+         
+document.addEventListener('livewire:init', () => {
+
+    // Generic SweetAlert
+    Livewire.on('swal', (event) => {
+
+        const data = Array.isArray(event) ? event[0] : event;
+
+        Swal.fire({
+            icon: data.icon,
+            title: data.title,
+            text: data.text,
+            confirmButtonColor: '#0947a8'
+        });
+
+    });
+
+    // Registration Success
+    Livewire.on('registration-success', (event) => {
+
+        const data = Array.isArray(event) ? event[0] : event;
+
+        Swal.fire({
+            icon: 'success',
+            title: `Welcome, ${data.name}!`,
+            html: `
+                <strong>Your account has been created successfully.</strong><br><br>
+                Please check your email and verify your account before logging in.
+            `,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#0947a8',
+            allowOutsideClick: false
+        });
+
+    });
+
+});
+
         </script>
     @endpush
 

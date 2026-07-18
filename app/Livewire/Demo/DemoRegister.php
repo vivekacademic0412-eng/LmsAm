@@ -2,13 +2,15 @@
 
 namespace App\Livewire\Demo;
 
-use App\Mail\NewStudentRegisteredMail;
 use App\Mail\StudentThankYouMail;
+
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Livewire\Component;
 
 class DemoRegister extends Component
@@ -20,7 +22,17 @@ class DemoRegister extends Component
     public string $password = '';
     public string $password_confirmation = '';
     public string $gender = '';
+
+    // Success-screen state
     public bool $success = false;
+    public ?int $registeredUserId = null;
+    public string $registeredName = '';
+    public string $registeredEmail = '';
+
+    // Resend-verification UI state
+    public bool $resendSent = false;
+    public string $resendMessage = '';
+    public int $resendCooldown = 0;
 
     protected function rules(): array
     {
@@ -63,110 +75,183 @@ class DemoRegister extends Component
         ];
     }
 
-    public function register()
+    /**
+     * Builds the same signed URL Laravel's default VerifyEmail notification
+     * would generate, so the existing `verification.verify` route keeps working.
+     */
+    private function buildVerificationUrl(User $user): string
     {
-        $validated = $this->validate();
-
-        $user = null;
-
-        /* ── Step 1: create the account. DB only — no mail here.
-           If anything below throws, the user row must NOT vanish
-           just because an email template had a bug. ── */
-        try {
-            DB::beginTransaction();
-
-            Log::info('Registration Started', [
-                'first_name' => $this->first_name,
-                'last_name'  => $this->last_name,
-                'email'      => $this->email,
-                'contact'    => $this->contact,
-            ]);
-
-            $user = User::create([
-                'name'      => $validated['first_name'],
-                'last_name' => $validated['last_name'],
-                'contact'   => $validated['contact'],
-                'email'     => $validated['email'],
-                'password'  => Hash::make($validated['password']),
-                'role'      => User::ROLE_STUDENT,
-                'gender'    => $validated['gender'],
-                'is_active' => true,
-            ]);
-
-            DB::commit();
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            Log::error('Registration Failed', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => $e->getTraceAsString(),
-            ]);
-
-            session()->flash('error', 'Registration failed. Please try again.');
-
-            return;
-        }
-
-        /* ── Step 2: emails. The account already exists at this point,
-           so each send gets its own try/catch — one bad template or a
-           down mail server logs an error but never undoes the signup. ── */
-        try {
-            $user->sendEmailVerificationNotification();
-        } catch (\Throwable $e) {
-            Log::error('Verification email failed to send', [
-                'user_id' => $user->id,
-                'message' => $e->getMessage(),
-            ]);
-        }
-
-        try {
-            Mail::to($user->email)->send(new StudentThankYouMail($user));
-        } catch (\Throwable $e) {
-            Log::error('Thank-you email failed to send', [
-                'user_id' => $user->id,
-                'message' => $e->getMessage(),
-            ]);
-        }
-
-        try {
-            $admins = User::where('role', User::ROLE_SUPERADMIN)->get();
-
-            if ($admins->isEmpty()) {
-                $admins = User::where('role', User::ROLE_ADMIN)->get();
-            }
-
-            foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new NewStudentRegisteredMail($user));
-            }
-        } catch (\Throwable $e) {
-            Log::error('Admin notification email failed to send', [
-                'user_id' => $user->id,
-                'message' => $e->getMessage(),
-            ]);
-        }
-
-        session()->flash(
-            'success',
-            'Registration successful! A verification email has been sent to '
-            . $user->email .
-            '. Please verify your email before logging in.'
+        return URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            [
+                'id'   => $user->getKey(),
+                'hash' => sha1($user->getEmailForVerification()),
+            ]
         );
+    }
 
-        $this->reset([
-            'first_name',
-            'last_name',
-            'contact',
-            'email',
-            'password',
-            'password_confirmation',
-            'gender',
+   public function register()
+{
+    $validated = $this->validate();
+
+    $user = null;
+
+    try {
+
+        DB::beginTransaction();
+
+        Log::info('Registration Started', [
+            'first_name' => $this->first_name,
+            'last_name'  => $this->last_name,
+            'email'      => $this->email,
+            'contact'    => $this->contact,
         ]);
 
-        $this->success = true;
+        $user = User::create([
+            'name'      => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'contact'   => $validated['contact'],
+            'email'     => $validated['email'],
+            'password'  => Hash::make($validated['password']),
+            'role'      => User::ROLE_STUDENT,
+            'gender'    => $validated['gender'],
+            'is_active' => true,
+        ]);
+
+        DB::commit();
+
+        Log::info('User Registered Successfully', [
+            'user_id' => $user->id,
+            'email'   => $user->email,
+        ]);
+
+    } catch (\Throwable $e) {
+
+        DB::rollBack();
+
+        Log::error('Registration Failed', [
+            'message' => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+            'trace'   => $e->getTraceAsString(),
+        ]);
+
+        $this->dispatch('swal', [
+            'icon'  => 'error',
+            'title' => 'Registration Failed',
+            'text'  => app()->isLocal()
+                ? $e->getMessage()
+                : 'Unable to create your account. Please try again.',
+        ]);
+
+        return;
     }
+
+    // Send verification email
+    try {
+
+        $verificationUrl = $this->buildVerificationUrl($user);
+
+        Mail::to($user->email)->send(
+            new StudentThankYouMail($user, $verificationUrl)
+        );
+
+        Log::info('Verification email sent.', [
+            'user_id' => $user->id,
+        ]);
+
+    } catch (\Throwable $e) {
+
+        Log::error('Verification Email Failed', [
+            'user_id' => $user->id,
+            'message' => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+        ]);
+
+        $this->dispatch('swal', [
+            'icon'  => 'warning',
+            'title' => 'Email Not Sent',
+            'text'  => 'Account created successfully, but verification email could not be sent.',
+        ]);
+    }
+
+    // Success state
+    $this->registeredUserId = $user->id;
+    $this->registeredName   = $user->name;
+    $this->registeredEmail  = $user->email;
+    $this->success          = true;
+
+    // Success SweetAlert
+    $this->dispatch('registration-success', [
+        'name' => $user->name,
+    ]);
+
+    $this->reset([
+        'first_name',
+        'last_name',
+        'contact',
+        'email',
+        'password',
+        'password_confirmation',
+        'gender',
+    ]);
+}
+
+    /**
+     * Resends the same combined welcome/verification email.
+     * Rate-limited to 1 send per 60 seconds per user to prevent abuse.
+     */
+    // public function resendVerification()
+    // {
+    //     if (! $this->registeredUserId) {
+    //         return;
+    //     }
+
+    //     $key = 'resend-verification:' . $this->registeredUserId;
+
+    //     if (RateLimiter::tooManyAttempts($key, 1)) {
+    //         $this->resendCooldown = RateLimiter::availableIn($key);
+    //         $this->resendMessage  = 'Please wait before requesting another email.';
+    //         $this->resendSent     = false;
+    //         return;
+    //     }
+
+    //     $user = User::find($this->registeredUserId);
+
+    //     if (! $user) {
+    //         $this->resendMessage = 'We could not find your account. Please refresh and try again.';
+    //         return;
+    //     }
+
+    //     if ($user->hasVerifiedEmail()) {
+    //         $this->resendMessage = 'Your email is already verified — you can log in now.';
+    //         $this->resendSent    = true;
+    //         return;
+    //     }
+
+    //     try {
+    //         $verificationUrl = $this->buildVerificationUrl($user);
+
+    //         Mail::to($user->email)->send(
+    //             new StudentWelcomeVerifyMail($user, $verificationUrl)
+    //         );
+
+    //         RateLimiter::hit($key, 60);
+
+    //         $this->resendSent     = true;
+    //         $this->resendCooldown = 60;
+    //         $this->resendMessage  = 'Verification email resent! Please check your inbox.';
+    //     } catch (\Throwable $e) {
+    //         Log::error('Resend verification email failed', [
+    //             'user_id' => $user->id,
+    //             'message' => $e->getMessage(),
+    //         ]);
+
+    //         $this->resendMessage = 'Something went wrong sending the email. Please try again shortly.';
+    //     }
+    // }
 
     public function updated($property)
     {

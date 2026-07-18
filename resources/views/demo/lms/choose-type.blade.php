@@ -1226,7 +1226,7 @@
                 </div>
 
                 {{-- Free option — hidden entirely once the user has availed / expired their free demo --}}
-             @if($existingType === 'free')
+             {{-- @if($existingType === 'free') --}}
                 @unless ($freeDemoBlocked ?? false)
                     <div class="free-section" id="freeSection">
                         <div class="free-card-full {{ old('demo_type') === 'free' ? 'selected' : '' }}"
@@ -1243,12 +1243,12 @@
                         </div>
                     </div>
                       
-                    <button type="button" class="skip-trigger" id="skipBtn" onclick="revealFree()">
+                    <button type="button" class="skip-trigger" id="skipBtn" onclick="revealFree()"  {{ old('demo_type') === 'free' ? 'disabled' : ''  }}>
                         <i class="fas fa-arrow-right"></i>
                         Skip
                     </button>
                 @endunless
-                @endif
+                {{-- @endif --}}
 
                 <button type="submit" class="submit-btn" id="submitBtn" disabled>
                     <i class="fas fa-arrow-right"></i>

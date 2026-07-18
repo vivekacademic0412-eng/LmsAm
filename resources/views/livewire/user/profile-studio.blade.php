@@ -352,7 +352,7 @@
     {{-- ═══════════════════════════════════════════
          DANGER ZONE
     ═══════════════════════════════════════════ --}}
-    <div class="p-card danger-zone" role="region" aria-label="Danger zone">
+    {{-- <div class="p-card danger-zone" role="region" aria-label="Danger zone">
         <div class="p-card-head">
             <div class="p-card-head-left">
                 <div class="p-card-head-icon" aria-hidden="true"><i class="ti ti-alert-triangle"></i></div>
@@ -390,7 +390,7 @@
                 </button>
             </div>
         </div>
-    </div>
+    </div> --}}
 
 
 

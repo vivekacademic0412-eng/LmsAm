@@ -11,13 +11,21 @@ class StudentThankYouMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public User $user)
+    public User $user;
+    public string $verificationUrl;
+
+    public function __construct(User $user, string $verificationUrl)
     {
+        $this->user = $user;
+        $this->verificationUrl = $verificationUrl;
     }
 
-    public function build()
+      public function build()
     {
         return $this->subject('Welcome to Academic Mantra — Thank You for Registering!')
-            ->view('emails.student-thank-you');
+            ->view('emails.student-welcome-verify')->with([
+                'user' => $this->user,
+                'verificationUrl' => $this->verificationUrl,
+            ]);
     }
 }

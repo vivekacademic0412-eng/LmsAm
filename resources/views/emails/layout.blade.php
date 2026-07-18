@@ -27,9 +27,9 @@
 
                                 <!-- Logo -->
                                 <td align="left" valign="middle" width="40%">
-                                    <img src="{{ asset('theme/images/logo.png') }}"
-                                         alt="Academic Mantra LMS"
-                                         style="height:55px;display:block;">
+                                   <img src="{{ url('theme/images/logo.png') }}"
+     alt="Academic Mantra LMS"
+     style="height:55px;display:block;">
                                 </td>
 
                                 <!-- Company -->

@@ -1,4 +1,4 @@
-```blade
+
 {{-- resources/views/emails/student-thank-you.blade.php --}}
 @extends('emails.layout')
 
@@ -188,4 +188,4 @@ If you did not register for this account, please ignore this email. No further a
 </p>
 
 @endsection
-```
+
