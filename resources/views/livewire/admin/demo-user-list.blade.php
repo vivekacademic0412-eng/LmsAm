@@ -219,7 +219,7 @@
                                 <div class="d-flex gap-2 flex-wrap">
 
                                     {{-- Activate Button only for FREE and QR --}}
-                                    @if (in_array($paymentType, ['free', 'paid_qr']))
+                                    {{-- @if (in_array($paymentType, ['free', 'paid_qr'])) --}}
                                               @if($demo->paymentType?->is_confirm==1)
                                         <button wire:click="activateUser({{ $demo->id }})"
                                             wire:confirm="Activate this user?" class="btn btn-success btn-sm">
@@ -235,7 +235,7 @@
                                             Send Mail
 
                                         </button>
-                                    @endif
+                                    {{-- @endif --}}
 
 
 

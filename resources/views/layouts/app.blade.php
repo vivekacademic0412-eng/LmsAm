@@ -1,5 +1,6 @@
 <x-util.header />
-<x-util.aside />
+{{-- <x-util.aside /> --}}
+<x-aside-nav/>
 <x-util.main />
 <!-- ══════════════ MAIN CONTENT ══════════════ -->
 <main class="main-content" id="main-content" role="main" tabindex="-1">

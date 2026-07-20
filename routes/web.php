@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Admin\NavItemController;
+use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\BroadcastNotificationController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CourseCategoryController;
@@ -317,3 +319,15 @@ Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
  
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // Navigation Builder module
+    Route::get('nav-items', [NavItemController::class, 'index'])->name('nav-items.index');
+    Route::post('nav-items', [NavItemController::class, 'store'])->name('nav-items.store');
+    Route::put('nav-items/{navItem}', [NavItemController::class, 'update'])->name('nav-items.update');
+    Route::delete('nav-items/{navItem}', [NavItemController::class, 'destroy'])->name('nav-items.destroy');
+     Route::get('modules', [NavItemController::class, 'Modules'])->name('nav-items.modules');
+    // Roles & Permissions module
+    Route::get('permissions', [RolePermissionController::class, 'index'])->name('permissions.index');
+    Route::put('permissions', [RolePermissionController::class, 'update'])->name('permissions.update');
+});
