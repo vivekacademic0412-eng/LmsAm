@@ -11,7 +11,7 @@ class DemoFeatureVideo extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id',
+        'category_id',
         'position',
         'title',
         'description',
@@ -32,4 +32,9 @@ class DemoFeatureVideo extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+     public function category(): BelongsTo
+    {
+        return $this->belongsTo(CourseCategory::class, 'category_id');
+    }
+    
 }

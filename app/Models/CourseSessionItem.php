@@ -36,6 +36,7 @@ class CourseSessionItem extends Model
         'cloudinary_resource_type',
         'cloudinary_format',
         'cloudinary_delivery_type',
+        'linked_from_item_id'
     ];
 
     protected function casts(): array

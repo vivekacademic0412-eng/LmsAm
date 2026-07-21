@@ -24,8 +24,8 @@
             </div>
 
         </div>
-    <section class="um-filter-bar">
-        
+        <section class="um-filter-bar">
+         
             <div class="filter-group">
 
                 {{-- FILTER --}}

@@ -37,12 +37,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // CourseLevelSeeder::class,
             ModuleSeeder::class,
+            NavPermissionSeeder::class,
             CountrySeeder::class,
             StateSeeder::class,
             CitySeeder::class,
             EducationLevelSeeder::class,
             HeroSectionSeeder::class,
-             WeekelyLevelSeeder::class,
+            // WeekelyLevelSeeder::class,
         ]);
         $password = Hash::make('password');
         $faker = fake();

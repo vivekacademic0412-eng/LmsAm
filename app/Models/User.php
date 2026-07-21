@@ -48,6 +48,9 @@ class User extends Authenticatable
         'password',
         'contact',
         'gender',
+        'onboarding_status',
+        'onboarding_step',
+        'is_active',
     ];
 
     /**
@@ -128,10 +131,9 @@ class User extends Authenticatable
     }
 
 
- 
-public function sendEmailVerificationNotification()
-{
-    $this->notify(new VerifyEmailNotification());
-}
- 
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailNotification());
+    }
 }

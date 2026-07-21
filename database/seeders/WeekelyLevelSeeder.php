@@ -94,6 +94,29 @@ class WeekelyLevelSeeder extends Seeder
                     'thumbnail'   => $data['thumbnail'],
                 ]
             );
+
+            $demoVideos = [
+                ['title' => 'Subject Introduction', 'description' => "Get an overview of {$data['name']} and what you will learn.", 'file_name' => 'course-introduction.mp4', 'file_path' => 'demo-feature-videos/course-introduction.mp4', 'file_mime' => 'video/mp4', 'file_size' => 25400000],
+
+            ];
+            $category = $categories[$slug];
+            $creator     = User::where('role', User::ROLE_SUPERADMIN)->first()
+                ?? User::where('role', User::ROLE_ADMIN)->first();
+            foreach ($demoVideos as $position => $video) {
+                DemoFeatureVideo::updateOrCreate(
+                    ['category_id' => $category['id'], 'position' => $position + 1],
+                    [
+                        'title'       => $video['title'],
+                        'description' => $video['description'],
+                        'file_path'   => $video['file_path'],
+                        'file_name'   => $video['file_name'],
+                        'file_mime'   => $video['file_mime'],
+                        'file_size'   => $video['file_size'],
+                        'status'      => 1,
+                        'uploaded_by' => $creator->id,
+                    ]
+                );
+            }
         }
 
         CourseType::insert([
@@ -191,7 +214,7 @@ Duration: {$courseData['duration_label']}. Includes expert mentorship, real clie
 certification on completion. Placement assistance and interview preparation included where applicable.
 ",
                             'original_price' => $courseData['original_price'],
-                             'price'          =>$courseData['price'],
+                            'price'          => $courseData['price'],
                             'gst'            => $courseData['gst'],
                             'language'          => 'English',
                             'thumbnail'         => $data['thumbnail'],
@@ -236,28 +259,6 @@ certification on completion. Placement assistance and interview preparation incl
                                 );
                             }
                         }
-                    }
-
-                    $demoVideos = [
-                        ['title' => 'Course Introduction', 'description' => "Get an overview of {$course->title} and what you will learn.", 'file_name' => 'course-introduction.mp4', 'file_path' => 'demo-feature-videos/course-introduction.mp4', 'file_mime' => 'video/mp4', 'file_size' => 25400000],
-                        ['title' => 'Course Demo Session', 'description' => "Watch a sample learning session from {$course->title}.", 'file_name' => 'demo-session.mp4', 'file_path' => 'demo-feature-videos/demo-session.mp4', 'file_mime' => 'video/mp4', 'file_size' => 45800000],
-                        ['title' => 'Student Project Showcase', 'description' => "See practical projects and outcomes from {$course->title}.", 'file_name' => 'project-showcase.mp4', 'file_path' => 'demo-feature-videos/project-showcase.mp4', 'file_mime' => 'video/mp4', 'file_size' => 38600000],
-                    ];
-
-                    foreach ($demoVideos as $position => $video) {
-                        DemoFeatureVideo::updateOrCreate(
-                            ['course_id' => $course->id, 'position' => $position + 1],
-                            [
-                                'title'       => $video['title'],
-                                'description' => $video['description'],
-                                'file_path'   => $video['file_path'],
-                                'file_name'   => $video['file_name'],
-                                'file_mime'   => $video['file_mime'],
-                                'file_size'   => $video['file_size'],
-                                'status'      => 1,
-                                'uploaded_by' => $creator->id,
-                            ]
-                        );
                     }
                 }
             }

@@ -6,12 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('role_permissions', function (Blueprint $table) {
+         Schema::create('role_permissions', function (Blueprint $table) {
             $table->id();
             $table->string('role');        // superadmin | admin | manager_hr | it | trainer | student
-            $table->integer('module_id');  // matches nav_items.module_key
+             $table->foreignId('module_id')
+                ->nullable()
+                ->constrained('modules')
+                ->nullOnDelete();
             $table->string('module_key');  // matches nav_items.module_key
             $table->boolean('can_view')->default(0);
             $table->boolean('can_create')->default(0);
@@ -23,8 +29,11 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('role_permissions');
+        Schema::dropIfExists('role_permission');
     }
 };

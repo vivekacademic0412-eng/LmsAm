@@ -23,16 +23,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-         VerifyEmail::toMailUsing(function ($notifiable, string $url) {
-        return (new MailMessage)
-            ->subject('Verify Your Email — Academic Mantra LMS')
-            ->view('emails.verify-email', [
-                'notifiable' => $notifiable,
-                'url'        => $url,
-            ]);
-    });
+        VerifyEmail::toMailUsing(function ($notifiable, string $url) {
+            return (new MailMessage)
+                ->subject('Verify Your Email — Academic Mantra LMS')
+                ->view('emails.verify-email', [
+                    'notifiable' => $notifiable,
+                    'url'        => $url,
+                ]);
+        });
         Livewire::setScriptRoute(function ($handle) {
-        return Route::get('/livewire/livewire.js', $handle);
-    });
+            return Route::get('/livewire/livewire.js', $handle);
+        });
+        require base_path('routes/breadcrumbs.php');
+
     }
 }

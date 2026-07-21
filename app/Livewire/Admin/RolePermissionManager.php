@@ -84,9 +84,11 @@ class RolePermissionManager extends Component
         $now = now();
         $rows = [];
         foreach ($this->permissions as $moduleId => $flags) {
+             $module_key = Module::where('id',$moduleId)->value('module_key');
             $rows[] = [
                 'role'       => $this->activeRole,
                 'module_id'  => $moduleId,
+                'module_key'  =>  $module_key,
                 'can_view'   => $flags['view']   ?? 0,
                 'can_create' => $flags['create'] ?? 0,
                 'can_edit'   => $flags['edit']   ?? 0,

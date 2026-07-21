@@ -884,7 +884,7 @@
     {{-- ═══════════════════════════════════════════════════
      MODALS  (only rendered if $canManage)
 ════════════════════════════════════════════════════ --}}
-    @if ($canManage)
+    {{-- @if ($canManage) --}}
         {{-- ── Create Main Category ── --}}
         <div class="modal-overlay" id="modal-create-main" role="dialog" aria-modal="true"
             aria-labelledby="modal-create-main-title">
@@ -1176,7 +1176,7 @@
                 </div>
             @endforeach
         @endforeach
-    @endif {{-- /canManage --}}
+    {{-- @endif /canManage --}}
 
 
     {{-- ═══════════════════════════════════════════════════

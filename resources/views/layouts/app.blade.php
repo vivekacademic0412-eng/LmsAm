@@ -1,5 +1,5 @@
 <x-util.header />
-{{-- <x-util.aside /> --}}
+
 <x-aside-nav/>
 <x-util.main />
 <!-- ══════════════ MAIN CONTENT ══════════════ -->
@@ -25,6 +25,7 @@
             </button>
         </div>
     </div> --}}
+   
     @yield('content')
 </main>
 <x-util.footer />

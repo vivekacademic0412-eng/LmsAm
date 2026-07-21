@@ -10,12 +10,16 @@ return new class extends Migration
     {
         Schema::create('demo_feature_videos', function (Blueprint $table): void {
             $table->id();
+             $table->foreignId('category_id')
+                ->constrained('course_categories')
+                ->cascadeOnDelete();
             $table->string('title', 180)->nullable();
             $table->text('description')->nullable();
             $table->string('file_path');
             $table->string('file_name')->nullable();
             $table->string('file_mime')->nullable();
             $table->unsignedBigInteger('file_size')->nullable();
+            $table->integer('status')->nullable();
             $table->foreignId('uploaded_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });

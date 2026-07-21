@@ -1,179 +1,323 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
+    <title>@yield('title', config('app.name'))</title>
 </head>
 
-<body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#334155;">
+<body style="margin:0;padding:0;background:#f3f7fb;font-family:Arial,Helvetica,sans-serif;color:#334155;">
 
-<div style="display:none;font-size:1px;color:#f4f7fb;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+<div style="display:none;font-size:1px;color:#f3f7fb;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
     {{ $preheader ?? '' }}
 </div>
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7fb;padding:30px 10px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f7fb" style="padding:40px 15px;">
+
     <tr>
+
         <td align="center">
 
-            <table role="presentation" width="700" cellpadding="0" cellspacing="0" style="width:700px;max-width:700px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;">
+            <table width="700" cellpadding="0" cellspacing="0" border="0"
+                   style="width:700px;max-width:700px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 12px 40px rgba(15,23,42,.08);">
 
-                <!-- Header -->
+                <!-- HEADER -->
+
                 <tr>
-                    <td style="padding:25px 35px;background:#0f172a;">
+
+                    <td style="background:#ffffff;padding:28px 35px;border-bottom:1px solid #edf2f7;">
 
                         <table width="100%" cellpadding="0" cellspacing="0">
+
                             <tr>
 
-                                <!-- Logo -->
-                                <td align="left" valign="middle" width="40%">
-                                   <img src="{{ url('theme/images/logo.png') }}"
-     alt="Academic Mantra LMS"
-     style="height:55px;display:block;">
+                                <td align="left">
+
+                                    <img
+                                        src="https://www.academicmantraservices.com/theme/images/logo.png"
+                                        alt="Academic Mantra Services"
+                                        style="height:60px;display:block;border:0;">
+
                                 </td>
 
-                                <!-- Company -->
-                                <td align="right" valign="middle" width="60%" style="font-size:13px;line-height:22px;color:#ffffff;">
+                                <td align="right">
 
-                                    <strong style="font-size:18px;color:#ffffff;">
-                                        Academic Mantra Services
-                                    </strong>
+                                    <div style="font-size:13px;color:#64748b;line-height:24px;">
 
-                                    <br>
+                                        <strong style="font-size:22px;color:#0f172a;">
+                                            Academic Mantra Services
+                                        </strong>
 
-                                    LMS | Training | Certification
+                                        <br>
 
-                                    <br>
+                                        Learning Management System
 
-                                    📧 support@academicmantraservices.com
+                                        <br>
 
-                                    <br>
+                                        Live Industry Training | Certification | Placement Assistance
 
-                                    🌐 www.academicmantraservices.com
+                                    </div>
 
                                 </td>
 
                             </tr>
+
                         </table>
 
                     </td>
+
                 </tr>
 
-                <!-- Hero -->
+                <!-- HERO -->
+
                 <tr>
-                    <td style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:40px;text-align:center;">
+
+                    <td style="background:linear-gradient(135deg,#2563eb,#3b82f6);padding:50px 45px;text-align:center;">
 
                         @isset($heroLabel)
-                        <div style="display:inline-block;background:#ffffff;color:#2563eb;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:bold;">
+
+                        <div style="display:inline-block;background:#ffffff;color:#2563eb;font-size:12px;font-weight:bold;padding:8px 18px;border-radius:50px;letter-spacing:.5px;">
                             {{ $heroLabel }}
                         </div>
+
                         @endisset
 
-                        <h1 style="margin:18px 0 0;font-size:30px;font-weight:bold;color:#ffffff;">
+                        <h1 style="margin:22px 0 15px;font-size:34px;font-weight:bold;color:#ffffff;line-height:42px;">
+
                             {{ $heroTitle ?? '' }}
+
                         </h1>
 
+                        @isset($heroDescription)
+
+                        <p style="margin:0 auto;color:#dbeafe;font-size:17px;line-height:28px;max-width:540px;">
+
+                            {{ $heroDescription }}
+
+                        </p>
+
+                        @endisset
+
                     </td>
+
                 </tr>
 
-                <!-- Body -->
+                <!-- BODY -->
+
                 <tr>
-                    <td style="padding:40px;font-size:16px;line-height:28px;color:#334155;">
+
+                    <td style="padding:45px;font-size:16px;line-height:30px;color:#334155;">
 
                         @yield('body')
 
                     </td>
+
                 </tr>
 
-                <!-- Footer -->
+                <!-- CONTACT STRIP -->
+
                 <tr>
-                    <td style="background:#f8fafc;padding:30px;border-top:1px solid #e2e8f0;">
 
-                        <table width="100%" cellpadding="0" cellspacing="0">
+                    <td style="padding:25px 40px;background:#eff6ff;border-top:1px solid #dbeafe;">
+
+                        <table width="100%">
 
                             <tr>
 
-                                <td style="font-size:13px;color:#64748b;line-height:22px;">
+                                <td align="center">
 
-                                    <strong style="font-size:15px;color:#0f172a;">
-                                        Academic Mantra Services
-                                    </strong>
+                                    <table cellpadding="0" cellspacing="0">
 
-                                    <br>
+                                        <tr>
 
-                                    Empowering Students Through Quality Learning & Professional Training.
+                                            <td style="color:#ffffff;font-size:14px;">
+    &#9742; <strong>+91 97794 55997</strong>
+</td>
 
-                                    <br><br>
+<td style="color:#ffffff;font-size:14px;">
+    &#9993; support@academicmantraservices.com
+</td>
 
-                                    <strong>Registered Office</strong>
+<td style="color:#ffffff;font-size:14px;">
+    &#127760; www.academicmantraservices.com
+</td>
 
-                                    <br>
+                                        </tr>
 
-                                    Academic Mantra Services
-
-                                    <br>
-
-                                    India
-
-                                    <br>
-
-                                    Email: support@academicmantraservices.com
-
-                                    <br>
-
-                                    Website:
-                                    <a href="https://www.academicmantraservices.com"
-                                       style="color:#2563eb;text-decoration:none;">
-                                        www.academicmantraservices.com
-                                    </a>
+                                    </table>
 
                                 </td>
 
-                            </tr>
-
-                            <tr>
-                                <td style="padding-top:25px;font-size:12px;color:#94a3b8;line-height:20px;">
-
-                                    This email was sent automatically. Please do not reply to this message.
-
-                                    <br><br>
-
-                                    <a href="https://www.academicmantraservices.com/terms-and-conditions"
-                                       style="color:#2563eb;text-decoration:none;">
-                                        Terms & Conditions
-                                    </a>
-
-                                    &nbsp; | &nbsp;
-
-                                    <a href="https://www.academicmantraservices.com/privacy-policy"
-                                       style="color:#2563eb;text-decoration:none;">
-                                        Privacy Policy
-                                    </a>
-
-                                    &nbsp; | &nbsp;
-
-                                    <a href="https://www.academicmantraservices.com/contact-us"
-                                       style="color:#2563eb;text-decoration:none;">
-                                        Contact Us
-                                    </a>
-
-                                    <br><br>
-
-                                    © {{ date('Y') }} Academic Mantra Services. All Rights Reserved.
-
-                                </td>
                             </tr>
 
                         </table>
 
                     </td>
+
+                </tr>
+
+                <!-- FOOTER -->
+
+                <tr>
+
+                    <td style="background:#ffffff;padding:40px;">
+
+                        <table width="100%">
+
+                            <tr>
+
+                                <td style="font-size:14px;color:#64748b;line-height:28px;">
+
+                                    <strong style="font-size:18px;color:#0f172a;">
+                                        Academic Mantra Services
+                                    </strong>
+
+                                    <br><br>
+
+                                    Empowering Students with AI-Integrated, Industry-Focused Live Training Programs, Professional Certifications and Career Development.
+
+                                    <br><br>
+
+                                    <strong style="color:#0f172a;">
+                                        Registered Office
+                                    </strong>
+
+                                    <br>
+
+                                    4th Floor, Phase C-126, Building II
+
+                                    <br>
+
+                                    Industrial Area, Phase 8
+
+                                    <br>
+
+                                    SAS Nagar (Mohali), Punjab – 160071
+
+                                    <br><br>
+
+                                    <strong>Phone:</strong>
+                                    +91 97794 55997
+
+                                    <br>
+
+                                    <strong>Email:</strong>
+                                    support@academicmantraservices.com
+
+                                    <br>
+
+                                    <strong>Website:</strong>
+
+                                    <a href="https://www.academicmantraservices.com"
+                                       style="color:#2563eb;text-decoration:none;">
+                                        https://www.academicmantraservices.com
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td style="padding-top:30px;">
+
+                                    <table cellpadding="0" cellspacing="0">
+
+                                        <tr>
+
+                                            <td style="padding-right:18px;">
+                                                <a href="https://www.facebook.com/" style="color:#2563eb;text-decoration:none;">Facebook</a>
+                                            </td>
+
+                                            <td style="padding-right:18px;">
+                                                <a href="https://www.instagram.com/" style="color:#2563eb;text-decoration:none;">Instagram</a>
+                                            </td>
+
+                                            <td style="padding-right:18px;">
+                                                <a href="https://www.linkedin.com/" style="color:#2563eb;text-decoration:none;">LinkedIn</a>
+                                            </td>
+
+                                            <td>
+                                                <a href="https://www.youtube.com/" style="color:#2563eb;text-decoration:none;">YouTube</a>
+                                            </td>
+
+                                        </tr>
+
+                                    </table>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td style="padding-top:30px;border-top:1px solid #e2e8f0;">
+
+                                    <table width="100%">
+
+                                        <tr>
+
+                                            <td style="font-size:13px;color:#94a3b8;line-height:24px;">
+
+                                                This is an automated email generated by the Academic Mantra Services Learning Management System. Please do not reply to this email.
+
+                                                <br><br>
+
+                                                <a href="https://www.academicmantraservices.com/terms-and-conditions"
+                                                   style="color:#2563eb;text-decoration:none;">
+                                                    Terms & Conditions
+                                                </a>
+
+                                                &nbsp;&nbsp;|&nbsp;&nbsp;
+
+                                                <a href="https://www.academicmantraservices.com/privacy-policy"
+                                                   style="color:#2563eb;text-decoration:none;">
+                                                    Privacy Policy
+                                                </a>
+
+                                                &nbsp;&nbsp;|&nbsp;&nbsp;
+
+                                                <a href="https://www.academicmantraservices.com/contact-us"
+                                                   style="color:#2563eb;text-decoration:none;">
+                                                    Contact Us
+                                                </a>
+
+                                                <br><br>
+
+                                                © {{ date('Y') }} Academic Mantra Services. All Rights Reserved.
+
+                                            </td>
+
+                                            <td align="right">
+
+                                                <img src="https://www.academicmantraservices.com/theme/images/logo.png"
+                                                     style="height:42px;opacity:.7;">
+
+                                            </td>
+
+                                        </tr>
+
+                                    </table>
+
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+                    </td>
+
                 </tr>
 
             </table>
 
         </td>
+
     </tr>
+
 </table>
 
 </body>
 </html>
+

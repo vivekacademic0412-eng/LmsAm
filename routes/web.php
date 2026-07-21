@@ -28,6 +28,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\LmsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TrafficController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -37,14 +38,14 @@ use Illuminate\Http\Request;
 //     return redirect()->route('lms.landing');
 // });
 
-Route::middleware(['guest', 'secure.headers'])->group(function (): void {
+Route::middleware(['guest', ])->group(function (): void {
     Route::get('/login', [AuthController::class, 'Register'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
     Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
 });
 
 
-Route::middleware(['auth', 'active', 'activity.log'])->group(function (): void {
+Route::middleware(['auth', 'active', 'activity.log','onbording'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/notifications/{notification}/read', [DashboardController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [DashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
@@ -330,4 +331,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Roles & Permissions module
     Route::get('permissions', [RolePermissionController::class, 'index'])->name('permissions.index');
     Route::put('permissions', [RolePermissionController::class, 'update'])->name('permissions.update');
+});
+Route::middleware(['auth'])->prefix('onboarding')->name('onboarding.')->group(function () {
+
+    Route::get('/', [OnboardingController::class, 'index'])
+        ->name('wizard');
+
+   
 });
