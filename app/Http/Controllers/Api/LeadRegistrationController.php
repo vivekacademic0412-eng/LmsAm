@@ -18,16 +18,16 @@ class LeadRegistrationController extends Controller
     public function __invoke(Request $request)
     {
         $request->validate([
-            'name'=>'required',
-            'email'=>'required|email',
-            'phone'=>'required',
-            'track'=>'required',
-            'source'=>'nullable'
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'track' => 'required',
+            'source' => 'nullable'
         ]);
 
         DB::beginTransaction();
 
-        try{
+        try {
 
             /*
             |--------------------------------------------------------------------------
@@ -62,23 +62,23 @@ class LeadRegistrationController extends Controller
 
             $user = User::whereEmail($request->email)->first();
 
-            if(!$user){
+            if (!$user) {
 
                 $password = Str::random(10);
 
                 $user = User::create([
 
-                    'name'=>$request->name,
+                    'name' => $request->name,
 
-                    'email'=>$request->email,
+                    'email' => $request->email,
 
-                    'contact'=>$request->phone,
+                    'contact' => $request->phone,
 
-                    'password'=>Hash::make($password),
+                    'password' => Hash::make($password),
 
-                    'role'=>User::ROLE_STUDENT,
+                    'role' => User::ROLE_STUDENT,
 
-                    'is_active'=>true
+                    'is_active' => true
 
                 ]);
 
@@ -86,8 +86,8 @@ class LeadRegistrationController extends Controller
                     'verification.verify',
                     now()->addDays(7),
                     [
-                        'id'=>$user->id,
-                        'hash'=>sha1($user->email)
+                        'id' => $user->id,
+                        'hash' => sha1($user->email)
                     ]
                 );
 
@@ -97,33 +97,28 @@ class LeadRegistrationController extends Controller
                         $verificationUrl
                     )
                 );
-
             }
 
             DB::commit();
 
             return response()->json([
 
-                'success'=>true,
+                'success' => true,
 
-                'user_id'=>$user->id,
+                'user_id' => $user->id,
 
-                'message'=>'Registration Successful'
+                'message' => 'Registration Successful'
 
             ]);
-
-        }catch(\Throwable $e){
-
+        } catch (\Throwable $e) {
             DB::rollBack();
 
             return response()->json([
-
-                'success'=>false,
-
-                'message'=>$e->getMessage()
-
-            ],500);
-
+                'success' => false,
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ], 500);
         }
     }
 }
