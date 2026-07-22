@@ -92,7 +92,10 @@ class TrafficSource extends Model
 
         return [
             'user_ip'      => $request->ip(),
-            'session_id'   => $request->session()->getId(),
+          'session_id'   => $request->hasSession()
+            ? $request->session()->getId()
+            : null,
+
             'source'       => self::resolveSource($request),
             'referrer_url' => $request->headers->get('referer'),
             'utm_source'   => $request->query('utm_source'),
