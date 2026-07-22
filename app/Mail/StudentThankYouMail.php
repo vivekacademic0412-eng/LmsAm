@@ -47,7 +47,7 @@ class StudentThankYouMail extends Mailable
                 // reject image requests that don't come from a real browser,
                 // which silently breaks <img src="https://..."> in emails.
                 // Embedding guarantees the logo always renders.
-                'logoUrl' => $this->embed(public_path('images/logo.png')),
+                'logoUrl' => public_path('images/logo.png'),
             ]);
     }
 }
