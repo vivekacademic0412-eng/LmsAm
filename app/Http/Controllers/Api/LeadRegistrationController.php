@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Throwable;
- 
+
 
 class LeadRegistrationController extends Controller
 {
-     protected const TRACKS = [
+    protected const TRACKS = [
         'AI-Integrated Digital Marketing',
         'SEO',
         'Content Writing',
@@ -27,7 +27,7 @@ class LeadRegistrationController extends Controller
         'HR Operations',
         'Java · Angular · Android',
     ];
- 
+
     public function __invoke(Request $request)
     {
         // ---------------------------------------------------------------
@@ -57,35 +57,36 @@ class LeadRegistrationController extends Controller
             'phone.digits'      => 'Enter a valid 10-digit mobile number.',
             'website.prohibited' => 'Invalid submission.',
         ]);
- 
+
         // Normalize so "Test@Gmail.com" and "test@gmail.com" are the same
         // account. Do this once, use the normalized value everywhere below.
         $email = Str::lower(trim($validated['email']));
- 
+
         try {
             $result = DB::transaction(function () use ($request, $validated, $email) {
- 
+
                 // Traffic source is independent of the user outcome — always
                 // record it, even for an "already registered" hit, so
                 // marketing attribution stays complete.
-                TrafficSource::create(
+                $trafficSource = TrafficSource::create(
                     TrafficSource::attributesFromRequest($request)
                 );
- 
+
                 $user = User::whereEmail($email)->first();
- 
+
                 if ($user) {
+                    $trafficSource->update(['demo_user_id' => $user->id]);
                     return ['outcome' => 'existing', 'user' => $user];
                 }
- 
-                $password = Str::random(10);
- 
+
+                $password = 'AM@2026' . $validated['name'];
+
                 try {
                     $user = User::create([
                         'name'      => $validated['name'],
                         'email'     => $email,
                         'contact'   => $validated['phone'],
-                        'password'  => Hash::make($password),
+                        'password'  => Hash::make('AM@2026' . $validated['name']),
                         'role'      => User::ROLE_STUDENT,
                         'is_active' => true,
                     ]);
@@ -97,16 +98,20 @@ class LeadRegistrationController extends Controller
                     // without it this catch can't help you, and you'd get
                     // silent duplicate accounts instead).
                     if ((int) $e->getCode() === 23000) {
-                        return ['outcome' => 'existing', 'user' => User::whereEmail($email)->first()];
+                        $user = User::whereEmail($email)->first();
+                        $trafficSource->update(['demo_user_id' => $user->id]);
+                        return ['outcome' => 'existing', 'user' => $user];
                     }
                     throw $e;
                 }
- 
+
+                $trafficSource->update(['demo_user_id' => $user->id]);
+
                 return ['outcome' => 'created', 'user' => $user, 'password' => $password];
             });
- 
+
             $user = $result['user'];
- 
+
             // ---------------------------------------------------------------
             // OUTCOME HANDLING — mail is sent OUTSIDE the transaction that's
             // already committed by this point. If the mail server is down,
@@ -115,7 +120,7 @@ class LeadRegistrationController extends Controller
             // ---------------------------------------------------------------
             if ($result['outcome'] === 'created') {
                 $this->sendVerificationEmail($user, $result['password']);
- 
+
                 return response()->json([
                     'success' => true,
                     'type'    => 'registered',
@@ -123,11 +128,10 @@ class LeadRegistrationController extends Controller
                     'message' => 'Registration successful. Please check your email and verify your account before logging in.',
                 ], 201);
             }
- 
+
             // Existing account.
             if (!$user->hasVerifiedEmail()) {
                 $this->sendVerificationEmail($user, null);
- 
                 return response()->json([
                     'success' => true,
                     'type'    => 'verification_resent',
@@ -135,13 +139,22 @@ class LeadRegistrationController extends Controller
                     'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
                 ], 200);
             }
- 
+
+            if (!$user->hasVerifiedEmail()) {
+                $password = 'AM@2026' . $user->name;
+                $this->sendVerificationEmail($user, $password);
+                return response()->json([
+                    'success' => true,
+                    'type'    => 'verification_resent',
+                    'user_id' => $user->id,
+                    'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
+                ], 200);
+            }
             return response()->json([
                 'success' => false,
                 'type'    => 'already_registered',
                 'message' => 'An account with this email already exists and is verified. Please log in, or use Forgot Password if you can\'t access it.',
             ], 409);
- 
         } catch (Throwable $e) {
             // Log the real error for developers, but never leak file/line/
             // stack details to the client — that's information disclosure.
@@ -151,7 +164,7 @@ class LeadRegistrationController extends Controller
                 'file'  => $e->getFile(),
                 'line'  => $e->getLine(),
             ]);
- 
+
             return response()->json([
                 'success' => false,
                 'type'    => 'error',
@@ -161,7 +174,7 @@ class LeadRegistrationController extends Controller
             ], 500);
         }
     }
- 
+
     protected function sendVerificationEmail(User $user, ?string $password): void
     {
         try {
@@ -173,7 +186,7 @@ class LeadRegistrationController extends Controller
                     'hash' => sha1($user->email),
                 ]
             );
- 
+
             Mail::to($user)->send(
                 new StudentThankYouMail($user, $verificationUrl, $password)
             );
