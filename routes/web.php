@@ -272,7 +272,7 @@ Route::prefix('api/demo')->group(function () {
 Route::get('/mail-test', function () {
 
     Mail::raw('Test Mail', function ($message) {
-        $message->to('yourmail@gmail.com')
+        $message->to('shivani.js2511@gmail.com')
             ->subject('Laravel Test');
     });
 
