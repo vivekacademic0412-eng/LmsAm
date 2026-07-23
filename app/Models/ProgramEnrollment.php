@@ -18,4 +18,12 @@ class ProgramEnrollment extends Model
     'career_goal',
     'status',
 ];
+ protected $casts = [
+        'preferred_start_date' => 'date',
+    ];
+ 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

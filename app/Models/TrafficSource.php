@@ -178,4 +178,23 @@ class TrafficSource extends Model
             default                             => 'Other',
         };
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'demo_user_id');
+    }
+ 
+    /**
+     * Human readable label for "how the user came" — prefers campaign,
+     * falls back to utm_source, then raw source, then Direct.
+     */
+    public function getAcquisitionLabelAttribute(): string
+    {
+        if ($this->utm_campaign) {
+            return $this->utm_campaign . ($this->utm_source ? " ({$this->utm_source})" : '');
+        }
+        if ($this->utm_source) {
+            return $this->utm_source;
+        }
+        return $this->source ?: 'Direct / Unknown';
+    }
 }

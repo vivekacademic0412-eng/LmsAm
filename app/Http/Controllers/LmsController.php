@@ -164,7 +164,7 @@ class LmsController extends Controller
                 'contact'          => ['required', 'string', 'regex:/^[0-9+\s-]{10,15}$/'],
                 'education_level'  => ['required', 'integer', 'exists:education_levels,id'],
                 'interest_area'    => ['required', 'integer', 'exists:course_categories,id'],
-                'preferred_course' => ['required', 'integer', 'exists:courses,id'],
+                // 'preferred_course' => ['required', 'integer', 'exists:courses,id'],
             ]);
 
             $payload = [
@@ -174,7 +174,7 @@ class LmsController extends Controller
                 'phone'               => $data['contact'],
                 'education_level_id'  => $data['education_level'],
                 'interest_area_id'    => $data['interest_area'],
-                'preferred_course_id' => $data['preferred_course'],
+                // 'preferred_course_id' => $data['preferred_course'],
                 'ip_address'          => $request->ip(),
             ];
 
@@ -188,7 +188,7 @@ class LmsController extends Controller
             Log::info('Demo user saved', ['demo_user_id' => $demoUser->id, 'action' => $existingId ? 'updated' : 'created']);
 
             $course = CourseCategory::find($data['interest_area']);
-            $video  = DemoFeatureVideo::where('course_id', $data['preferred_course'])
+            $video  = DemoFeatureVideo::where('category_id', $data['interest_area_id'])
                 ->where('status', 1)
                 ->first();
 
@@ -198,7 +198,7 @@ class LmsController extends Controller
                 'lms_contact'          => $data['contact'],
                 'lms_education'        => $data['education_level'],
                 'lms_interest'         => $data['interest_area'],
-                'lms_preferred_course' => $data['preferred_course'],
+                'lms_preferred_course' => $data['preferred_course'] ?? null,
                 'demo_user_id'         => $demoUser->id,
                 'demo_video_id'        => $video?->id,
                 'lms_course_id'        => $course->id,

@@ -17,4 +17,8 @@ class AcademicBackground extends Model
     'guardian_name',
     'guardian_mobile',
 ];
+public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

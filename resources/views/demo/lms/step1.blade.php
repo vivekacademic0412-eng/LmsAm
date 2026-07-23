@@ -243,7 +243,7 @@
 @endphp
 
 <div class="journey-wrap">
-    <div class="stepper">@include('demo.stepper')</div>
+    {{-- <div class="stepper">@include('demo.stepper')</div> --}}
    
     <div class="page-hero mt-4">
         <h1> Start Your Learning Journey</h1>

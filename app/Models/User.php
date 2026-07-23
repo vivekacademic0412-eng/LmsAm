@@ -93,6 +93,37 @@ class User extends Authenticatable
         ];
     }
 
+public function studentProfile()
+{
+    return $this->hasOne(StudentProfile::class, 'user_id', 'id');
+}
+
+public function academicBackground()
+{
+    return $this->hasOne(AcademicBackground::class, 'user_id', 'id');
+}
+
+public function programEnrollments()
+{
+    return $this->hasMany(ProgramEnrollment::class, 'user_id', 'id');
+}
+
+public function onboardingDocuments()
+{
+    return $this->hasMany(OnboardingDocument::class, 'user_id', 'id');
+}
+
+public function policyAcceptances()
+{
+    return $this->hasMany(PolicyAcceptance::class, 'user_id', 'id');
+}
+
+// A user can have multiple tracked sessions (visits) before they convert —
+// demo_user_id on user_traffics links back to this user.
+public function trafficSources()
+{
+    return $this->hasMany(TrafficSource::class, 'demo_user_id', 'id');
+}
     public function coursesCreated(): HasMany
     {
         return $this->hasMany(Course::class, 'created_by');
