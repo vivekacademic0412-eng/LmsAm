@@ -37,12 +37,12 @@ class LmsController extends Controller
             ->latest()
             ->take(10)
             ->get();
-            $hero = HeroSection::with(['stats', 'ratings'])
-    ->where('is_active', 1)
-    ->first();
+        $hero = HeroSection::with(['stats', 'ratings'])
+            ->where('is_active', 1)
+            ->first();
 
 
-        return view('demo.lms.landing', compact('categories', 'courses', 'feedbacks','hero') + [
+        return view('demo.lms.landing', compact('categories', 'courses', 'feedbacks', 'hero') + [
             'currentStep' => 1
         ]);
     }
@@ -106,119 +106,7 @@ class LmsController extends Controller
     }
 
 
-    public function step1()
-    {
-        try {
-            Log::info(__METHOD__ . ' started');
-
-            $categories      = CourseCategory::get();
-            $feedbacks       = DemoFeedback::with(['user', 'course'])
-                ->whereNotNull('message')
-                ->latest()
-                ->take(10)
-                ->get();
-            $educationLevels = EducationLevel::where('status', 1)
-                ->orderBy('sort_order')
-                ->get();
-
-            // Load previously saved record so the form pre-fills on Back navigation.
-            // Priority: session demo_user_id → auth user's latest record → null.
-            $existingDemoUser = null;
-            if (auth()->user()) {
-                $existingDemoUser = User::find(auth()->user()->id);
-            }
-            if (!$existingDemoUser) {
-                $existingDemoUser = DemoUser::where('user_id', session('demo_user_id'))
-                    ->latest()
-                    ->first();
-            }
-
-            Log::info(__METHOD__ . ' completed');
-
-            return view(
-                'demo.lms.step1',
-                compact('categories', 'educationLevels', 'feedbacks', 'existingDemoUser') + [
-                    'currentStep' => 1,
-                ]
-            );
-        } catch (Exception $e) {
-            Log::error(__METHOD__, [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => $e->getTraceAsString(),
-            ]);
-
-            return back()->with('error', 'Something went wrong.');
-        }
-    }
-
-    public function storeStep1(Request $request)
-    {
-        try {
-            Log::info(__METHOD__ . ' started', ['request' => $request->all()]);
-
-            $data = $request->validate([
-                'full_name'        => ['required', 'string', 'max:100'],
-                'email'            => ['required', 'email', 'max:100'],
-                'contact'          => ['required', 'string', 'regex:/^[0-9+\s-]{10,15}$/'],
-                'education_level'  => ['required', 'integer', 'exists:education_levels,id'],
-                'interest_area'    => ['required', 'integer', 'exists:course_categories,id'],
-                // 'preferred_course' => ['required', 'integer', 'exists:courses,id'],
-            ]);
-
-            $payload = [
-                'user_id'             => auth()->user()->id,
-                'full_name'           => $data['full_name'],
-                'email'               => $data['email'],
-                'phone'               => $data['contact'],
-                'education_level_id'  => $data['education_level'],
-                'interest_area_id'    => $data['interest_area'],
-                // 'preferred_course_id' => $data['preferred_course'],
-                'ip_address'          => $request->ip(),
-            ];
-
-            // Update the existing record if the user is revising step 1;
-            // otherwise create a fresh one. This prevents duplicate rows.
-            $existingId  = session('demo_user_id');
-            $demoUser    = $existingId
-                ? tap(DemoUser::findOrFail($existingId))->update($payload)
-                : DemoUser::create($payload);
-
-            Log::info('Demo user saved', ['demo_user_id' => $demoUser->id, 'action' => $existingId ? 'updated' : 'created']);
-
-            $course = CourseCategory::find($data['interest_area']);
-            $video  = DemoFeatureVideo::where('category_id', $data['interest_area_id'])
-                ->where('status', 1)
-                ->first();
-
-            session([
-                'lms_full_name'        => $data['full_name'],
-                'lms_email_phone'      => $data['email'],
-                'lms_contact'          => $data['contact'],
-                'lms_education'        => $data['education_level'],
-                'lms_interest'         => $data['interest_area'],
-                'lms_preferred_course' => $data['preferred_course'] ?? null,
-                'demo_user_id'         => $demoUser->id,
-                'demo_video_id'        => $video?->id,
-                'lms_course_id'        => $course->id,
-                'lms_course_label'     => $course->name,
-                'lms_course_slug'      => $course->slug,
-            ]);
-
-            return redirect()->route('lms.step2');
-        } catch (Exception $e) {
-            Log::error(__METHOD__, [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'request' => $request->all(),
-            ]);
-
-            return back()->with('error', 'Something went wrong.');
-        }
-    }
-
+ 
 
 
     // ──────────────────────────────────────────
@@ -227,6 +115,7 @@ class LmsController extends Controller
 
     public function step2()
     {
+
         if (!session('lms_full_name')) {
             return redirect()->route('lms.step1')
                 ->with('info', 'Please complete step 1 first.');
@@ -553,25 +442,29 @@ class LmsController extends Controller
             ->latest()
             ->take(10)
             ->get();
-
+        $demo = SubmittedDemos::where('demo_user_id', auth()->user()->id)
+            ->where('course_id', $courseId)
+            ->first();
+        
         return view('demo.lms.step6', [
             'currentStep' => 6,
             'course'     => $course,   // comma, not semicolon
             'reviews'     => $reviews,
+            'demo' => $demo,
         ]);
     }
     public function Download()
     {
-         $courseId = session('lms_course_id');
+        $courseId = session('lms_course_id');
 
-    $course = Course::findOrFail($courseId);
+        $course = Course::findOrFail($courseId);
 
-    $pdf = Pdf::loadView('demo.lms.certificate', [
-        'course' => $course,
-        'user'   => auth()->user(),
-    ]);
+        $pdf = Pdf::loadView('demo.lms.certificate', [
+            'course' => $course,
+            'user'   => auth()->user(),
+        ]);
 
-    return $pdf->download('certificate.pdf');
+        return $pdf->download('certificate.pdf');
     }
 
 
@@ -597,5 +490,128 @@ class LmsController extends Controller
 
 
         return view('demo.lms.courses', compact('course'));
+    }
+    // ──────────────────────────────────────────
+    // STEP 1 — Personal Info + Interest Area only
+    // (course_type / skill_level / preferred_course cascade removed —
+    //  step 2 now auto-selects the featured video by category_id)
+    // ──────────────────────────────────────────
+
+    public function step1()
+    {
+        try {
+            Log::info(__METHOD__ . ' started');
+
+            $categories = CourseCategory::get();
+            $feedbacks  = DemoFeedback::with(['user', 'course'])
+                ->whereNotNull('message')
+                ->latest()
+                ->take(10)
+                ->get();
+            $educationLevels = EducationLevel::where('status', 1)
+                ->orderBy('sort_order')
+                ->get();
+
+            $existingDemoUser = null;
+            if (auth()->user()) {
+                $existingDemoUser = DemoUser::where('user_id', auth()->id())->latest()->first();
+            }
+            if (!$existingDemoUser) {
+                $existingDemoUser = DemoUser::where('user_id', session('demo_user_id'))
+                    ->latest()
+                    ->first();
+            }
+
+            Log::info(__METHOD__ . ' completed');
+
+            return view(
+                'demo.lms.step1',
+                compact('categories', 'educationLevels', 'feedbacks', 'existingDemoUser') + [
+                    'currentStep' => 1,
+                ]
+            );
+        } catch (Exception $e) {
+            Log::error(__METHOD__, [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', 'Something went wrong.');
+        }
+    }
+
+    public function storeStep1(Request $request)
+    {
+        try {
+            Log::info(__METHOD__ . ' started', ['request' => $request->except('avatar_data')]);
+
+            $data = $request->validate([
+                'full_name'       => ['required', 'string', 'max:100'],
+                'email'           => ['required', 'email', 'max:100'],
+                'contact'         => ['required', 'string', 'regex:/^[0-9+\s-]{10,15}$/'],
+                'education_level' => ['required', 'integer', 'exists:education_levels,id'],
+                'interest_area'   => ['required', 'integer', 'exists:course_categories,id'],
+                'avatar'          => ['nullable', 'string', 'max:50'],
+            ]);
+
+            $payload = [
+                'user_id'            => auth()->user()->id,
+                'full_name'          => $data['full_name'],
+                'email'              => $data['email'],
+                'phone'              => $data['contact'],
+                'education_level_id' => $data['education_level'],
+                'interest_area_id'   => $data['interest_area'],
+                'avatar'             => $data['avatar'] ?? null,
+                'ip_address'         => $request->ip(),
+                'preferred_course_id' => null,
+            ];
+
+            // Update the existing record if the user is revising step 1;
+            // otherwise create a fresh one. This prevents duplicate rows.
+            $existingId = session('demo_user_id');
+            $demoUser   = $existingId
+                ? tap(DemoUser::findOrFail($existingId))->update($payload)
+                : DemoUser::create($payload);
+
+            Log::info('Demo user saved', [
+                'demo_user_id' => $demoUser->id,
+                'action'       => $existingId ? 'updated' : 'created',
+            ]);
+
+            $course = CourseCategory::find($data['interest_area']);
+
+            // ✅ FIXED: was $data['interest_area_id'], which never existed in
+            // the validated array (the field is called `interest_area`).
+            // That silently made $video always null before this fix.
+            $video = DemoFeatureVideo::where('category_id', $data['interest_area'])
+                ->where('status', 1)
+                ->first();
+
+            session([
+                'lms_full_name'    => $data['full_name'],
+                'lms_email_phone'  => $data['email'],
+                'lms_contact'      => $data['contact'],
+                'lms_education'    => $data['education_level'],
+                'lms_interest'     => $data['interest_area'],
+                'demo_user_id'     => $demoUser->id,
+                'demo_video_id'    => $video?->id,
+                'lms_course_id'    => $course->id,
+                'lms_course_label' => $course->name,
+                'lms_course_slug'  => $course->slug,
+            ]);
+
+            return redirect()->route('lms.step2');
+        } catch (Exception $e) {
+            Log::error(__METHOD__, [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'request' => $request->except('avatar_data'),
+            ]);
+
+            return back()->with('error', 'Something went wrong.' . $e->getMessage());
+        }
     }
 }

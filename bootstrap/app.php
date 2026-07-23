@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'secure.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
             'onbording' => \App\Http\Middleware\EnsureOnboardingCompleted::class,
+             'demo_access' => \App\Http\Middleware\EnsureDemoAccess::class,
+            
         ]);
 
         $middleware->redirectGuestsTo('/login');

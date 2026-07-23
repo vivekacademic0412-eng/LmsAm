@@ -33,7 +33,11 @@ class DemoUser extends Model
 
     public function submittedDemos()
     {
-        return $this->hasMany(SubmittedDemos::class, 'demo_user_id');
+        return $this->hasMany(SubmittedDemos::class, 'user_id' ,'user_id');
+    }
+     public function feedback()
+    {
+        return $this->hasMany(DemoFeedback::class,'user_id' ,'user_id');
     }
 
     public function user()

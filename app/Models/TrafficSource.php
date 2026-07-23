@@ -92,7 +92,7 @@ class TrafficSource extends Model
 
         return [
             'user_ip'      => $request->ip(),
-          'session_id'   => $request->hasSession()
+            'session_id'   => $request->hasSession()
             ? $request->session()->getId()
             : null,
 

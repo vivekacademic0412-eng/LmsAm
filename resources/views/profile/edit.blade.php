@@ -438,8 +438,14 @@
 }
 </style>
 
-<livewire:user.profile-studio />
+@auth
+    
 
+    @if(auth()->user()->role === \App\Models\User::ROLE_STUDENT)
+        <livewire:update-onboarding-profile />
+    @endif
+    <livewire:user.profile-studio />
+@endauth
 <style>
     .swal-rounded      { border-radius: 18px !important; }
     .swal-btn-danger   { border-radius: 10px !important; font-size: 13.5px !important; font-weight: 600 !important; }

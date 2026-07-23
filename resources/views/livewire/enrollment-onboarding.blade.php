@@ -64,17 +64,12 @@
             color: #fff;
         }
 
-        .onb-tabs::after { content: none; }
-
         @media (max-width: 640px) {
             .onb-tab-label { display: none; }
         }
 
         /* ── Progress bar ── */
-        .onb-progress-track {
-            height: 4px;
-            background: var(--border);
-        }
+        .onb-progress-track { height: 4px; background: var(--border); }
         .onb-progress-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
@@ -83,10 +78,7 @@
 
         /* ── Body ── */
         .onb-body { padding: 28px 30px; }
-
-        @media (max-width: 640px) {
-            .onb-body { padding: 20px; }
-        }
+        @media (max-width: 640px) { .onb-body { padding: 20px; } }
 
         .onb-section-head {
             display: flex;
@@ -119,25 +111,11 @@
         }
 
         /* ── Form grid ── */
-        .onb-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
+        .onb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .onb-grid .span-2 { grid-column: 1 / -1; }
+        @media (max-width: 640px) { .onb-grid { grid-template-columns: 1fr; } }
 
-        @media (max-width: 640px) {
-            .onb-grid { grid-template-columns: 1fr; }
-        }
-
-        .onb-field label {
-            display: block;
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 7px;
-        }
-
+        .onb-field label { display: block; font-size: .85rem; font-weight: 600; color: var(--text); margin-bottom: 7px; }
         .onb-field .req { color: var(--danger); }
 
         .onb-input, .onb-select, .onb-textarea {
@@ -158,232 +136,110 @@
             box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
-        .onb-input.has-error, .onb-select.has-error, .onb-textarea.has-error {
-            border-color: var(--danger);
-        }
+        .onb-input.has-error, .onb-select.has-error, .onb-textarea.has-error { border-color: var(--danger); }
 
-        .onb-error {
-            color: var(--danger);
-            font-size: .78rem;
-            margin-top: 6px;
-            display: block;
-        }
+        .onb-error { color: var(--danger); font-size: .78rem; margin-top: 6px; display: block; }
+        .onb-hint { color: var(--text-muted); font-size: .78rem; margin-top: 6px; }
 
-        .onb-hint {
-            color: var(--text-muted);
-            font-size: .78rem;
-            margin-top: 6px;
-        }
-
-        /* ── Segmented control (experience level) ── */
-        .onb-segment {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
+        /* ── Segmented control ── */
+        .onb-segment { display: flex; gap: 8px; flex-wrap: wrap; }
         .onb-segment input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-
         .onb-segment label {
-            margin: 0;
-            padding: 9px 16px;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            font-size: .8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: .2s ease;
+            margin: 0; padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px;
+            font-size: .8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: .2s ease;
         }
+        .onb-segment input:checked + label { border-color: var(--brand-primary); background: var(--primary-glow); color: var(--brand-primary); }
 
-        .onb-segment input:checked + label {
-            border-color: var(--brand-primary);
-            background: var(--primary-glow);
-            color: var(--brand-primary);
-        }
-
-        /* ── Pill choice (how did you hear) ── */
-        .onb-pill-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
+        /* ── Pill choice ── */
+        .onb-pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .onb-pill {
-            padding: 9px 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: .8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            background: var(--bg);
-            cursor: pointer;
-            transition: .2s ease;
+            padding: 9px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: .8rem; font-weight: 600; color: var(--text-muted); background: var(--bg); cursor: pointer; transition: .2s ease;
         }
-
-        .onb-pill.active {
-            border-color: var(--brand-primary);
-            background: var(--primary-glow);
-            color: var(--brand-primary);
-        }
+        .onb-pill.active { border-color: var(--brand-primary); background: var(--primary-glow); color: var(--brand-primary); }
 
         /* ── Document upload tiles ── */
-        .onb-doc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
-
+        .onb-doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
         .onb-doc-tile {
-            border: 2px dashed var(--input-border);
-            border-radius: var(--radius-sm);
-            background: var(--input-bg);
-            padding: 20px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color .2s ease, background .2s ease;
-            position: relative;
+            border: 2px dashed var(--input-border); border-radius: var(--radius-sm); background: var(--input-bg);
+            padding: 20px 16px; text-align: center; cursor: pointer; transition: border-color .2s ease, background .2s ease; position: relative;
         }
-
         .onb-doc-tile:hover { border-color: var(--brand-primary); background: var(--primary-glow); }
         .onb-doc-tile.filled { border-style: solid; border-color: var(--success); }
         .onb-doc-tile input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
         .onb-doc-tile i { font-size: 22px; color: var(--brand-primary); margin-bottom: 8px; display: block; }
         .onb-doc-tile.filled i { color: var(--success); }
         .onb-doc-tile h6 { font-size: .84rem; font-weight: 600; color: var(--text); margin: 0 0 3px; }
         .onb-doc-tile p { font-size: .72rem; color: var(--text-muted); margin: 0; }
         .onb-doc-file { font-size: .72rem; color: var(--success); margin-top: 6px; word-break: break-all; }
 
-        /* ── Policy accordion ── */
+        /* ── Policy accordion (single-open, honest read-tracking) ── */
         .onb-policy-box {
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            max-height: 340px;
+            max-height: 380px;
             overflow-y: auto;
             background: var(--bg);
         }
-
-        .onb-policy-section {
-            border-bottom: 1px solid var(--border);
-        }
+        .onb-policy-section { border-bottom: 1px solid var(--border); }
         .onb-policy-section:last-child { border-bottom: none; }
 
         .onb-policy-summary {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 14px 16px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: .86rem;
-            color: var(--text);
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            width: 100%; padding: 14px 16px; cursor: pointer; font-weight: 600; font-size: .86rem;
+            color: var(--text); background: transparent; border: none; text-align: left; font-family: inherit;
         }
+        .onb-policy-summary:hover { background: var(--bg2); }
+        .onb-policy-summary .title-wrap { display: flex; align-items: center; gap: 8px; }
+        .onb-policy-summary .chev { color: var(--text-muted); transition: transform .2s ease; flex-shrink: 0; }
+        .onb-policy-summary.is-open .chev { transform: rotate(180deg); }
+        .onb-policy-read-dot { color: var(--success); font-size: .8rem; }
 
-        .onb-policy-summary i { color: var(--text-muted); transition: transform .2s ease; }
+        .onb-policy-body { padding: 0 16px 16px; font-size: .82rem; line-height: 1.6; color: var(--text-muted); }
 
-        .onb-policy-body {
-            padding: 0 16px 16px;
-            font-size: .82rem;
-            line-height: 1.6;
-            color: var(--text-muted);
+        .onb-progress-note {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            font-size: .78rem; color: var(--text-muted); margin-top: 10px;
+            padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg2);
         }
+        .onb-progress-note.done { color: var(--success); border-color: var(--success); background: rgba(22,163,74,.08); }
+        .onb-progress-note strong { color: inherit; }
 
-        .onb-policy-read-tag {
-            font-size: .68rem;
-            color: var(--success);
-            font-weight: 700;
-        }
-
-        .onb-scroll-note {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: .78rem;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
-
-        .onb-scroll-note.done { color: var(--success); }
+        .onb-mini-track { flex: 1; height: 5px; border-radius: 999px; background: var(--border); overflow: hidden; margin: 0 12px; }
+        .onb-mini-fill { height: 100%; background: var(--success); transition: width .25s ease; }
 
         /* ── Consent checkboxes ── */
         .onb-consent {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 14px 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            margin-top: 14px;
-            background: var(--bg);
+            display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px;
+            border: 1px solid var(--border); border-radius: var(--radius-sm); margin-top: 14px; background: var(--bg);
         }
-
-        .onb-consent input {
-            margin-top: 3px;
-            width: 17px;
-            height: 17px;
-            accent-color: var(--brand-primary);
-            flex-shrink: 0;
-        }
-
-        .onb-consent label {
-            font-size: .84rem;
-            color: var(--text);
-            line-height: 1.5;
-        }
-
+        .onb-consent input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--brand-primary); flex-shrink: 0; }
+        .onb-consent label { font-size: .84rem; color: var(--text); line-height: 1.5; }
         .onb-consent.locked { opacity: .55; }
 
         /* ── Footer nav ── */
         .onb-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 18px 30px;
-            border-top: 1px solid var(--border);
-            background: var(--bg2);
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 18px 30px; border-top: 1px solid var(--border); background: var(--bg2);
         }
-
-        @media (max-width: 640px) {
-            .onb-footer { padding: 16px 20px; }
-        }
+        @media (max-width: 640px) { .onb-footer { padding: 16px 20px; } }
 
         .onb-btn {
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: .85rem;
-            padding: 11px 22px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
+            border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: .85rem;
+            padding: 11px 22px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
             transition: transform .15s ease, opacity .15s ease;
         }
-
-        .onb-btn.primary {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-            color: #fff;
-        }
-
-        .onb-btn.ghost {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
+        .onb-btn.primary { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: #fff; }
+        .onb-btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .onb-btn:hover { transform: translateY(-1px); opacity: .92; }
         .onb-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
         .onb-btn:focus-visible, .onb-doc-tile:focus-within, .onb-pill:focus-visible {
-            outline: 2px solid var(--brand-primary);
-            outline-offset: 2px;
+            outline: 2px solid var(--brand-primary); outline-offset: 2px;
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .onb-btn, .onb-doc-tile, .onb-pill, .onb-tab-icon, .onb-progress-fill { transition: none; }
+            .onb-btn, .onb-doc-tile, .onb-pill, .onb-tab-icon, .onb-progress-fill, .onb-mini-fill { transition: none; }
         }
     </style>
 
@@ -454,28 +310,34 @@
                             <option value="ews">EWS</option>
                         </select>
                     </div>
-                    <div></div>
+                    <div class="onb-field">
+                        <label>City / District <span class="req">*</span></label>
+                        <select wire:model="city_id" class="onb-select @error('city_id') has-error @enderror">
+                            <option value="">Select your city</option>
+                            @foreach ($cities as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }}{{ $c->state->name ? ', ' . $c->state->name : '' }}</option>
+                            @endforeach
+                        </select>
+                        @error('city_id') <span class="onb-error">{{ $message }}</span> @enderror
+                    </div>
 
                     <div class="onb-field">
                         <label>Mobile number <span class="req">*</span></label>
-                        <input type="text" wire:model="mobile_number" maxlength="10" class="onb-input @error('mobile_number') has-error @enderror" placeholder="+91 XXXXX XXXXX">
+                        <input type="text" wire:model="mobile_number" maxlength="10" inputmode="numeric" class="onb-input @error('mobile_number') has-error @enderror" placeholder="10-digit mobile number">
                         @error('mobile_number') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
                     <div class="onb-field">
                         <label>Email address <span class="req">*</span></label>
-                        <input type="email" wire:model="email" class="onb-input @error('email') has-error @enderror" placeholder="student@email.com">
+                        <input type="email" wire:model="email" class="onb-input @error('email') has-error @enderror" placeholder="student@email.com" readonly>
                         @error('email') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="onb-field">
                         <label>WhatsApp number</label>
-                        <input type="text" wire:model="whatsapp_number" maxlength="10" class="onb-input" placeholder="If different from mobile">
+                        <input type="text" wire:model="whatsapp_number" maxlength="10" inputmode="numeric" class="onb-input @error('whatsapp_number') has-error @enderror" placeholder="If different from mobile">
+                        @error('whatsapp_number') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
-                    <div class="onb-field">
-                        <label>City / district <span class="req">*</span></label>
-                        <input type="text" wire:model="city_district" class="onb-input @error('city_district') has-error @enderror" placeholder="e.g. Ludhiana">
-                        @error('city_district') <span class="onb-error">{{ $message }}</span> @enderror
-                    </div>
+                    <div></div>
 
                     <div class="onb-field span-2">
                         <label>Residential address <span class="req">*</span></label>
@@ -499,6 +361,7 @@
                         <label>ID number <span class="req">*</span></label>
                         <input type="text" wire:model="id_number" class="onb-input @error('id_number') has-error @enderror" placeholder="Enter ID number">
                         @error('id_number') <span class="onb-error">{{ $message }}</span> @enderror
+                        <p class="onb-hint">Aadhaar: 12 digits · PAN: e.g. ABCDE1234F · we validate the format for your protection.</p>
                     </div>
                 </div>
             @endif
@@ -518,7 +381,7 @@
                     </div>
                     <div class="onb-field">
                         <label>Percentage / CGPA <span class="req">*</span></label>
-                        <input type="text" wire:model="percentage_cgpa" class="onb-input @error('percentage_cgpa') has-error @enderror" placeholder="e.g. 72% or 7.8 CGPA">
+                        <input type="text" wire:model="percentage_cgpa" class="onb-input @error('percentage_cgpa') has-error @enderror" placeholder="e.g. 72 or 7.8">
                         @error('percentage_cgpa') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
 
@@ -529,7 +392,7 @@
                     </div>
                     <div class="onb-field">
                         <label>Year of passing <span class="req">*</span></label>
-                        <input type="text" wire:model="year_of_passing" maxlength="4" class="onb-input @error('year_of_passing') has-error @enderror" placeholder="e.g. 2023">
+                        <input type="text" wire:model="year_of_passing" maxlength="4" inputmode="numeric" class="onb-input @error('year_of_passing') has-error @enderror" placeholder="e.g. 2023">
                         @error('year_of_passing') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
 
@@ -551,7 +414,7 @@
                     </div>
                     <div class="onb-field">
                         <label>Parent / guardian mobile <span class="req">*</span></label>
-                        <input type="text" wire:model="guardian_mobile" maxlength="10" class="onb-input @error('guardian_mobile') has-error @enderror" placeholder="+91 XXXXX XXXXX">
+                        <input type="text" wire:model="guardian_mobile" maxlength="10" inputmode="numeric" class="onb-input @error('guardian_mobile') has-error @enderror" placeholder="Must differ from your own number">
                         @error('guardian_mobile') <span class="onb-error">{{ $message }}</span> @enderror
                     </div>
                 </div>
@@ -578,7 +441,7 @@
                     <div class="onb-field">
                         <label>Program name <span class="req">*</span></label>
                         <select wire:model.live="program_id" class="onb-select @error('program_id') has-error @enderror">
-                            <option value="">Select program first</option>
+                            <option value="">Select category first</option>
                             @foreach ($programs ?? [] as $prog)
                                 <option value="{{ $prog->id }}">{{ $prog->title }}</option>
                             @endforeach
@@ -678,31 +541,47 @@
                 </div>
 
                 <p class="onb-hint" style="margin-bottom: 14px;">
-                    This is a legally binding step. Please read every section below before agreeing —
-                    the checkbox unlocks once you've scrolled through the full policy.
+                    This is a legally binding step. Open and read every section below —
+                    each one is tracked, and the declaration checkboxes unlock only once all of them have been opened.
                 </p>
 
-                <div class="onb-policy-box" id="policyScrollBox" wire:ignore.self
-                    x-data
-                    x-on:scroll="if ($el.scrollTop + $el.clientHeight >= $el.scrollHeight - 12) $wire.markPolicyScrolled()">
-                    @foreach (($policy->sections ?? []) as $section)
-                        <details class="onb-policy-section" wire:key="policy-{{ $section->id }}" ontoggle="if(this.open) @this.toggleSection('{{ $section->section_key }}')">
-                            <summary class="onb-policy-summary">
-                                <span>{{ $section->title }}</span>
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </summary>
-                            <div class="onb-policy-body">{!! nl2br(e($section->body)) !!}</div>
-                        </details>
-                    @endforeach
+                <div class="onb-policy-box">
+                    @forelse (($policy->sections ?? []) as $section)
+                        @php
+                            $isOpen = $openSection === $section->section_key;
+                            $isRead = $sectionsRead[$section->section_key] ?? false;
+                        @endphp
+                        <div class="onb-policy-section" wire:key="policy-{{ $section->id }}">
+                            <button type="button" wire:click="toggleSection('{{ $section->section_key }}')" class="onb-policy-summary {{ $isOpen ? 'is-open' : '' }}">
+                                <span class="title-wrap">
+                                    @if ($isRead) <i class="fa-solid fa-circle-check onb-policy-read-dot" title="Read"></i> @endif
+                                    {{ $section->title }}
+                                </span>
+                                <i class="fa-solid fa-chevron-down chev"></i>
+                            </button>
+                            @if ($isOpen)
+                                <div class="onb-policy-body">{!! nl2br(e($section->body)) !!}</div>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="onb-hint" style="padding:16px;">No published policy found — please contact support.</p>
+                    @endforelse
                 </div>
 
-                <div class="onb-scroll-note {{ $hasScrolledPolicy ? 'done' : '' }}">
-                    <i class="fa-solid {{ $hasScrolledPolicy ? 'fa-circle-check' : 'fa-circle-info' }}"></i>
-                    {{ $hasScrolledPolicy ? "You've read the full policy." : 'Scroll to the end of the policy box to continue.' }}
+                @php $totalSections = $policy->sections->count() ?? 0; @endphp
+                <div class="onb-progress-note {{ $this->allSectionsRead ? 'done' : '' }}">
+                    <span>
+                        <i class="fa-solid {{ $this->allSectionsRead ? 'fa-circle-check' : 'fa-circle-info' }}"></i>
+                        {{ $this->allSectionsRead ? 'All sections read.' : 'Open every section to continue.' }}
+                    </span>
+                    <div class="onb-mini-track">
+                        <div class="onb-mini-fill" style="width: {{ $totalSections > 0 ? ($this->readCount / $totalSections) * 100 : 100 }}%"></div>
+                    </div>
+                    <strong>{{ $this->readCount }} / {{ $totalSections }}</strong>
                 </div>
 
-                <div class="onb-consent {{ ! $hasScrolledPolicy ? 'locked' : '' }}">
-                    <input type="checkbox" id="declaration_confirmed" wire:model="declaration_confirmed" @disabled(! $hasScrolledPolicy)>
+                <div class="onb-consent {{ ! $this->allSectionsRead ? 'locked' : '' }}">
+                    <input type="checkbox" id="declaration_confirmed" wire:model="declaration_confirmed" @disabled(! $this->allSectionsRead)>
                     <label for="declaration_confirmed">
                         I hereby declare that the information provided in this enrolment form is true and correct to
                         the best of my knowledge. I understand that any misrepresentation may result in cancellation of
@@ -711,8 +590,8 @@
                 </div>
                 @error('declaration_confirmed') <span class="onb-error">{{ $message }}</span> @enderror
 
-                <div class="onb-consent {{ ! $hasScrolledPolicy ? 'locked' : '' }}">
-                    <input type="checkbox" id="terms_agreed" wire:model="terms_agreed" @disabled(! $hasScrolledPolicy)>
+                <div class="onb-consent {{ ! $this->allSectionsRead ? 'locked' : '' }}">
+                    <input type="checkbox" id="terms_agreed" wire:model="terms_agreed" @disabled(! $this->allSectionsRead)>
                     <label for="terms_agreed">
                         I have read and agree to the eligibility, fee, attendance, code of conduct, intellectual
                         property, examination, and data privacy terms above
@@ -754,8 +633,26 @@
 
     @script
         <script>
+            const _onbSwalBase = { background: '#111827', color: '#fff', confirmButtonColor: '#6366f1' };
+
+            Livewire.on('swal', (payload) => {
+                const e = Array.isArray(payload) ? payload[0] : payload;
+                const isSuccess = e?.type === 'success';
+                Swal.fire({
+                    ..._onbSwalBase,
+                    icon: e?.type ?? 'info',
+                    title: e?.title ?? 'Notice',
+                    text: e?.message ?? '',
+                    iconColor: isSuccess ? '#22c55e' : (e?.type === 'error' ? '#ef4444' : '#6366f1'),
+                    timer: isSuccess ? 2200 : undefined,
+                    timerProgressBar: isSuccess,
+                    showConfirmButton: !isSuccess,
+                });
+            });
+
             Livewire.on('onboarding-submitted', () => {
                 Swal.fire({
+                    ..._onbSwalBase,
                     icon: 'success',
                     title: 'Enrolment submitted',
                     text: 'Your details and policy consent have been recorded. Redirecting to your dashboard…',
@@ -766,6 +663,7 @@
 
             Livewire.on('onboarding-error', (event) => {
                 Swal.fire({
+                    ..._onbSwalBase,
                     icon: 'error',
                     title: 'Something went wrong',
                     text: event.message ?? 'Please try again.',

@@ -68,10 +68,11 @@ class LeadRegistrationController extends Controller
                 // Traffic source is independent of the user outcome — always
                 // record it, even for an "already registered" hit, so
                 // marketing attribution stays complete.
-                $trafficSource = TrafficSource::create(
-                    TrafficSource::attributesFromRequest($request)
-                );
+             
 
+                $attributes = TrafficSource::attributesFromRequest($request);
+
+                $trafficSource = TrafficSource::create($attributes);
                 $user = User::whereEmail($email)->first();
 
                 if ($user) {
@@ -184,6 +185,7 @@ class LeadRegistrationController extends Controller
                 [
                     'id'   => $user->id,
                     'hash' => sha1($user->email),
+                    'type' => 'landing', // or lms
                 ]
             );
 

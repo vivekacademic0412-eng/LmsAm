@@ -368,6 +368,7 @@ table.uor-table tbody tr:hover{ background:var(--bg2); }
                     <div class="uor-kv"><span class="k">Email</span><span class="v">{{ $vu->email }}</span></div>
                     <div class="uor-kv"><span class="k">Role</span><span class="v">{{ \App\Models\User::roleOptions()[$vu->role] ?? $vu->role }}</span></div>
                     <div class="uor-kv"><span class="k">Status</span><span class="v">{{ $vu->is_active ? 'Active' : 'Inactive' }}</span></div>
+                     <div class="uor-kv"><span class="k">Contact</span><span class="v">{{ $vu->contact ?? ''}}</span></div>
                     <div class="uor-kv"><span class="k">Onboarding</span><span class="v">{{ ucwords(str_replace('_',' ',$vu->onboarding_status)) }} (Step {{ $vu->onboarding_step }})</span></div>
                     <div class="uor-kv"><span class="k">Registered</span><span class="v">{{ $vu->created_at?->format('d M Y, h:i A') }}</span></div>
                 </div>

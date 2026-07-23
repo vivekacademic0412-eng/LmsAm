@@ -3,7 +3,7 @@
 namespace App\Livewire\Demo;
 
 use App\Mail\StudentThankYouMail;
-
+use App\Models\TrafficSource;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -91,113 +91,135 @@ class DemoRegister extends Component
         );
     }
 
-   public function register()
-{
-    $validated = $this->validate();
+    public function register()
+    {
+        $validated = $this->validate();
 
-    $user = null;
+        $user = null;
 
-    try {
+        try {
 
-        DB::beginTransaction();
+            DB::beginTransaction();
 
-        Log::info('Registration Started', [
-            'first_name' => $this->first_name,
-            'last_name'  => $this->last_name,
-            'email'      => $this->email,
-            'contact'    => $this->contact,
-        ]);
+            Log::info('Registration Started', [
+                'first_name' => $this->first_name,
+                'last_name'  => $this->last_name,
+                'email'      => $this->email,
+                'contact'    => $this->contact,
+            ]);
+            $request = request();
 
-        $user = User::create([
-            'name'      => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'contact'   => $validated['contact'],
-            'email'     => $validated['email'],
-            'password'  => Hash::make($validated['password']),
-            'role'      => User::ROLE_STUDENT,
-            'gender'    => $validated['gender'],
-            'is_active' => true,
-        ]);
+            try {
 
-        DB::commit();
+                $attributes = TrafficSource::attributesFromRequest($request);
 
-        Log::info('User Registered Successfully', [
-            'user_id' => $user->id,
-            'email'   => $user->email,
-        ]);
+                $traffic = TrafficSource::create($attributes);
 
-    } catch (\Throwable $e) {
+                session()->put('traffic_source_id', $traffic->id);
 
-        DB::rollBack();
+                Log::info('Traffic source captured', [
+                    'traffic_source_id' => $traffic->id,
+                    'source' => $traffic->source,
+                ]);
+            } catch (\Throwable $e) {
 
-        Log::error('Registration Failed', [
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'trace'   => $e->getTraceAsString(),
-        ]);
+                Log::error('Traffic tracking failed', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
 
-        $this->dispatch('swal', [
-            'icon'  => 'error',
-            'title' => 'Registration Failed',
-            'text'  => app()->isLocal()
-                ? $e->getMessage()
-                : 'Unable to create your account. Please try again.',
-        ]);
-
-        return;
-    }
-
-    // Send verification email
-    try {
-
-        $verificationUrl = $this->buildVerificationUrl($user);
-
-        Mail::to($user->email)->send(
-            new StudentThankYouMail($user, $verificationUrl)
-        );
-
-        Log::info('Verification email sent.', [
-            'user_id' => $user->id,
-        ]);
-
-    } catch (\Throwable $e) {
-
-        Log::error('Verification Email Failed', [
-            'user_id' => $user->id,
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-        ]);
-
-        $this->dispatch('swal', [
-            'icon'  => 'warning',
-            'title' => 'Email Not Sent',
-            'text'  => 'Account created successfully, but verification email could not be sent.',
-        ]);
-    }
-
-    // Success state
-    $this->registeredUserId = $user->id;
-    $this->registeredName   = $user->name;
-    $this->registeredEmail  = $user->email;
-    $this->success          = true;
-
-    // Success SweetAlert
-    $this->dispatch('registration-success', [
-        'name' => $user->name,
-    ]);
-
-    $this->reset([
-        'first_name',
-        'last_name',
-        'contact',
-        'email',
-        'password',
-        'password_confirmation',
-        'gender',
+            $user = User::create([
+                'name'      => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'contact'   => $validated['contact'],
+                'email'     => $validated['email'],
+                'password'  => Hash::make($validated['password']),
+                'role'      => User::ROLE_STUDENT,
+                'gender'    => $validated['gender'],
+                'is_active' => true,
+            ]);
+if ($traffic) {
+    $traffic->update([
+        'demo_user_id' => $user->id,
     ]);
 }
+            DB::commit();
+
+            Log::info('User Registered Successfully', [
+                'user_id' => $user->id,
+                'email'   => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            Log::error('Registration Failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            $this->dispatch('swal', [
+                'icon'  => 'error',
+                'title' => 'Registration Failed',
+                'text'  => app()->isLocal()
+                    ? $e->getMessage()
+                    : 'Unable to create your account. Please try again.',
+            ]);
+
+            return;
+        }
+
+        // Send verification email
+        try {
+
+            $verificationUrl = $this->buildVerificationUrl($user);
+
+            Mail::to($user->email)->send(
+                new StudentThankYouMail($user, $verificationUrl)
+            );
+
+            Log::info('Verification email sent.', [
+                'user_id' => $user->id,
+            ]);
+        } catch (\Throwable $e) {
+
+            Log::error('Verification Email Failed', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            $this->dispatch('swal', [
+                'icon'  => 'warning',
+                'title' => 'Email Not Sent',
+                'text'  => 'Account created successfully, but verification email could not be sent.',
+            ]);
+        }
+
+        // Success state
+        $this->registeredUserId = $user->id;
+        $this->registeredName   = $user->name;
+        $this->registeredEmail  = $user->email;
+        $this->success          = true;
+
+        // Success SweetAlert
+        $this->dispatch('registration-success', [
+            'name' => $user->name,
+        ]);
+
+        $this->reset([
+            'first_name',
+            'last_name',
+            'contact',
+            'email',
+            'password',
+            'password_confirmation',
+            'gender',
+        ]);
+    }
 
     /**
      * Resends the same combined welcome/verification email.

@@ -24,7 +24,7 @@ return new class extends Migration
     $table->string('browser_fingerprint')->nullable();
 
     $table->dateTime('used_at')->nullable();
-
+ 
     $table->dateTime('expires_at');
 
     $table->boolean('is_completed')->default(false);

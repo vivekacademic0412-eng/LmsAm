@@ -33,7 +33,8 @@ return new class extends Migration
 
             $table->foreignId('preferred_course_id')
                 ->constrained('courses')
-                ->cascadeOnDelete();
+                 ->nullable();
+
 
             $table->string('ip_address', 45)
                 ->nullable();

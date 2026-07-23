@@ -64,4 +64,10 @@ class RolePermissionController extends Controller
 
         return back()->with('success', 'Permissions updated.');
     }
+    public function Setting()
+    {
+        
+
+        return view('backend.admin.onbording.index');
+    }
 }

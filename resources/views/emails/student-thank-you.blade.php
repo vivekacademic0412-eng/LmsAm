@@ -64,7 +64,7 @@
     entirely if you switch to a set-password-link flow.
 --}}
 @isset($password)
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+{{-- <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
        style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;margin:0 0 30px;">
     <tr>
         <td style="padding:22px;">
@@ -86,7 +86,7 @@
             </div>
         </td>
     </tr>
-</table>
+</table> --}}
 @endisset
 
 <h3 style="margin:0 0 18px;color:#0F172A;font-size:20px;">

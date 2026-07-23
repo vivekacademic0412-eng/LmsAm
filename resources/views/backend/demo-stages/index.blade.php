@@ -12,7 +12,7 @@
 
 
                     <h2 class="mt-3 mb-2 d-hero-title">
-                        Students 
+                        Students
                     </h2>
 
                     <p class=" mb-0 d-hero-meta">
@@ -25,11 +25,11 @@
 
         </div>
 
-  <div class="list-card" style="margin-bottom:14px">
-        <livewire:admin.demo-user-list />
-  </div>
+        <div class="" style="margin-bottom:14px">
+            <livewire:admin.demo-user-list />
+        </div>
     </div>
 
-  
+
 
 @endsection

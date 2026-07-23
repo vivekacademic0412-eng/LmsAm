@@ -38,14 +38,14 @@ use Illuminate\Http\Request;
 //     return redirect()->route('lms.landing');
 // });
 
-Route::middleware(['guest', ])->group(function (): void {
+Route::middleware(['guest',])->group(function (): void {
     Route::get('/login', [AuthController::class, 'Register'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
     Route::get('/', [AuthController::class, 'Register'])->name('lms.demo');
 });
 
 
-Route::middleware(['auth', 'active', 'activity.log','onbording'])->group(function (): void {
+Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/notifications/{notification}/read', [DashboardController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [DashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
@@ -166,7 +166,7 @@ Route::middleware(['auth', 'active', 'activity.log','onbording'])->group(functio
         Route::get('/my-demos', [DemoTaskController::class, 'myDemos'])->name('demos');
         //    Route::get('/student/courses', CourseCatalog::class)->name('student.courses.index');
         Route::get('/student/courses/{course}/preview', [CourseEnrollmentController::class, 'Preview'])->name('student.courses.preview');
-        Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses');
+        Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses')->middleware('onbording');
         Route::get('/my-courses/{course}', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.show');
         Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
 
@@ -177,31 +177,45 @@ Route::middleware(['auth', 'active', 'activity.log','onbording'])->group(functio
         Route::post('/course-session-items/{item}/submit', [CourseItemSubmissionController::class, 'store'])->name('course-session-items.submit');
         //student new 
         Route::get('/choose-type', [TrafficController::class, 'chooseDemoType'])->name('lms.choose-type');
+
+        // routes/web.php — replace your existing `lms.` route group with this.
+        // Only change: step5, step6, certificate-download, and feedback.store are
+        // now inside the demo_access middleware group too (previously unguarded —
+        // meaning a logged-out visitor could hit them directly). The middleware
+        // itself (see DemoAccess.php) is what actually keeps them open post-completion.
+
         Route::prefix('lms')->name('lms.')->group(function () {
 
-            // Step 1 – Welcome & Onboarding
-            Route::get('/landing',           [LmsController::class, 'Landing'])->name('landing');
-            Route::get('/step1',           [LmsController::class, 'step1'])->name('step1');
-            Route::post('/step1',     [LmsController::class, 'storeStep1'])->name('step1.store');
+            // Public landing — no auth needed.
+            Route::get('/landing', [LmsController::class, 'Landing'])->name('landing');
 
-            // Step 2 – Demo Video Session
-            Route::get('/step2',      [LmsController::class, 'step2'])->name('step2');
-            Route::post('/step2',     [LmsController::class, 'storeStep2'])->name('step2.store');
+            Route::middleware('demo_access')->group(function () {
 
-            // Step 3 – Create Your Demo
-            Route::get('/step3',      [LmsController::class, 'step3'])->name('step3');
-            Route::post('/step3-store',     [LmsController::class, 'storeStep3'])->name('step3.store');
+                // Step 1 – Welcome & Onboarding
+                Route::get('/step1', [LmsController::class, 'step1'])->name('step1');
+                Route::post('/step1', [LmsController::class, 'storeStep1'])->name('step1.store');
 
-            // Step 4 – Submission Confirmation
-            Route::get('/step4',      [LmsController::class, 'step4'])->name('step4');
+                // Step 2 – Demo Video Session
+                Route::get('/step2', [LmsController::class, 'step2'])->name('step2');
+                Route::post('/step2', [LmsController::class, 'storeStep2'])->name('step2.store');
 
-            // Step 5 – Recommendations
-            Route::get('/step5',      [LmsController::class, 'step5'])->name('step5');
-            Route::get('/step6',      [LmsController::class, 'step6'])->name('step6');
-            Route::get('/certificate-download',      [LmsController::class, 'Download'])->name('certificate.download');
-            Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+                // Step 3 – Create Your Demo
+                Route::get('/step3', [LmsController::class, 'step3'])->name('step3');
+                Route::post('/step3-store', [LmsController::class, 'storeStep3'])->name('step3.store');
+
+                // Step 4 – Submission Confirmation
+                Route::get('/step4', [LmsController::class, 'step4'])->name('step4');
+
+                // Step 5 – Recommendations
+                Route::get('/step5', [LmsController::class, 'step5'])->name('step5');
+
+                // Step 6 – Final result / certificate status (always reachable once completed)
+                Route::get('/step6', [LmsController::class, 'step6'])->name('step6');
+
+                Route::get('/certificate-download', [LmsController::class, 'Download'])->name('certificate.download');
+                Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+            });
         });
-
         Route::middleware(['auth', 'verified'])->prefix('lms')->name('lms.')->group(function () {
 
             // Step 1 — Choose demo type
@@ -315,11 +329,11 @@ Route::middleware('guest')->group(function () {
     })->middleware('auth')->name('verification.notice');
 });
 
- 
+
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
- 
+
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // Navigation Builder module
@@ -327,15 +341,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('nav-items', [NavItemController::class, 'store'])->name('nav-items.store');
     Route::put('nav-items/{navItem}', [NavItemController::class, 'update'])->name('nav-items.update');
     Route::delete('nav-items/{navItem}', [NavItemController::class, 'destroy'])->name('nav-items.destroy');
-     Route::get('modules', [NavItemController::class, 'Modules'])->name('nav-items.modules');
+    Route::get('modules', [NavItemController::class, 'Modules'])->name('nav-items.modules');
     // Roles & Permissions module
     Route::get('permissions', [RolePermissionController::class, 'index'])->name('permissions.index');
     Route::put('permissions', [RolePermissionController::class, 'update'])->name('permissions.update');
+    Route::get('onboarding-section-settings', [RolePermissionController::class, 'Setting'])->name('onbording-setting.index');
 });
 Route::middleware(['auth'])->prefix('onboarding')->name('onboarding.')->group(function () {
 
     Route::get('/', [OnboardingController::class, 'index'])
         ->name('wizard');
-
-   
 });
+Route::get('thank-you/{user}', [AuthController::class, 'Thankyou'])
+    ->name('landing.thankyou');

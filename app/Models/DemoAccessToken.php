@@ -13,7 +13,8 @@ class DemoAccessToken extends Model
         'is_completed',
         'used_at',
         'browser_fingerprint',
-        'session_id'
+        'session_id',
+        'used'
       
         
     ];

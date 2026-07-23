@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html>
+@extends('emails.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Demo Access</title>
-</head>
+@section('title', 'Your Demo Access is Ready | Academic Mantra LMS')
 
-<body style="font-family: Arial, sans-serif; background:#f8f9fa; padding:20px;">
+@php
+    $preheader = 'Your demo account has been created successfully. Verify your email to access your free LMS demo.';
+    $heroLabel = 'ACADEMIC MANTRA LMS DEMO';
+    $heroTitle = 'Your Demo Access is Ready, ' . $user->name . '!';
+@endphp
+
+@section('body')
+
 
     <div style="max-width:700px;margin:auto;background:#fff;padding:30px;border-radius:10px;">
 
@@ -68,6 +71,5 @@
 
     </div>
 
-</body>
 
-</html>
+@endsection

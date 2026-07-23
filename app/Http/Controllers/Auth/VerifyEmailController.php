@@ -33,6 +33,12 @@ class VerifyEmailController extends Controller
             return redirect()->route('login')
                 ->with('success', 'Your email is already verified. Please log in.');
         }
+        // LMS Registration
+        if ($user->registration_source === 'lms') {
+            return redirect()->route('login')
+                ->with('success', 'Email verified successfully! You can now log in.');
+        }
+        // Landing Page Registration
 
         // This is the line that actually sets email_verified_at = now()
         // and saves the model.
@@ -40,7 +46,7 @@ class VerifyEmailController extends Controller
             event(new Verified($user));
         }
 
-        return redirect()->route('login')
-            ->with('success', 'Email verified successfully! You can now log in.');
+       return redirect()->route('landing.thankyou', $user)
+            ->with('success', 'Thank you! Our team will contact you shortly.');
     }
 }

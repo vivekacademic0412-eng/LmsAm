@@ -33,6 +33,7 @@
         </div>
 
     @else
+  
         {{-- ── STATE 2: Demo already submitted → promote the full course ── --}}
         <div class="d-promo-glow d-promo-glow--gold"></div>
 

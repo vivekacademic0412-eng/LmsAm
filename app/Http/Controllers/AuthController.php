@@ -266,7 +266,7 @@ class AuthController extends Controller
 
         return redirect()->route('login');
     }
-     public function forgotPassword()
+    public function forgotPassword()
     {
         return view('auth.forgot-password');
     }
@@ -277,5 +277,10 @@ class AuthController extends Controller
             'token' => $token,
             'email' => $request->email,
         ]);
+    }
+
+    public function Thankyou(User $user)
+    {
+        return view('landing-thankyou', compact('user'));
     }
 }

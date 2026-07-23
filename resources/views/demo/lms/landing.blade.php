@@ -283,8 +283,8 @@
 
 
         <!-- ======================================
-                                                     CHOOSE YOUR LEARNING PATH
-                                                ====================================== -->
+                                                         CHOOSE YOUR LEARNING PATH
+                                                    ====================================== -->
 
         <section class="section learning-path">
 
@@ -497,8 +497,8 @@
         </section>
 
         <!-- ======================================
-                                                     COURSE CATEGORIES (DYNAMIC)
-                                                ====================================== -->
+                                                         COURSE CATEGORIES (DYNAMIC)
+                                                    ====================================== -->
 
         <section class="section">
 
