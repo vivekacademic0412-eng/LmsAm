@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class TrafficSource extends Model
 {
@@ -34,13 +35,13 @@ class TrafficSource extends Model
      * used for normalizing the dashboard chart labels/colors.
      */
     public const KNOWN_SOURCES = [
-        'facebook'    => ['label' => 'Facebook',    'color' => '#1877F2'],
-        'google'      => ['label' => 'Google',      'color' => '#EA4335'],
-        'linkedin'    => ['label' => 'LinkedIn',    'color' => '#0A66C2'],
-        'youtube'     => ['label' => 'YouTube',     'color' => '#FF0000'],
-        'instagram'   => ['label' => 'Instagram',   'color' => '#E1306C'],
-        'whatsapp'    => ['label' => 'WhatsApp',    'color' => '#25D366'],
-        'direct'      => ['label' => 'Direct',      'color' => '#5a718a'],
+        'facebook'  => ['label' => 'Facebook',  'color' => '#1877F2'],
+        'google'    => ['label' => 'Google',    'color' => '#EA4335'],
+        'linkedin'  => ['label' => 'LinkedIn',  'color' => '#0A66C2'],
+        'youtube'   => ['label' => 'YouTube',   'color' => '#FF0000'],
+        'instagram' => ['label' => 'Instagram', 'color' => '#E1306C'],
+        'whatsapp'  => ['label' => 'WhatsApp',  'color' => '#25D366'],
+        'direct'    => ['label' => 'Direct',    'color' => '#5a718a'],
     ];
 
     public function demoUser()
@@ -56,8 +57,7 @@ class TrafficSource extends Model
     /**
      * Pretty label for dashboard display. Falls back to a humanized
      * version of the raw source string (e.g. "partner-site" → "Partner Site")
-     * for anything not in KNOWN_SOURCES — covers partner/affiliate links
-     * like ?source=partner1 without needing a config change every time.
+     * for anything not in KNOWN_SOURCES.
      */
     public function getSourceLabelAttribute(): string
     {
@@ -81,10 +81,10 @@ class TrafficSource extends Model
     }
 
     /**
-     * Build a TrafficSource attributes array from the current request.
-     * Centralizes the parsing logic so the controller stays thin and
-     * this same logic can be reused if you ever need to log traffic
-     * from a different entry point (e.g. an API or webhook).
+     * Build a TrafficSource attributes array from a browser-facing request
+     * (session available, query-string driven — e.g. the landing page
+     * itself). Kept for any entry point that still needs query-string
+     * semantics specifically.
      */
     public static function attributesFromRequest(\Illuminate\Http\Request $request): array
     {
@@ -95,7 +95,6 @@ class TrafficSource extends Model
             'session_id'   => $request->hasSession()
                 ? $request->session()->getId()
                 : null,
-
             'source'       => self::resolveSource($request),
             'referrer_url' => $request->headers->get('referer'),
             'utm_source'   => $request->query('utm_source'),
@@ -111,87 +110,75 @@ class TrafficSource extends Model
         ];
     }
 
+    /**
+     * Build a TrafficSource attributes array from a server-to-server API
+     * request (JSON body, e.g. the Livewire form posting to the LMS API).
+     * Uses input() everywhere instead of query() — the previous bug here
+     * was resolveSource() calling ->query() on a JSON POST body, which
+     * always returned null and threw on strtolower(null), silently
+     * rolling back the whole registration transaction.
+     */
     public static function attributesFromRequestNew(\Illuminate\Http\Request $request): array
     {
-          $ua = $request->userAgent() ?? '';
-        return [
+        $ua = $request->userAgent() ?? '';
+
+        $attributes = [
             'user_ip'      => $request->ip(),
-           
             'source'       => self::resolveSource($request),
             'utm_source'   => $request->input('utm_source'),
             'utm_medium'   => $request->input('utm_medium'),
             'utm_campaign' => $request->input('utm_campaign'),
             'utm_term'     => $request->input('utm_term'),
             'utm_content'  => $request->input('utm_content'),
-
             'landing_page' => $request->fullUrl(),
             'referrer_url' => $request->headers->get('referer'),
             'device'       => self::detectDevice($ua),
             'browser'      => self::detectBrowser($ua),
             'platform'     => self::detectPlatform($ua),
-            'user_agent'   => $request->userAgent(),
+            'user_agent'   => $ua,
         ];
+
+        Log::info('TrafficSource::attributesFromRequestNew built', $attributes);
+
+        return $attributes;
     }
+
     /**
      * Source resolution priority:
-     *   1. Explicit ?source=xxx param (your partner links use this)
+     *   1. Explicit source param (your partner links / API caller use this)
      *   2. utm_source param
      *   3. Parsed from the HTTP referrer domain (facebook.com → facebook)
      *   4. 'direct' if none of the above
+     *
+     * Uses input() (query string + POST body + JSON body) rather than
+     * query() (query string only) so this works correctly whether it's
+     * called from a browser GET or a server-to-server JSON POST.
      */
     protected static function resolveSource(\Illuminate\Http\Request $request): string
-{
-    if ($request->filled('source')) {
-        return strtolower($request->input('source'));   // was ->query()
-    }
+    {
+        if ($request->filled('source')) {
+            return strtolower((string) $request->input('source'));
+        }
 
-    if ($request->filled('utm_source')) {
-        return strtolower($request->input('utm_source')); // was ->query()
-    }
+        if ($request->filled('utm_source')) {
+            return strtolower((string) $request->input('utm_source'));
+        }
 
-    $referrer = $request->headers->get('referer');
-    if ($referrer) {
-        $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
-        foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
-            if (str_contains($host, $known)) {
-                return $known;
+        $referrer = $request->headers->get('referer');
+        if ($referrer) {
+            $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
+            foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
+                if (str_contains($host, $known)) {
+                    return $known;
+                }
+            }
+            if ($host && !str_contains($host, $request->getHost())) {
+                return $host;
             }
         }
-        if ($host && !str_contains($host, $request->getHost())) {
-            return $host;
-        }
+
+        return 'direct';
     }
-
-    return 'direct';
-}
-    // protected static function resolveSource(\Illuminate\Http\Request $request): string
-    // {
-    //     if ($request->filled('source')) {
-    //         return strtolower($request->query('source'));
-    //     }
-
-    //     if ($request->filled('utm_source')) {
-    //         return strtolower($request->query('utm_source'));
-    //     }
-
-    //     $referrer = $request->headers->get('referer');
-    //     if ($referrer) {
-    //         $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
-    //         foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
-    //             if (str_contains($host, $known)) {
-    //                 return $known;
-    //             }
-    //         }
-    //         // Unknown external referrer — store the bare domain
-    //         // (e.g. "partner-site.com" → "partner-site.com") so it's
-    //         // still attributable even without a pre-defined bucket.
-    //         if ($host && !str_contains($host, $request->getHost())) {
-    //             return $host;
-    //         }
-    //     }
-
-    //     return 'direct';
-    // }
 
     protected static function detectDevice(string $ua): string
     {
@@ -203,27 +190,28 @@ class TrafficSource extends Model
     protected static function detectBrowser(string $ua): string
     {
         return match (true) {
-            str_contains($ua, 'Edg/')      => 'Edge',
-            str_contains($ua, 'Chrome/')   => 'Chrome',
-            str_contains($ua, 'Firefox/')  => 'Firefox',
-            str_contains($ua, 'Safari/')   => 'Safari',
-            str_contains($ua, 'OPR/')      => 'Opera',
-            default                        => 'Other',
+            str_contains($ua, 'Edg/')     => 'Edge',
+            str_contains($ua, 'Chrome/')  => 'Chrome',
+            str_contains($ua, 'Firefox/') => 'Firefox',
+            str_contains($ua, 'Safari/')  => 'Safari',
+            str_contains($ua, 'OPR/')     => 'Opera',
+            default                       => 'Other',
         };
     }
 
     protected static function detectPlatform(string $ua): string
     {
         return match (true) {
-            str_contains($ua, 'Windows')        => 'Windows',
-            str_contains($ua, 'Mac OS')         => 'macOS',
-            str_contains($ua, 'Android')        => 'Android',
+            str_contains($ua, 'Windows') => 'Windows',
+            str_contains($ua, 'Mac OS')  => 'macOS',
+            str_contains($ua, 'Android') => 'Android',
             str_contains($ua, 'iPhone')
-                || str_contains($ua, 'iPad')    => 'iOS',
-            str_contains($ua, 'Linux')          => 'Linux',
-            default                             => 'Other',
+                || str_contains($ua, 'iPad') => 'iOS',
+            str_contains($ua, 'Linux')   => 'Linux',
+            default                      => 'Other',
         };
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'demo_user_id');
