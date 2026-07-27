@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\CoureManagerController;
 use Illuminate\Http\Request;
 // Route::get('/', function () {
 //     return redirect()->route('lms.landing');
@@ -108,6 +109,7 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
         Route::delete('/course-sessions/{session}', [CourseWeekController::class, 'destroySession'])->name('course-sessions.destroy');
         Route::put('/course-session-items/{item}', [CourseWeekController::class, 'updateItem'])->name('course-session-items.update');
 
+        Route::get('/course-certificates', [CertificateController::class, 'ApprovedCertificate'])->name('admin.certificates');
         Route::get('/demo-tasks', [DemoTaskController::class, 'index'])->name('demo-tasks.index');
         Route::get('/demo-tasks/create', [DemoTaskController::class, 'createPage'])->name('demo-tasks.create-page');
         Route::get('/demo-tasks/assign', [DemoTaskController::class, 'assignPage'])->name('demo-tasks.assign-page');
@@ -354,3 +356,11 @@ Route::middleware(['auth'])->prefix('onboarding')->name('onboarding.')->group(fu
 });
 Route::get('thank-you/{user}', [AuthController::class, 'Thankyou'])
     ->name('landing.thankyou');
+
+
+Route::middleware(['auth', 'role:superadmin,admin',])->prefix('admin/courses')->name('admin.courses.')->group(function () {
+    Route::get('weeks',        [CoureManagerController::class,'weeks'])->name('weeks');
+    Route::get('sessions',     [CoureManagerController::class,'sessions'])->name('sessions');
+    Route::get('certificates',[ CoureManagerController::class,'certificates'])->name('certificates');
+    Route::get('seats',        [CoureManagerController::class,'seats'])->name('seats');
+});

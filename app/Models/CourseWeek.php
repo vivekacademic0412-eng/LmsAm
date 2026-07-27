@@ -26,5 +26,8 @@ class CourseWeek extends Model
     {
         return $this->hasMany(CourseSession::class, 'course_week_id')->orderBy('session_number');
     }
- 
+    public function settings()
+    {
+        return $this->hasOne(\App\Models\CourseWeekSetting::class);
+    }
 }

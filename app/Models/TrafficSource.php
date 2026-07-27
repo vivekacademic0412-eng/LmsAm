@@ -93,8 +93,8 @@ class TrafficSource extends Model
         return [
             'user_ip'      => $request->ip(),
             'session_id'   => $request->hasSession()
-            ? $request->session()->getId()
-            : null,
+                ? $request->session()->getId()
+                : null,
 
             'source'       => self::resolveSource($request),
             'referrer_url' => $request->headers->get('referer'),
@@ -111,6 +111,27 @@ class TrafficSource extends Model
         ];
     }
 
+    public static function attributesFromRequestNew(\Illuminate\Http\Request $request): array
+    {
+          $ua = $request->userAgent() ?? '';
+        return [
+            'user_ip'      => $request->ip(),
+            'session_id'   => $request->session()->getId(),
+            'source'       => self::resolveSource($request),
+            'utm_source'   => $request->input('utm_source'),
+            'utm_medium'   => $request->input('utm_medium'),
+            'utm_campaign' => $request->input('utm_campaign'),
+            'utm_term'     => $request->input('utm_term'),
+            'utm_content'  => $request->input('utm_content'),
+
+            'landing_page' => $request->fullUrl(),
+            'referrer_url' => $request->headers->get('referer'),
+            'device'       => self::detectDevice($ua),
+            'browser'      => self::detectBrowser($ua),
+            'platform'     => self::detectPlatform($ua),
+            'user_agent'   => $request->userAgent(),
+        ];
+    }
     /**
      * Source resolution priority:
      *   1. Explicit ?source=xxx param (your partner links use this)
@@ -182,7 +203,7 @@ class TrafficSource extends Model
     {
         return $this->belongsTo(User::class, 'demo_user_id');
     }
- 
+
     /**
      * Human readable label for "how the user came" — prefers campaign,
      * falls back to utm_source, then raw source, then Direct.

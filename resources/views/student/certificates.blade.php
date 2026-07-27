@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
+    {{-- @php
         $latestIssuedAt = $certificates->max('issued_at');
         $latestIssuedLabel = $latestIssuedAt instanceof \Illuminate\Support\Carbon
             ? $latestIssuedAt->format('M d, Y')
@@ -180,9 +180,9 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+    </style> --}}
 
-    <div class="cert-page">
+    {{-- <div class="cert-page">
         <section class="cert-hero">
             <div>
                 <h1>My Certificates</h1>
@@ -243,5 +243,6 @@
                 Complete an enrolled course to unlock your first certificate. When a course reaches 100% completion, both PDF and SVG downloads will appear here automatically.
             </section>
         @endif
-    </div>
+    </div> --}}
+    <livewire:student.my-certificates/>
 @endsection

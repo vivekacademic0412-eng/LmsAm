@@ -27,4 +27,7 @@ class CertificateController extends Controller
 
         return $pdf->download('Certificate-' . ($demo->demoUser->name ?? $demo->user->name ?? $demo->id) . '.pdf');
     }
+    public function ApprovedCertificate(){
+        return view('backend.admin.certificate.index');
+    }
 }

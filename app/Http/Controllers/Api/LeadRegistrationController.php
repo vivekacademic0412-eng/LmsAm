@@ -70,7 +70,7 @@ class LeadRegistrationController extends Controller
                 // marketing attribution stays complete.
              
 
-                $attributes = TrafficSource::attributesFromRequest($request);
+                $attributes = TrafficSource::attributesFromRequestNew($request);
 
                 $trafficSource = TrafficSource::create($attributes);
                 $user = User::whereEmail($email)->first();

@@ -15,23 +15,25 @@ class CourseSessionItem extends Model
     public const TYPE_MAIN_VIDEO = 'main_video';
     public const TYPE_TASK = 'task';
     public const TYPE_QUIZ = 'quiz';
+    public const TYPE_NOTES = 'notes';
 
     public const TYPES = [
         self::TYPE_INTRO,
         self::TYPE_MAIN_VIDEO,
         self::TYPE_TASK,
         self::TYPE_QUIZ,
+        self::TYPE_NOTES,
     ];
 
     protected $fillable = [
         'course_session_id',
         'item_type',
-        'title',
+        'title',//introduction//notes per sesion
         'resource_type',
         'content',
         'resource_url',
-        'is_live',
-        'live_at',
+        'is_live',//googl meet link
+        'live_at',//google meet time
         'cloudinary_public_id',
         'cloudinary_resource_type',
         'cloudinary_format',

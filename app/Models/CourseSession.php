@@ -28,4 +28,8 @@ class CourseSession extends Model
             ->orderByRaw("case item_type when 'intro' then 1 when 'main_video' then 2 when 'task' then 3 when 'quiz' then 4 else 5 end")
             ->orderBy('id');
     }
+    public function settings()
+    {
+        return $this->hasOne(\App\Models\CourseSessionSetting::class);
+    }
 }

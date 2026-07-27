@@ -63,6 +63,7 @@
     <link rel="stylesheet" href="{{ asset('theme/css/category.css') }}">
     <link rel="stylesheet" href="{{ asset('theme/css/user.css') }}">
     <link rel="stylesheet" href="{{ asset('theme/css/broadcast.css') }}">
+    <link rel="stylesheet" href="{{ asset('theme/css/course-component.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('theme/css/index.css') }}"> --}}
     <!-- Structured Data -->
    
