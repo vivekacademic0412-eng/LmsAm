@@ -28,23 +28,177 @@ class LeadRegistrationController extends Controller
         'Java · Angular · Android',
     ];
 
-    public function __invoke(Request $request)
-    {
-        // ---------------------------------------------------------------
-        // VALIDATION
-        // ---------------------------------------------------------------
-        // - email:rfc,dns,spoof catches malformed addresses, non-existent
-        //   domains, and homograph/spoofing tricks — the biggest source of
-        //   junk leads. Drop ",dns" if your queue workers run somewhere
-        //   without reliable outbound DNS, since it'll reject valid emails
-        //   on a DNS hiccup.
-        // - phone forced to exactly 10 digits, same rule as the Livewire
-        //   form, so the API can't be used to bypass the UI's constraint.
-        // - track locked to the known list instead of accepting any string.
-        // - "website" is a honeypot: a real user never sees or fills this
-        //   field (hide it with CSS in the form, don't just omit it), bots
-        //   that auto-fill every input will populate it and get silently
-        //   rejected below.
+    // public function __invoke(Request $request)
+    // {
+    //     // ---------------------------------------------------------------
+    //     // VALIDATION
+    //     // ---------------------------------------------------------------
+    //     // - email:rfc,dns,spoof catches malformed addresses, non-existent
+    //     //   domains, and homograph/spoofing tricks — the biggest source of
+    //     //   junk leads. Drop ",dns" if your queue workers run somewhere
+    //     //   without reliable outbound DNS, since it'll reject valid emails
+    //     //   on a DNS hiccup.
+    //     // - phone forced to exactly 10 digits, same rule as the Livewire
+    //     //   form, so the API can't be used to bypass the UI's constraint.
+    //     // - track locked to the known list instead of accepting any string.
+    //     // - "website" is a honeypot: a real user never sees or fills this
+    //     //   field (hide it with CSS in the form, don't just omit it), bots
+    //     //   that auto-fill every input will populate it and get silently
+    //     //   rejected below.
+    //     $validated = $request->validate([
+    //         'name'    => ['required', 'string', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
+    //         'email'   => ['required', 'string', 'email:rfc,dns,spoof', 'max:150'],
+    //         'phone'   => ['required', 'digits:10'],
+    //         'track'   => ['required', 'string', 'in:' . implode(',', self::TRACKS)],
+    //         'source'  => ['nullable', 'string', 'max:100'],
+    //         'website' => ['prohibited'], // honeypot — must stay empty
+    //     ], [
+    //         'name.regex'        => 'Please enter a valid name.',
+    //         'phone.digits'      => 'Enter a valid 10-digit mobile number.',
+    //         'website.prohibited' => 'Invalid submission.',
+    //     ]);
+
+    //     // Normalize so "Test@Gmail.com" and "test@gmail.com" are the same
+    //     // account. Do this once, use the normalized value everywhere below.
+    //     $email = Str::lower(trim($validated['email']));
+
+    //     try {
+    //         $result = DB::transaction(function () use ($request, $validated, $email) {
+
+    //             // Traffic source is independent of the user outcome — always
+    //             // record it, even for an "already registered" hit, so
+    //             // marketing attribution stays complete.
+             
+
+    //             $attributes = TrafficSource::attributesFromRequestNew($request);
+
+    //             $trafficSource = TrafficSource::create($attributes);
+    //             $user = User::whereEmail($email)->first();
+
+    //             if ($user) {
+    //                 $trafficSource->update(['demo_user_id' => $user->id]);
+    //                 return ['outcome' => 'existing', 'user' => $user];
+    //             }
+
+    //             $password = 'AM@2026' . $validated['name'];
+
+    //             try {
+    //                 $user = User::create([
+    //                     'name'      => $validated['name'],
+    //                     'email'     => $email,
+    //                     'contact'   => $validated['phone'],
+    //                     'password'  => Hash::make('AM@2026' . $validated['name']),
+    //                     'role'      => User::ROLE_STUDENT,
+    //                     'is_active' => true,
+    //                 ]);
+    //             } catch (QueryException $e) {
+    //                 // Race condition guard: two requests for the same email
+    //                 // arrived close enough together that both passed the
+    //                 // whereEmail() check above. Requires a UNIQUE index on
+    //                 // users.email (add one via migration if missing —
+    //                 // without it this catch can't help you, and you'd get
+    //                 // silent duplicate accounts instead).
+    //                 if ((int) $e->getCode() === 23000) {
+    //                     $user = User::whereEmail($email)->first();
+    //                     $trafficSource->update(['demo_user_id' => $user->id]);
+    //                     return ['outcome' => 'existing', 'user' => $user];
+    //                 }
+    //                 throw $e;
+    //             }
+
+    //             $trafficSource->update(['demo_user_id' => $user->id]);
+
+    //             return ['outcome' => 'created', 'user' => $user, 'password' => $password];
+    //         });
+
+    //         $user = $result['user'];
+
+    //         // ---------------------------------------------------------------
+    //         // OUTCOME HANDLING — mail is sent OUTSIDE the transaction that's
+    //         // already committed by this point. If the mail server is down,
+    //         // the account still exists; we just log the failure instead of
+    //         // rolling back a successful registration.
+    //         // ---------------------------------------------------------------
+    //         if ($result['outcome'] === 'created') {
+    //             $this->sendVerificationEmail($user, $result['password']);
+
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'type'    => 'registered',
+    //                 'user_id' => $user->id,
+    //                 'message' => 'Registration successful. Please check your email and verify your account before logging in.',
+    //             ], 201);
+    //         }
+
+    //         // Existing account.
+    //         if (!$user->hasVerifiedEmail()) {
+    //             $this->sendVerificationEmail($user, null);
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'type'    => 'verification_resent',
+    //                 'user_id' => $user->id,
+    //                 'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
+    //             ], 200);
+    //         }
+
+    //         if (!$user->hasVerifiedEmail()) {
+    //             $password = 'AM@2026' . $user->name;
+    //             $this->sendVerificationEmail($user, $password);
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'type'    => 'verification_resent',
+    //                 'user_id' => $user->id,
+    //                 'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
+    //             ], 200);
+    //         }
+    //         return response()->json([
+    //             'success' => false,
+    //             'type'    => 'already_registered',
+    //             'message' => 'An account with this email already exists and is verified. Please log in, or use Forgot Password if you can\'t access it.',
+    //         ], 409);
+    //     } catch (Throwable $e) {
+    //         // Log the real error for developers, but never leak file/line/
+    //         // stack details to the client — that's information disclosure.
+    //         Log::error('Landing registration failed', [
+    //             'email' => $email ?? null,
+    //             'error' => $e->getMessage(),
+    //             'file'  => $e->getFile(),
+    //             'line'  => $e->getLine(),
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'type'    => 'error',
+    //             'message' => app()->environment('local')
+    //                 ? $e->getMessage()
+    //                 : 'Something went wrong while processing your registration. Please try again in a moment.'.$e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+public function __invoke(Request $request)
+{
+    // ---------------------------------------------------------------
+    // LOG EVERYTHING THAT HITS THIS ENDPOINT — raw input, before any
+    // validation drops or rejects fields. This is the first thing
+    // that runs so even a validation failure still gets logged.
+    // ---------------------------------------------------------------
+    Log::info('Landing API request received', [
+        'ip'      => $request->ip(),
+        'method'  => $request->method(),
+        'url'     => $request->fullUrl(),
+        'headers' => [
+            'content-type' => $request->header('Content-Type'),
+            'accept'       => $request->header('Accept'),
+            'user-agent'   => $request->userAgent(),
+            'referer'      => $request->header('referer'),
+        ],
+        'all_input' => $request->all(), // everything: query + body + json
+    ]);
+
+    // ---------------------------------------------------------------
+    // VALIDATION
+    // ---------------------------------------------------------------
+    try {
         $validated = $request->validate([
             'name'    => ['required', 'string', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
             'email'   => ['required', 'string', 'email:rfc,dns,spoof', 'max:150'],
@@ -53,129 +207,128 @@ class LeadRegistrationController extends Controller
             'source'  => ['nullable', 'string', 'max:100'],
             'website' => ['prohibited'], // honeypot — must stay empty
         ], [
-            'name.regex'        => 'Please enter a valid name.',
-            'phone.digits'      => 'Enter a valid 10-digit mobile number.',
-            'website.prohibited' => 'Invalid submission.',
+            'name.regex'          => 'Please enter a valid name.',
+            'phone.digits'        => 'Enter a valid 10-digit mobile number.',
+            'website.prohibited'  => 'Invalid submission.',
         ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Log validation failures explicitly — this is a very common
+        // reason "nothing got saved": the request never made it past
+        // this point, and previously you'd have no record of why.
+        Log::warning('Landing API validation failed', [
+            'errors' => $e->errors(),
+            'input'  => $request->all(),
+        ]);
+        throw $e; // let Laravel return its normal 422 response
+    }
 
-        // Normalize so "Test@Gmail.com" and "test@gmail.com" are the same
-        // account. Do this once, use the normalized value everywhere below.
-        $email = Str::lower(trim($validated['email']));
+    $email = Str::lower(trim($validated['email']));
 
-        try {
-            $result = DB::transaction(function () use ($request, $validated, $email) {
+    try {
+        $result = DB::transaction(function () use ($request, $validated, $email) {
 
-                // Traffic source is independent of the user outcome — always
-                // record it, even for an "already registered" hit, so
-                // marketing attribution stays complete.
-             
+            $attributes = TrafficSource::attributesFromRequestNew($request);
 
-                $attributes = TrafficSource::attributesFromRequestNew($request);
+            // Log exactly what will be inserted into traffic_sources —
+            // if this array is missing a field or has an unexpected
+            // null, you'll see it here before the DB call even runs.
+            Log::info('TrafficSource attributes resolved', $attributes);
 
-                $trafficSource = TrafficSource::create($attributes);
-                $user = User::whereEmail($email)->first();
+            $trafficSource = TrafficSource::create($attributes);
 
-                if ($user) {
+            Log::info('TrafficSource created', ['id' => $trafficSource->id]);
+
+            $user = User::whereEmail($email)->first();
+
+            if ($user) {
+                $trafficSource->update(['demo_user_id' => $user->id]);
+                Log::info('TrafficSource linked to existing user', [
+                    'traffic_source_id' => $trafficSource->id,
+                    'user_id'           => $user->id,
+                ]);
+                return ['outcome' => 'existing', 'user' => $user];
+            }
+
+            $password = 'AM@2026' . $validated['name'];
+
+            try {
+                $user = User::create([
+                    'name'      => $validated['name'],
+                    'email'     => $email,
+                    'contact'   => $validated['phone'],
+                    'password'  => Hash::make($password),
+                    'role'      => User::ROLE_STUDENT,
+                    'is_active' => true,
+                ]);
+            } catch (QueryException $e) {
+                if ((int) $e->getCode() === 23000) {
+                    Log::warning('Duplicate email race condition caught', ['email' => $email]);
+                    $user = User::whereEmail($email)->first();
                     $trafficSource->update(['demo_user_id' => $user->id]);
                     return ['outcome' => 'existing', 'user' => $user];
                 }
-
-                $password = 'AM@2026' . $validated['name'];
-
-                try {
-                    $user = User::create([
-                        'name'      => $validated['name'],
-                        'email'     => $email,
-                        'contact'   => $validated['phone'],
-                        'password'  => Hash::make('AM@2026' . $validated['name']),
-                        'role'      => User::ROLE_STUDENT,
-                        'is_active' => true,
-                    ]);
-                } catch (QueryException $e) {
-                    // Race condition guard: two requests for the same email
-                    // arrived close enough together that both passed the
-                    // whereEmail() check above. Requires a UNIQUE index on
-                    // users.email (add one via migration if missing —
-                    // without it this catch can't help you, and you'd get
-                    // silent duplicate accounts instead).
-                    if ((int) $e->getCode() === 23000) {
-                        $user = User::whereEmail($email)->first();
-                        $trafficSource->update(['demo_user_id' => $user->id]);
-                        return ['outcome' => 'existing', 'user' => $user];
-                    }
-                    throw $e;
-                }
-
-                $trafficSource->update(['demo_user_id' => $user->id]);
-
-                return ['outcome' => 'created', 'user' => $user, 'password' => $password];
-            });
-
-            $user = $result['user'];
-
-            // ---------------------------------------------------------------
-            // OUTCOME HANDLING — mail is sent OUTSIDE the transaction that's
-            // already committed by this point. If the mail server is down,
-            // the account still exists; we just log the failure instead of
-            // rolling back a successful registration.
-            // ---------------------------------------------------------------
-            if ($result['outcome'] === 'created') {
-                $this->sendVerificationEmail($user, $result['password']);
-
-                return response()->json([
-                    'success' => true,
-                    'type'    => 'registered',
-                    'user_id' => $user->id,
-                    'message' => 'Registration successful. Please check your email and verify your account before logging in.',
-                ], 201);
+                throw $e;
             }
 
-            // Existing account.
-            if (!$user->hasVerifiedEmail()) {
-                $this->sendVerificationEmail($user, null);
-                return response()->json([
-                    'success' => true,
-                    'type'    => 'verification_resent',
-                    'user_id' => $user->id,
-                    'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
-                ], 200);
-            }
+            $trafficSource->update(['demo_user_id' => $user->id]);
 
-            if (!$user->hasVerifiedEmail()) {
-                $password = 'AM@2026' . $user->name;
-                $this->sendVerificationEmail($user, $password);
-                return response()->json([
-                    'success' => true,
-                    'type'    => 'verification_resent',
-                    'user_id' => $user->id,
-                    'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
-                ], 200);
-            }
-            return response()->json([
-                'success' => false,
-                'type'    => 'already_registered',
-                'message' => 'An account with this email already exists and is verified. Please log in, or use Forgot Password if you can\'t access it.',
-            ], 409);
-        } catch (Throwable $e) {
-            // Log the real error for developers, but never leak file/line/
-            // stack details to the client — that's information disclosure.
-            Log::error('Landing registration failed', [
-                'email' => $email ?? null,
-                'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
+            Log::info('New user + TrafficSource created and linked', [
+                'user_id'           => $user->id,
+                'traffic_source_id' => $trafficSource->id,
             ]);
 
-            return response()->json([
-                'success' => false,
-                'type'    => 'error',
-                'message' => app()->environment('local')
-                    ? $e->getMessage()
-                    : 'Something went wrong while processing your registration. Please try again in a moment.'.$e->getMessage(),
-            ], 500);
-        }
-    }
+            return ['outcome' => 'created', 'user' => $user, 'password' => $password];
+        });
 
+        $user = $result['user'];
+
+        if ($result['outcome'] === 'created') {
+            $this->sendVerificationEmail($user, $result['password']);
+
+            return response()->json([
+                'success' => true,
+                'type'    => 'registered',
+                'user_id' => $user->id,
+                'message' => 'Registration successful. Please check your email and verify your account before logging in.',
+            ], 201);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $this->sendVerificationEmail($user, null);
+            return response()->json([
+                'success' => true,
+                'type'    => 'verification_resent',
+                'user_id' => $user->id,
+                'message' => 'An account with this email already exists but is not verified. We\'ve sent a new verification email — please check your inbox.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'type'    => 'already_registered',
+            'message' => 'An account with this email already exists and is verified. Please log in, or use Forgot Password if you can\'t access it.',
+        ], 409);
+
+    } catch (Throwable $e) {
+        // Full detail in the log, sanitized message to the client.
+        Log::error('Landing registration failed', [
+            'email'   => $email ?? null,
+            'input'   => $request->all(),
+            'error'   => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+            'trace'   => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'type'    => 'error',
+            'message' => app()->environment('local')
+                ? $e->getMessage()
+                : 'Something went wrong while processing your registration. Please try again in a moment.',
+        ], 500);
+    }
+}
     protected function sendVerificationEmail(User $user, ?string $password): void
     {
         try {

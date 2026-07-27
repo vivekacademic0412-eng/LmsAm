@@ -140,33 +140,58 @@ class TrafficSource extends Model
      *   4. 'direct' if none of the above
      */
     protected static function resolveSource(\Illuminate\Http\Request $request): string
-    {
-        if ($request->filled('source')) {
-            return strtolower($request->query('source'));
-        }
-
-        if ($request->filled('utm_source')) {
-            return strtolower($request->query('utm_source'));
-        }
-
-        $referrer = $request->headers->get('referer');
-        if ($referrer) {
-            $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
-            foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
-                if (str_contains($host, $known)) {
-                    return $known;
-                }
-            }
-            // Unknown external referrer — store the bare domain
-            // (e.g. "partner-site.com" → "partner-site.com") so it's
-            // still attributable even without a pre-defined bucket.
-            if ($host && !str_contains($host, $request->getHost())) {
-                return $host;
-            }
-        }
-
-        return 'direct';
+{
+    if ($request->filled('source')) {
+        return strtolower($request->input('source'));   // was ->query()
     }
+
+    if ($request->filled('utm_source')) {
+        return strtolower($request->input('utm_source')); // was ->query()
+    }
+
+    $referrer = $request->headers->get('referer');
+    if ($referrer) {
+        $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
+        foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
+            if (str_contains($host, $known)) {
+                return $known;
+            }
+        }
+        if ($host && !str_contains($host, $request->getHost())) {
+            return $host;
+        }
+    }
+
+    return 'direct';
+}
+    // protected static function resolveSource(\Illuminate\Http\Request $request): string
+    // {
+    //     if ($request->filled('source')) {
+    //         return strtolower($request->query('source'));
+    //     }
+
+    //     if ($request->filled('utm_source')) {
+    //         return strtolower($request->query('utm_source'));
+    //     }
+
+    //     $referrer = $request->headers->get('referer');
+    //     if ($referrer) {
+    //         $host = strtolower((string) parse_url($referrer, PHP_URL_HOST));
+    //         foreach (['facebook', 'google', 'linkedin', 'youtube', 'instagram', 'whatsapp'] as $known) {
+    //             if (str_contains($host, $known)) {
+    //                 return $known;
+    //             }
+    //         }
+    //         // Unknown external referrer — store the bare domain
+    //         // (e.g. "partner-site.com" → "partner-site.com") so it's
+    //         // still attributable even without a pre-defined bucket.
+    //         if ($host && !str_contains($host, $request->getHost())) {
+    //             return $host;
+    //         }
+    //     }
+
+    //     return 'direct';
+    // }
 
     protected static function detectDevice(string $ua): string
     {
