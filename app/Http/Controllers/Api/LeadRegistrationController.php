@@ -171,7 +171,7 @@ class LeadRegistrationController extends Controller
                 'type'    => 'error',
                 'message' => app()->environment('local')
                     ? $e->getMessage()
-                    : 'Something went wrong while processing your registration. Please try again in a moment.',
+                    : 'Something went wrong while processing your registration. Please try again in a moment.'.$e->getMessage(),
             ], 500);
         }
     }
