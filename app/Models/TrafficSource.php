@@ -116,7 +116,7 @@ class TrafficSource extends Model
           $ua = $request->userAgent() ?? '';
         return [
             'user_ip'      => $request->ip(),
-            'session_id'   => $request->session()->getId(),
+           
             'source'       => self::resolveSource($request),
             'utm_source'   => $request->input('utm_source'),
             'utm_medium'   => $request->input('utm_medium'),
