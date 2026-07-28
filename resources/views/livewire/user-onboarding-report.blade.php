@@ -112,6 +112,39 @@ table.uor-table tbody tr:hover{ background:var(--bg2); }
 .uor-traffic-head .date{ font-size:11px; color:var(--text-muted); }
 
 .uor-empty-note{ font-size:12.5px; color:var(--text-muted); font-style:italic; }
+/* ── Actions cell — ADD these to the <style> block in user-onboarding-report.blade.php ── */
+
+.uor-actions-cell{ display:flex; align-items:center; gap:8px; position:relative; }
+
+.uor-action-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:transparent; border:1px solid var(--border); color:var(--text-main);
+    padding:7px 13px; border-radius:var(--radius-xs,8px); font-size:12.5px; font-weight:600;
+}
+.uor-action-btn:hover{ border-color:var(--primary); color:var(--primary); }
+
+.uor-action-dropdown{
+    position:absolute; right:0; top:40px; z-index:30;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow); padding:12px; min-width:270px; text-align:left;
+}
+.uor-action-dropdown .lbl{ font-size:11.5px; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em; font-weight:700; }
+.uor-action-dropdown input[readonly]{
+    width:100%; font-size:11.5px; padding:7px 9px; margin-bottom:8px;
+    background:var(--input-bg); border:1px solid var(--input-border); border-radius:var(--radius-xs,8px); color:var(--text-main);
+}
+.uor-action-row{ display:flex; gap:8px; }
+.uor-action-primary-btn{
+    flex:1; background:var(--primary); color:#fff; border:none; padding:7px 10px;
+    border-radius:var(--radius-xs,8px); font-size:12px; font-weight:600;
+}
+.uor-action-primary-btn:hover{ filter:brightness(1.08); }
+.uor-action-outline-btn{
+    background:transparent; border:1px solid var(--border); color:var(--text-main);
+    padding:7px 10px; border-radius:var(--radius-xs,8px); font-size:12px; font-weight:600;
+}
+.uor-action-outline-btn:hover{ border-color:var(--primary); color:var(--primary); }
+.uor-action-empty{ font-size:12px; color:var(--text-muted); font-style:italic; padding:4px 0; }
 </style>
 
 
@@ -123,6 +156,7 @@ table.uor-table tbody tr:hover{ background:var(--bg2); }
         <h1>Onboarding & Traffic Report</h1>
         <p>All users (excluding Super Admin &amp; Admin) with policy acceptance and acquisition-source details.</p>
     </div>
+       <livewire:admin.students.student-create-modal />
 </div>
 
 {{-- ═══════════════════════════════════════
@@ -242,6 +276,7 @@ table.uor-table tbody tr:hover{ background:var(--bg2); }
                     $latestPolicy = $u->policyAcceptances->first();
                     $agreed = $latestPolicy && $latestPolicy->terms_agreed;
                     $latestTraffic = $u->trafficSources->first();
+                     $payment = $u->payments->first(); 
                 @endphp
                 <tr wire:key="uor-user-{{ $u->id }}">
                     <td style="color:var(--text-muted); font-size:12px">{{ $u->id }}</td>
@@ -297,12 +332,48 @@ table.uor-table tbody tr:hover{ background:var(--bg2); }
 
                     <td style="color:var(--text-muted); font-size:12.5px">{{ $u->created_at?->format('d M Y') }}</td>
 
-                    <td>
-                        <button type="button" wire:click="viewUser({{ $u->id }})" class="uor-view-btn">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            View
+                    {{-- Replace your existing `<td data-label="Actions" style="position:relative;">...</td>` block with this --}}
+
+<td>
+    <div class="uor-actions-cell">
+        <button type="button" wire:click="viewUser({{ $u->id }})" class="uor-view-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View
+        </button>
+
+        <button type="button" wire:click="toggleAction({{ $u->id }})" class="uor-action-btn">
+            Actions ▾
+        </button>
+
+        {{-- Dropdown now shows regardless of whether a payment exists — the empty state
+             below tells the admin clearly when there's nothing to show, instead of
+             silently doing nothing on click. --}}
+        @if ($openActionFor === $u->id)
+            <div class="uor-action-dropdown" wire:key="uor-action-{{ $u->id }}">
+                @if ($payment)
+                    <div class="lbl">Payment Link</div>
+                    <input readonly value="{{ $payment->publicUrl() }}" onclick="this.select()">
+                    <div class="uor-action-row">
+                        <button
+                            type="button"
+                            x-data
+                            x-on:click="navigator.clipboard.writeText('{{ $payment->publicUrl() }}'); $wire.copyLinkFeedback()"
+                            class="uor-action-primary-btn">
+                            Copy Link
                         </button>
-                    </td>
+                        @if ($payment->status !== 'success')
+                            <button type="button" wire:click="regenerateLink({{ $payment->id }})" class="uor-action-outline-btn">
+                                Regenerate
+                            </button>
+                        @endif
+                    </div>
+                @else
+                    <div class="uor-action-empty">No payment record for this user yet.</div>
+                @endif
+            </div>
+        @endif
+    </div>
+</td>
                 </tr>
                 @empty
                 <tr>

@@ -16,7 +16,7 @@ class MyCertificates extends Component
         $this->activeTab = $tab;
     }
 
-
+    #[Computed]
     public function certificates()
     {
         $query = Certificate::query()
@@ -30,7 +30,7 @@ class MyCertificates extends Component
         return $query->latest('updated_at')->get();
     }
 
-
+    #[Computed]
     public function stats(): array
     {
         $all = Certificate::where('user_id', auth()->id())->get();

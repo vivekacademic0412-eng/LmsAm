@@ -43,6 +43,97 @@
     </div>
 </section>
 
+<section class="panel-actions">
+    <h2>Attendance & Progress Focus</h2>
+    <p class="feed-note">Weekly attendance trend on the left; per-student attendance and course progress on the right.</p>
+
+    <div class="hr-focus-grid" style="margin-top: 12px;">
+        {{-- LEFT: weekly attendance trend --}}
+        <div class="pipeline-card" style="padding: 16px 18px;">
+            <span>Weekly Attendance Trend</span>
+            <div class="mini-bars">
+                @php
+                    // Dummy data — replace with a real weekly attendance query
+                    $weeklyAttendanceTrend = [
+                        ['label' => 'Mon', 'percent' => 92],
+                        ['label' => 'Tue', 'percent' => 88],
+                        ['label' => 'Wed', 'percent' => 95],
+                        ['label' => 'Thu', 'percent' => 81],
+                        ['label' => 'Fri', 'percent' => 74],
+                    ];
+                @endphp
+                @foreach ($weeklyAttendanceTrend as $day)
+                    <div class="mini-bar-col">
+                        <div class="mini-bar" style="height: {{ $day['percent'] }}%;"></div>
+                        <small>{{ $day['percent'] }}%</small>
+                        <span>{{ $day['label'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+            <p style="margin-top: 10px;">Average weekly attendance: <strong style="color: var(--text);">86%</strong> — Friday shows the steepest drop-off.</p>
+        </div>
+
+        {{-- RIGHT: stacked attendance + progress --}}
+        <div class="hr-side-stack">
+            <div class="panel-actions" style="padding: 16px 18px;">
+                <h2 style="font-size: 16px; margin-bottom: 10px;">Per-Student Attendance</h2>
+                @php
+                    // Dummy data — replace with a real attendance query
+                    $studentAttendance = [
+                        ['name' => 'Ravi Malhotra', 'course' => 'Frontend Basics', 'days' => ['present', 'present', 'present', 'late', 'present'], 'rate' => '96%'],
+                        ['name' => 'Simran Kaur', 'course' => 'Data Analytics', 'days' => ['present', 'absent', 'present', 'present', 'present'], 'rate' => '84%'],
+                        ['name' => 'Arjun Nair', 'course' => 'Cloud Fundamentals', 'days' => ['present', 'present', 'late', 'present', 'absent'], 'rate' => '78%'],
+                        ['name' => 'Priya Sharma', 'course' => 'UI/UX Design', 'days' => ['present', 'present', 'present', 'present', 'present'], 'rate' => '100%'],
+                    ];
+                @endphp
+                <div class="attendance-list">
+                    @foreach ($studentAttendance as $s)
+                        <div class="attendance-row">
+                            <div class="attendance-who">
+                                <strong>{{ $s['name'] }}</strong>
+                                <span>{{ $s['course'] }}</span>
+                            </div>
+                            <div class="attendance-days">
+                                @foreach ($s['days'] as $d)
+                                    <span class="attendance-dot {{ $d }}" title="{{ ucfirst($d) }}"></span>
+                                @endforeach
+                            </div>
+                            <span class="attendance-rate">{{ $s['rate'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="panel-actions" style="padding: 16px 18px;">
+                <h2 style="font-size: 16px; margin-bottom: 10px;">Student Progress</h2>
+                @php
+                    // Dummy data — replace with your existing progressItems relation
+                    $studentProgress = [
+                        ['name' => 'Ravi Malhotra', 'course' => 'Frontend Basics', 'percent' => 82],
+                        ['name' => 'Simran Kaur', 'course' => 'Data Analytics', 'percent' => 55],
+                        ['name' => 'Arjun Nair', 'course' => 'Cloud Fundamentals', 'percent' => 38],
+                        ['name' => 'Priya Sharma', 'course' => 'UI/UX Design', 'percent' => 97],
+                    ];
+                @endphp
+                <div class="progress-list">
+                    @foreach ($studentProgress as $p)
+                        <div>
+                            <div class="progress-row-top">
+                                <strong>{{ $p['name'] }}</strong>
+                                <span class="progress-pct">{{ $p['percent'] }}%</span>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted);">{{ $p['course'] }}</span>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ $p['percent'] }}%;"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <div class="panel-wide-grid">
     <section class="panel-actions">
         <h2>Recent Assignments</h2>

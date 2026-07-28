@@ -14,7 +14,7 @@
     <meta name="description" content="@yield('meta_description', 'Join LMS AM - Learn trending skills, courses, certifications, and industry-ready training programs.')">
     <meta name="keywords" content="@yield('meta_keywords', 'LMS, online courses, learning management system, training, certifications, skill development, internships')">
     <meta name="author" content="LMS AM Team">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="nondex, nofollow">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">

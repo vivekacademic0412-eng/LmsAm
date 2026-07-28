@@ -1,7 +1,66 @@
 {{-- resources/views/livewire/demo/demo-login.blade.php --}}
 
 <div class="demo-register-wrap">
+<style>
+.google-login-btn {
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 
+    background: #fff;
+    color: #3c4043;
+
+    border: 1px solid #dadce0;
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+    transition: all .25s ease;
+    cursor: pointer;
+
+    /* margin-top: 18px; */
+}
+
+.google-login-btn:hover {
+    background: #f8f9fa;
+    border-color: #c7c7c7;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    transform: translateY(-1px);
+}
+
+.google-login-btn:active {
+    transform: scale(.98);
+}
+
+.google-icon {
+    width: 22px;
+    height: 22px;
+}
+.login-divider {
+    display: flex;
+    align-items: center;
+    /* margin: 20px 0; */
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.login-divider span {
+    margin: 0 15px;
+    color: #777;
+    font-size: 14px;
+}
+</style>
     <div class="dreg-header">
         <h2 class="dreg-title">Welcome Back</h2>
         <p class="dreg-subtitle">Log in to continue your learning journey.</p>
@@ -27,8 +86,8 @@
         <div class="dreg-field @error('password') dreg-field--error @enderror">
             <label class="dreg-label" for="dlogin-password">Password</label>
             <div class="dreg-input-wrap">
-                <input id="dlogin-password" type="password" wire:model.live.debounce.400ms="password"
-                    class="dreg-input" placeholder="Your password" autocomplete="current-password" />
+                <input id="dlogin-password" type="password" wire:model.live.debounce.400ms="password" class="dreg-input"
+                    placeholder="Your password" autocomplete="current-password" />
                 <button type="button" class="dreg-eye"
                     onclick="
                     const i=this.previousElementSibling;
@@ -37,12 +96,15 @@
                     this.querySelector('.eye-closed').classList.toggle('hidden');
                 "
                     aria-label="Toggle password">
-                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                     </svg>
-                    <svg class="eye-closed hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <svg class="eye-closed hidden" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                         <line x1="1" y1="1" x2="23" y2="23" />
                     </svg>
                 </button>
@@ -57,38 +119,51 @@
                 <input type="checkbox" wire:model="remember" />
                 Remember me
             </label>
-            <a href="{{ \Illuminate\Support\Facades\Route::has('password.request') ? route('password.request') : '#' }}" class="dreg-forgot-link">Forgot password?</a>
+            <a href="{{ \Illuminate\Support\Facades\Route::has('password.request') ? route('password.request') : '#' }}"
+                class="dreg-forgot-link">Forgot password?</a>
         </div>
+
 
         <button type="submit" class="dreg-submit" wire:loading.attr="disabled" wire:target="authenticate">
             <span wire:loading.remove wire:target="authenticate">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
                 Log In
             </span>
             <span wire:loading wire:target="authenticate" class="dreg-loading">
-                <svg class="dreg-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg class="dreg-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                 </svg>
                 Logging In…
             </span>
         </button>
+        <div class="login-divider">
+    <span>OR</span>
+</div>
+       <a href="{{ route('google.login') }}" class="google-login-btn">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+         alt="Google"
+         class="google-icon">
 
+    <span>Continue with Google</span>
+</a>
     </form>
 
 </div>
 <script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('swal', (event) => {
-        const data = Array.isArray(event) ? event[0] : event;
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('swal', (event) => {
+            const data = Array.isArray(event) ? event[0] : event;
 
-        Swal.fire({
-            icon: data.icon,
-            title: data.title,
-            text: data.text,
-            confirmButtonColor: '#0947a8',
+            Swal.fire({
+                icon: data.icon,
+                title: data.title,
+                text: data.text,
+                confirmButtonColor: '#0947a8',
+            });
         });
     });
-});
 </script>

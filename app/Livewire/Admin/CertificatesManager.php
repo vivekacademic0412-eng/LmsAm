@@ -30,7 +30,7 @@ class CertificatesManager extends Component
     public function updatingTypeFilter()  { $this->resetPage(); }
     public function updatingStatusFilter(){ $this->resetPage(); }
 
-   
+    #[Computed]
     public function certificates()
     {
         return Certificate::query()
@@ -46,6 +46,7 @@ class CertificatesManager extends Component
             ->paginate(12);
     }
 
+    #[Computed]
     public function stats(): array
     {
         return [
@@ -56,7 +57,7 @@ class CertificatesManager extends Component
         ];
     }
 
-   
+    #[Computed]
     public function courses()
     {
         return Course::orderBy('title')->get(['id', 'title']);

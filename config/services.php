@@ -42,5 +42,13 @@ return [
         'auth_token_key' => env('CLOUDINARY_AUTH_TOKEN_KEY'),
         'auth_token_ttl' => env('CLOUDINARY_AUTH_TOKEN_TTL', 600),
     ],
-
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+    'razorpay' => [
+        'key' => env('RAZORPAY_KEY'),
+        'secret' => env('RAZORPAY_SECRET'),
+    ],
 ];

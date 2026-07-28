@@ -9,7 +9,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-
+use App\Models\Payment;
+use Illuminate\Support\Str;
 class UserOnboardingReport extends Component
 {
     use WithPagination;
@@ -33,11 +34,12 @@ class UserOnboardingReport extends Component
     // ── Detail drawer ───────────────────────────────────────────
     public ?int $viewingId  = null;
     public bool $showDetail = false;
-
+  
+    public $openActionFor = null; // user_id whose action dropdown is open
     public function mount(): void
     {
         abort_unless(
-            in_array(auth()->user()?->role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true),
+            in_array(auth()->user()?->role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN,User::ROLE_MANAGER_HR], true),
             403
         );
     }
@@ -138,8 +140,35 @@ class UserOnboardingReport extends Component
             'policyAcceptances' => fn ($q) => $q->latest('accepted_at'),
             'policyAcceptances.policy',
             'trafficSources'    => fn ($q) => $q->latest('created_at'),
+             'payments' => fn ($q) => $q->latest()->limit(1), 'payments.category', 'payments.course',
         ])->find($this->viewingId);
     }
+   
+ 
+    public function toggleAction($userId): void
+    {
+        // dd($userId);
+        $this->openActionFor = $this->openActionFor === $userId ? null : $userId;
+    }
+ 
+    public function copyLinkFeedback(): void
+    {
+        session()->flash('success', 'Payment link copied — share it with the student.');
+    }
+ 
+    public function regenerateLink($paymentId): void
+    {
+        $payment = Payment::findOrFail($paymentId);
+ 
+        if ($payment->status === Payment::STATUS_SUCCESS) {
+            session()->flash('error', 'This link is already paid — cannot regenerate.');
+            return;
+        }
+ 
+        $payment->update(['token' => Str::random(40)]);
+        session()->flash('success', 'New payment link generated.');
+    }
+ 
 
     public function render()
     {

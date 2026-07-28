@@ -16,6 +16,7 @@ class UserManagementController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('users.index');
         $this->authorizeManager($request);
 
         $actor = $request->user();
@@ -28,23 +29,30 @@ class UserManagementController extends Controller
         $usersQuery = User::query()
             ->when(
                 $actor?->role === User::ROLE_ADMIN,
-                fn ($q) => $q->whereNotIn('role', [User::ROLE_SUPERADMIN, User::ROLE_ADMIN])
+                fn($q) => $q->whereNotIn('role', [User::ROLE_SUPERADMIN, User::ROLE_ADMIN])
             )
-            ->when($statusFilter === 'active', fn ($q) => $q->where('is_active', true))
-            ->when($statusFilter === 'inactive', fn ($q) => $q->where('is_active', false))
-            ->when($roleFilter, fn ($q) => $q->where('role', $roleFilter))
+            ->when($statusFilter === 'active', fn($q) => $q->where('is_active', true))
+            ->when($statusFilter === 'inactive', fn($q) => $q->where('is_active', false))
+            ->when($roleFilter, fn($q) => $q->where('role', $roleFilter))
             ->orderBy('id');
 
-        return view('users.index', [
-            'users' => $usersQuery->paginate(8)->withQueryString(),
-            'roleOptions' => User::roleOptions(),
-            'visibleRoleOptions' => $visibleRoleOptions,
-            'isSuperAdmin' => $actor?->role === User::ROLE_SUPERADMIN,
-            'activeRole' => $roleFilter,
-            'activeStatus' => $statusFilter,
-        ]);
+        return view(
+            'users.index',
+            [
+                'users' => $usersQuery->paginate(8)->withQueryString(),
+                'roleOptions' => User::roleOptions(),
+                'visibleRoleOptions' => $visibleRoleOptions,
+                'isSuperAdmin' => $actor?->role === User::ROLE_SUPERADMIN,
+                'activeRole' => $roleFilter,
+                'activeStatus' => $statusFilter,
+            ]
+        );
     }
-
+    public function show()
+    {
+       
+        return view('users.index');
+    }
     public function store(Request $request): RedirectResponse
     {
         $this->authorizeManager($request);
@@ -241,12 +249,11 @@ class UserManagementController extends Controller
         ?string $plainPassword,
         ?User $actor,
         bool $isResend = false
-    ): bool
-    {
+    ): bool {
         $roleLabel = User::roleOptions()[$managedUser->role] ?? ucfirst((string) $managedUser->role);
         $appName = $this->resolveMailBrandName();
         $loginUrl = route('login');
-        $subject = $isResend ? 'Your account access details' : 'Welcome to '.$appName;
+        $subject = $isResend ? 'Your account access details' : 'Welcome to ' . $appName;
         $html = $this->renderWelcomeCredentialsEmailHtml(
             appName: $appName,
             userName: $managedUser->name,
@@ -304,17 +311,17 @@ class UserManagementController extends Controller
 
         return $this->renderMailShell(
             eyebrow: $isResend ? 'Account Reminder' : 'Account Ready',
-            title: $isResend ? 'Your account access details' : 'Welcome to '.$appName,
+            title: $isResend ? 'Your account access details' : 'Welcome to ' . $appName,
             subtitle: $isResend
                 ? 'Here is a fresh copy of your account access information for the platform.'
                 : 'Your new account is ready. Use the details below to log in and start using the platform.',
-            greeting: 'Hello '.$userName.',',
+            greeting: 'Hello ' . $userName . ',',
             intro: $isResend
-                ? 'Your account access summary for '.$appName.' has been resent below.'
-                : 'Your account has been created successfully for '.$appName.'.',
+                ? 'Your account access summary for ' . $appName . ' has been resent below.'
+                : 'Your account has been created successfully for ' . $appName . '.',
             primaryBoxTitle: 'Login Details',
             primaryRows: $details,
-            metaNote: $createdBy ? ($isResend ? 'Sent by: '.$createdBy : 'Created by: '.$createdBy) : null,
+            metaNote: $createdBy ? ($isResend ? 'Sent by: ' . $createdBy : 'Created by: ' . $createdBy) : null,
             warningText: $warningParts !== [] ? implode(' ', $warningParts) : null,
             actionLabel: 'Login Now',
             actionUrl: $loginUrl,
@@ -323,7 +330,7 @@ class UserManagementController extends Controller
             closing: ! empty($plainPassword)
                 ? 'For security, please change your password after your first login.'
                 : 'Sign in with your current password and keep your account details secure.',
-            footerText: 'This is an automated email from '.$appName.'.'
+            footerText: 'This is an automated email from ' . $appName . '.'
         );
     }
 
@@ -365,20 +372,20 @@ class UserManagementController extends Controller
         })->implode('');
 
         $metaHtml = $metaNote
-            ? '<div style="margin:0 0 14px; padding:11px 13px; border-radius:16px; background:linear-gradient(135deg, rgba(13, 93, 209, 0.08), rgba(122, 92, 255, 0.07)); border:1px solid #d8e1f4; color:#445a78; font-size:13px; line-height:1.65;">'.e($metaNote).'</div>'
+            ? '<div style="margin:0 0 14px; padding:11px 13px; border-radius:16px; background:linear-gradient(135deg, rgba(13, 93, 209, 0.08), rgba(122, 92, 255, 0.07)); border:1px solid #d8e1f4; color:#445a78; font-size:13px; line-height:1.65;">' . e($metaNote) . '</div>'
             : '';
         $warningHtml = $warningText
-            ? '<div style="margin:0 0 16px; padding:12px 14px; border-radius:16px; background:linear-gradient(135deg, #fff8ea, #ffe7b9); border:1px solid #f0d39a; color:#8b5a12; font-size:13px; line-height:1.65; box-shadow:0 10px 18px rgba(240, 179, 90, 0.14);">'.e($warningText).'</div>'
+            ? '<div style="margin:0 0 16px; padding:12px 14px; border-radius:16px; background:linear-gradient(135deg, #fff8ea, #ffe7b9); border:1px solid #f0d39a; color:#8b5a12; font-size:13px; line-height:1.65; box-shadow:0 10px 18px rgba(240, 179, 90, 0.14);">' . e($warningText) . '</div>'
             : '';
         $primaryActionHtml = ($actionLabel && $actionUrl)
-            ? '<div style="margin:0 0 10px;"><a href="'.e($actionUrl).'" style="display:inline-block; padding:11px 20px; border-radius:999px; background:linear-gradient(135deg, #0d5dd1, #7a5cff); color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:0.01em; box-shadow:0 14px 22px rgba(27, 75, 177, 0.22);">'.e($actionLabel).'</a></div>'
+            ? '<div style="margin:0 0 10px;"><a href="' . e($actionUrl) . '" style="display:inline-block; padding:11px 20px; border-radius:999px; background:linear-gradient(135deg, #0d5dd1, #7a5cff); color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:0.01em; box-shadow:0 14px 22px rgba(27, 75, 177, 0.22);">' . e($actionLabel) . '</a></div>'
             : '';
         $secondaryActionHtml = ($secondaryActionLabel && $secondaryActionUrl)
-            ? '<div style="margin:0 0 18px;"><a href="'.e($secondaryActionUrl).'" style="display:inline-block; padding:10px 16px; border-radius:999px; background:linear-gradient(135deg, #fff7e8, #fff2d5); color:#9a5b00; text-decoration:none; font-size:13px; font-weight:700; border:1px solid #f0ddb9; box-shadow:0 10px 16px rgba(240, 179, 90, 0.12);">'.e($secondaryActionLabel).'</a></div>'
+            ? '<div style="margin:0 0 18px;"><a href="' . e($secondaryActionUrl) . '" style="display:inline-block; padding:10px 16px; border-radius:999px; background:linear-gradient(135deg, #fff7e8, #fff2d5); color:#9a5b00; text-decoration:none; font-size:13px; font-weight:700; border:1px solid #f0ddb9; box-shadow:0 10px 16px rgba(240, 179, 90, 0.12);">' . e($secondaryActionLabel) . '</a></div>'
             : '';
         $logoHtml = $logoDataUri !== ''
-            ? '<div style="display:inline-flex; align-items:center; justify-content:center; padding:11px 15px; border-radius:20px; background:radial-gradient(circle at left top, rgba(240, 179, 90, 0.28), rgba(240, 179, 90, 0) 38%), rgba(255,255,255,0.98); box-shadow:0 14px 26px rgba(8, 18, 34, 0.16); border:1px solid rgba(255,255,255,0.55);"><img src="'.$logoDataUri.'" alt="'.$appName.'" style="display:block; width:170px; max-width:100%; height:auto;"></div>'
-            : '<div style="display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">'.$appName.'</div>';
+            ? '<div style="display:inline-flex; align-items:center; justify-content:center; padding:11px 15px; border-radius:20px; background:radial-gradient(circle at left top, rgba(240, 179, 90, 0.28), rgba(240, 179, 90, 0) 38%), rgba(255,255,255,0.98); box-shadow:0 14px 26px rgba(8, 18, 34, 0.16); border:1px solid rgba(255,255,255,0.55);"><img src="' . $logoDataUri . '" alt="' . $appName . '" style="display:block; width:170px; max-width:100%; height:auto;"></div>'
+            : '<div style="display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">' . $appName . '</div>';
         $brandStripHtml = '<div style="margin-top:14px;"><span style="display:inline-block; margin-right:6px; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.15); color:#ffffff; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Learning Hub</span><span style="display:inline-block; margin-right:6px; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(240,179,90,0.2); color:#ffe3a7; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Skill Growth</span><span style="display:inline-block; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(122,92,255,0.18); color:#dfd6ff; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Academic Mantra</span></div>';
 
         return <<<HTML
@@ -463,6 +470,6 @@ HTML;
             return '';
         }
 
-        return 'data:image/webp;base64,'.base64_encode($logoContents);
+        return 'data:image/webp;base64,' . base64_encode($logoContents);
     }
 }

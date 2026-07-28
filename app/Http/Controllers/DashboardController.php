@@ -31,7 +31,9 @@ class DashboardController extends Controller
         if (! $user?->is_active) {
             abort(403, 'Your account is inactive.');
         }
-
+        if ($user->role === User::ROLE_MANAGER_HR) {
+            return redirect()->route('panel.manager_hr');
+        }
         $stats = [
             'users' => User::count(),
             'categories' => CourseCategory::count(),
@@ -43,8 +45,8 @@ class DashboardController extends Controller
             'trainers' => User::where('role', User::ROLE_TRAINER)->count(),
             'live_quizzes' => Schema::hasTable('course_session_items') && Schema::hasColumn('course_session_items', 'is_live')
                 ? CourseSessionItem::where('item_type', CourseSessionItem::TYPE_QUIZ)
-                    ->where('is_live', true)
-                    ->count()
+                ->where('is_live', true)
+                ->count()
                 : 0,
             'pending_reviews' => $this->countLatestPendingReviews(),
             'completed_certificates' => $this->countCompletedCertificates(),
@@ -68,7 +70,6 @@ class DashboardController extends Controller
             $studentPendingActionSummary = $studentDashboard['pendingActionSummary'];
             $studentRecentSubmissions = $studentDashboard['recentSubmissions'];
             $studentCertificates = $studentDashboard['certificates'];
-            
         } else {
             $learningItems = $this->resolveLearningItems($user);
         }
@@ -79,7 +80,7 @@ class DashboardController extends Controller
         }
         $skillProgress = $learningItems
             ->groupBy('category')
-            ->map(fn ($items, $category) => [
+            ->map(fn($items, $category) => [
                 'skill' => $category,
                 'progress' => (int) round($items->avg('progress_percent')),
             ])
@@ -116,7 +117,7 @@ class DashboardController extends Controller
             ->orderByDesc('courses_count')
             ->take(8)
             ->get()
-            ->map(fn (CourseCategory $category): array => [
+            ->map(fn(CourseCategory $category): array => [
                 'name' => $category->name,
                 'count' => (int) $category->courses_count,
             ]);
@@ -157,7 +158,7 @@ class DashboardController extends Controller
                 ->map->first();
 
             $demoAssignments = $userAssignments
-                ->filter(fn (DemoTaskAssignment $assignment): bool => (bool) $assignment->demoTask)
+                ->filter(fn(DemoTaskAssignment $assignment): bool => (bool) $assignment->demoTask)
                 ->values()
                 ->map(function (DemoTaskAssignment $assignment) use ($latestDemoSubmissions) {
                     $task = $assignment->demoTask;
@@ -172,8 +173,8 @@ class DashboardController extends Controller
             $demoTasks = $demoAssignments->pluck('task');
 
             $demoCategories = CourseCategory::with([
-                'courses' => fn ($q) => $q->with(['category', 'subcategory'])->orderBy('title'),
-                'children.courses' => fn ($q) => $q->with(['category', 'subcategory'])->orderBy('title'),
+                'courses' => fn($q) => $q->with(['category', 'subcategory'])->orderBy('title'),
+                'children.courses' => fn($q) => $q->with(['category', 'subcategory'])->orderBy('title'),
             ])->whereNull('parent_id')->orderBy('name')->get();
 
             $demoFeatureVideosQuery = DemoFeatureVideo::query();
@@ -249,8 +250,8 @@ class DashboardController extends Controller
 
         abort_unless(
             $user
-            && $notification->notifiable_type === $user::class
-            && (string) $notification->notifiable_id === (string) $user->getKey(),
+                && $notification->notifiable_type === $user::class
+                && (string) $notification->notifiable_id === (string) $user->getKey(),
             403
         );
 
@@ -613,7 +614,7 @@ class DashboardController extends Controller
             $completedItemIds = $enrollment->progressItems
                 ->whereNotNull('completed_at')
                 ->pluck('course_session_item_id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->values()
                 ->all();
 
@@ -652,16 +653,16 @@ class DashboardController extends Controller
             $hoursDone = round(($hoursTotal * $progressPercent) / 100, 1);
 
             $nextPendingItem = $courseItems->first(
-                fn (array $courseItem) => ! in_array($courseItem['item_id'], $completedItemIds, true)
+                fn(array $courseItem) => ! in_array($courseItem['item_id'], $completedItemIds, true)
             );
 
             $pendingTaskCount = $courseItems->filter(
-                fn (array $courseItem) => $courseItem['item_type'] === CourseSessionItem::TYPE_TASK
+                fn(array $courseItem) => $courseItem['item_type'] === CourseSessionItem::TYPE_TASK
                     && ! in_array($courseItem['item_id'], $completedItemIds, true)
             )->count();
 
             $liveQuizCount = $courseItems->filter(
-                fn (array $courseItem) => $courseItem['item_type'] === CourseSessionItem::TYPE_QUIZ
+                fn(array $courseItem) => $courseItem['item_type'] === CourseSessionItem::TYPE_QUIZ
                     && $courseItem['is_live']
                     && ! in_array($courseItem['item_id'], $completedItemIds, true)
             )->count();
@@ -669,7 +670,7 @@ class DashboardController extends Controller
             $pendingActionItems = $pendingActionItems->merge(
                 $courseItems
                     ->filter(
-                        fn (array $courseItem) => ! in_array($courseItem['item_id'], $completedItemIds, true)
+                        fn(array $courseItem) => ! in_array($courseItem['item_id'], $completedItemIds, true)
                             && (
                                 $courseItem['item_type'] === CourseSessionItem::TYPE_TASK
                                 || ($courseItem['item_type'] === CourseSessionItem::TYPE_QUIZ && $courseItem['is_live'])
@@ -724,7 +725,7 @@ class DashboardController extends Controller
 
         $recentSubmissions = CourseItemSubmission::query()
             ->with(['item.session.week.course', 'reviewer'])
-            ->whereHas('enrollment', fn ($query) => $query->where('student_id', $user->id))
+            ->whereHas('enrollment', fn($query) => $query->where('student_id', $user->id))
             ->latest('submitted_at')
             ->take(5)
             ->get()
@@ -753,7 +754,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        $resumeCourse = $learningItems->first(fn (array $item) => (bool) $item['has_pending_resume'])
+        $resumeCourse = $learningItems->first(fn(array $item) => (bool) $item['has_pending_resume'])
             ?: $learningItems->first();
 
         $resumeItem = $resumeCourse
@@ -772,7 +773,7 @@ class DashboardController extends Controller
             : null;
 
         $pendingActionItems = $pendingActionItems
-            ->sortByDesc(fn (array $item) => $item['item_type'] === CourseSessionItem::TYPE_QUIZ)
+            ->sortByDesc(fn(array $item) => $item['item_type'] === CourseSessionItem::TYPE_QUIZ)
             ->values();
 
         return [
@@ -796,7 +797,7 @@ class DashboardController extends Controller
             'week' => $weekId,
             'session' => $sessionId,
             'item' => $itemId,
-        ]).'#learning-workspace';
+        ]) . '#learning-workspace';
     }
 
     /**

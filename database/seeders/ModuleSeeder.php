@@ -87,7 +87,7 @@ class ModuleSeeder extends Seeder
                         'key'   => 'student-certificates',
                         'label' => 'Certificates',
                         'icon'  => 'fa-solid fa-certificate',
-                        'route' => null, // href="#" in blade — no route yet
+                        'route' => 'student.certificates', // href="#" in blade — no route yet
                         'roles' => ['student'],
                     ],
                 ],
@@ -135,6 +135,7 @@ class ModuleSeeder extends Seeder
                         'route' => null,
                         'roles' => ['superadmin', 'admin', 'manager_hr', 'it'],
                         'children' => [
+
                             [
                                 'key'   => 'course-categories',
                                 'label' => 'Categories',
@@ -142,6 +143,7 @@ class ModuleSeeder extends Seeder
                                 'route' => 'course-categories.index',
                                 'roles' => ['superadmin', 'admin', 'manager_hr', 'it'],
                             ],
+
                             [
                                 'key'   => 'all-courses',
                                 'label' => 'All Courses',
@@ -149,6 +151,46 @@ class ModuleSeeder extends Seeder
                                 'route' => 'courses.index',
                                 'roles' => ['superadmin', 'admin', 'manager_hr', 'it'],
                             ],
+
+                            [
+                                'key'   => 'course-weeks',
+                                'label' => 'Course Weeks',
+                                'icon'  => 'ti ti-calendar-week',
+                                'route' => 'admin.courses.weeks',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
+                            [
+                                'key'   => 'course-sessions',
+                                'label' => 'Course Sessions',
+                                'icon'  => 'ti ti-video',
+                                'route' => 'admin.courses.sessions',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
+                            [
+                                'key'   => 'course-certificates',
+                                'label' => 'Certificates',
+                                'icon'  => 'ti ti-certificate',
+                                'route' => 'admin.courses.certificates',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
+                            [
+                                'key'   => 'approved-certificates',
+                                'label' => 'Approved Certificates',
+                                'icon'  => 'ti ti-check',
+                                'route' => 'admin.certificates',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+                            [
+                                'key'   => 'course-seats',
+                                'label' => 'Course Seats',
+                                'icon'  => 'ti ti-users',
+                                'route' => 'admin.courses.seats',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
                         ],
                     ],
                 ],
@@ -203,6 +245,7 @@ class ModuleSeeder extends Seeder
                         'route' => null,
                         'roles' => ['superadmin', 'admin'],
                         'children' => [
+
                             [
                                 'key'   => 'activity-logs',
                                 'label' => 'Activity Logs',
@@ -210,6 +253,7 @@ class ModuleSeeder extends Seeder
                                 'route' => 'activity-logs.index',
                                 'roles' => ['superadmin', 'admin'],
                             ],
+
                             [
                                 'key'   => 'users',
                                 'label' => 'User Control',
@@ -217,6 +261,7 @@ class ModuleSeeder extends Seeder
                                 'route' => 'users.index',
                                 'roles' => ['superadmin', 'admin'],
                             ],
+
                             [
                                 'key'   => 'broadcast-notifications',
                                 'label' => 'Broadcast',
@@ -224,13 +269,39 @@ class ModuleSeeder extends Seeder
                                 'route' => 'broadcast-notifications.index',
                                 'roles' => ['superadmin', 'admin'],
                             ],
+
                             [
                                 'key'   => 'brochure',
                                 'label' => 'Brochure',
-                                'icon'  => 'ti ti-speakerphone',
+                                'icon'  => 'ti ti-file-text',
                                 'route' => 'admin.brocheres',
                                 'roles' => ['superadmin', 'admin'],
                             ],
+
+                            [
+                                'key'   => 'nav-items',
+                                'label' => 'Navigation Items',
+                                'icon'  => 'ti ti-menu-2',
+                                'route' => 'admin.nav-items.index',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
+                            [
+                                'key'   => 'modules',
+                                'label' => 'Modules',
+                                'icon'  => 'ti ti-layout-grid',
+                                'route' => 'admin.nav-items.modules',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
+                            [
+                                'key'   => 'permissions',
+                                'label' => 'Roles & Permissions',
+                                'icon'  => 'ti ti-lock-access',
+                                'route' => 'admin.permissions.index',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
+
                         ],
                     ],
                 ],

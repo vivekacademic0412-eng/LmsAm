@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
+use Illuminate\Support\Carbon;
+
 class PanelController extends Controller
 {
     public function show(Request $request, string $role): View
@@ -62,7 +64,7 @@ class PanelController extends Controller
                 ->get();
 
             $rows = $enrollments->map(function (CourseEnrollment $enrollment) {
-                $totalItems = CourseSessionItem::whereHas('session.week', fn ($q) => $q->where('course_id', $enrollment->course_id))->count();
+                $totalItems = CourseSessionItem::whereHas('session.week', fn($q) => $q->where('course_id', $enrollment->course_id))->count();
                 $completedItems = $enrollment->progressItems->whereNotNull('completed_at')->count();
                 $progressPercent = $totalItems > 0 ? (int) floor(($completedItems / $totalItems) * 100) : 0;
 
@@ -112,6 +114,63 @@ class PanelController extends Controller
         ]);
     }
 
+
+    public function buildManagershowHrPanelData(): array
+    {
+        $totalStudents = User::where('role', User::ROLE_STUDENT)->count();
+
+        $enrollments = CourseEnrollment::with(['course', 'student', 'progressItems'])->get();
+
+        $userRows = $enrollments->map(function (CourseEnrollment $enrollment) {
+            $totalItems = CourseSessionItem::whereHas(
+                'session.week',
+                fn($q) => $q->where('course_id', $enrollment->course_id)
+            )->count();
+
+            $completedItems = $enrollment->progressItems->whereNotNull('completed_at')->count();
+            $progressPercent = $totalItems > 0 ? (int) floor(($completedItems / $totalItems) * 100) : 0;
+
+            $lastActivity = $enrollment->progressItems->max('completed_at');
+            $lastActivity = $lastActivity ? Carbon::parse($lastActivity) : null;
+
+            $status = match (true) {
+                $progressPercent >= 100                                  => 'completed',
+                $progressPercent === 0                                    => 'not_started',
+                $lastActivity && $lastActivity->lt(now()->subDays(7))     => 'at_risk',
+                default                                                    => 'in_progress',
+            };
+
+            return [
+                'student'          => $enrollment->student,
+                'course'           => $enrollment->course,
+                'progress_percent' => $progressPercent,
+                'completed_items'  => $completedItems,
+                'total_items'      => $totalItems,
+                'last_activity'    => $lastActivity,
+                'status'           => $status,
+            ];
+        })->sortByDesc(fn($row) => $row['last_activity'])->values();
+
+        $pipeline = [
+            'not_started' => $userRows->where('status', 'not_started')->count(),
+            'in_progress' => $userRows->where('status', 'in_progress')->count(),
+            'at_risk'     => $userRows->where('status', 'at_risk')->count(),
+            'completed'   => $userRows->where('status', 'completed')->count(),
+        ];
+
+        return [
+            'hrStats' => [
+                'total_students'    => $totalStudents,
+                'total_enrollments' => $enrollments->count(),
+                'avg_progress'      => (int) round($userRows->avg('progress_percent') ?? 0),
+                'completed'         => $pipeline['completed'],
+            ],
+            'hrPipeline'      => $pipeline,
+            'hrUserRows'      => $userRows,
+            'hrAtRiskUsers'   => $userRows->where('status', 'at_risk')->sortBy('progress_percent')->values(),
+            'hrTopPerformers' => $userRows->sortByDesc('progress_percent')->take(5)->values(),
+        ];
+    }
     public function exportManagerHrReport(Request $request, string $report, string $format): Response
     {
         $user = $request->user();
@@ -162,7 +221,7 @@ class PanelController extends Controller
 
             return response($pdf->output(), 200, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
                 'X-Content-Type-Options' => 'nosniff',
             ]);
         }
@@ -173,7 +232,7 @@ class PanelController extends Controller
                 'exportMode' => 'xls',
             ], 200, [
                 'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
-                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
                 'X-Content-Type-Options' => 'nosniff',
             ]);
     }
@@ -193,10 +252,10 @@ class PanelController extends Controller
         $enrollmentRows = $dataset['enrollment_rows'];
         $progressSummary = $dataset['progress_summary'];
         $attentionRows = $enrollmentRows
-            ->filter(fn (array $row): bool => filled($row['follow_up_reason']))
-            ->sortByDesc(fn (array $row): int => ($row['follow_up_priority'] * 10000000000) + $row['assigned_at_timestamp'])
+            ->filter(fn(array $row): bool => filled($row['follow_up_reason']))
+            ->sortByDesc(fn(array $row): int => ($row['follow_up_priority'] * 10000000000) + $row['assigned_at_timestamp'])
             ->take(8)
-            ->map(fn (array $row): array => [
+            ->map(fn(array $row): array => [
                 'learner_name' => $row['learner_name'],
                 'course_title' => $row['course_title'],
                 'trainer_name' => $row['trainer_name'],
@@ -209,7 +268,7 @@ class PanelController extends Controller
 
         $recentAssignments = $enrollmentRows
             ->take(8)
-            ->map(fn (array $row): array => [
+            ->map(fn(array $row): array => [
                 'learner_name' => $row['learner_name'],
                 'learner_email' => $row['learner_email'],
                 'course_title' => $row['course_title'],
@@ -319,7 +378,7 @@ class PanelController extends Controller
                 ->latest('id')
                 ->take(8)
                 ->get()
-                ->map(fn (ActivityLog $log): array => [
+                ->map(fn(ActivityLog $log): array => [
                     'actor' => $log->actorName(),
                     'role' => $log->actorRoleLabel() ?? 'Role unavailable',
                     'action' => $log->actionLabel(),
@@ -335,7 +394,7 @@ class PanelController extends Controller
                 ->latest('id')
                 ->take(8)
                 ->get()
-                ->map(fn (ActivityLog $log): array => [
+                ->map(fn(ActivityLog $log): array => [
                     'module' => $log->module,
                     'actor' => $log->actorName(),
                     'action' => $log->actionLabel(),
@@ -398,7 +457,7 @@ class PanelController extends Controller
                 ],
                 [
                     'label' => 'Secure Content Coverage',
-                    'state' => $secureMediaCount > 0 ? number_format($secureMediaCount).' item(s)' : 'No secure assets',
+                    'state' => $secureMediaCount > 0 ? number_format($secureMediaCount) . ' item(s)' : 'No secure assets',
                     'tone' => $secureMediaCount > 0 ? 'ok' : 'muted',
                     'detail' => $secureMediaCount > 0
                         ? 'Protected course assets are already available in the catalog.'
@@ -496,7 +555,7 @@ class PanelController extends Controller
                     ['key' => 'latest_course_title', 'label' => 'Latest Course'],
                     ['key' => 'latest_assigned_at', 'label' => 'Latest Assignment'],
                 ],
-                'rows' => $inactiveLearners->map(fn (array $row): array => [
+                'rows' => $inactiveLearners->map(fn(array $row): array => [
                     'learner_name' => $row['learner_name'],
                     'learner_email' => $row['learner_email'],
                     'enrollments_count' => $row['enrollments_count'],
@@ -525,7 +584,7 @@ class PanelController extends Controller
                     ['key' => 'progress_state', 'label' => 'Completion Status'],
                     ['key' => 'certificate_status', 'label' => 'Certificate'],
                 ],
-                'rows' => $rows->map(fn (array $row): array => [
+                'rows' => $rows->map(fn(array $row): array => [
                     'learner_name' => $row['learner_name'],
                     'course_title' => $row['course_title'],
                     'category_name' => $row['category_name'],
@@ -542,7 +601,7 @@ class PanelController extends Controller
                 'generated_at' => now()->format('d M Y h:i A'),
                 'summary' => [
                     ['label' => 'Certificate Ready', 'value' => $rows->where('certificate_ready', true)->count()],
-                    ['label' => 'Average Progress', 'value' => $progressSummary['average_progress'].'%'],
+                    ['label' => 'Average Progress', 'value' => $progressSummary['average_progress'] . '%'],
                     ['label' => 'Total Completed Certificates', 'value' => $progressSummary['completed_certificates']],
                 ],
                 'columns' => [
@@ -557,7 +616,7 @@ class PanelController extends Controller
                 ],
                 'rows' => $rows
                     ->where('certificate_ready', true)
-                    ->map(fn (array $row): array => [
+                    ->map(fn(array $row): array => [
                         'learner_name' => $row['learner_name'],
                         'learner_email' => $row['learner_email'],
                         'course_title' => $row['course_title'],
@@ -576,8 +635,8 @@ class PanelController extends Controller
                 'generated_at' => now()->format('d M Y h:i A'),
                 'summary' => [
                     ['label' => 'Enrollments', 'value' => $rows->count()],
-                    ['label' => 'Average Progress', 'value' => $progressSummary['average_progress'].'%'],
-                    ['label' => 'Needs Follow-up', 'value' => $rows->filter(fn (array $row): bool => filled($row['follow_up_reason']))->count()],
+                    ['label' => 'Average Progress', 'value' => $progressSummary['average_progress'] . '%'],
+                    ['label' => 'Needs Follow-up', 'value' => $rows->filter(fn(array $row): bool => filled($row['follow_up_reason']))->count()],
                 ],
                 'columns' => [
                     ['key' => 'learner_name', 'label' => 'Learner'],
@@ -591,7 +650,7 @@ class PanelController extends Controller
                     ['key' => 'progress_state', 'label' => 'Status'],
                     ['key' => 'assigned_at', 'label' => 'Assigned At'],
                 ],
-                'rows' => $rows->map(fn (array $row): array => [
+                'rows' => $rows->map(fn(array $row): array => [
                     'learner_name' => $row['learner_name'],
                     'learner_email' => $row['learner_email'],
                     'account_status' => $row['account_status'],
@@ -681,7 +740,7 @@ class PanelController extends Controller
                     'completed_items' => $progress['completed_items'],
                     'total_items' => $progress['total_items'],
                     'progress_label' => $progress['total_items'] > 0
-                        ? $progress['completed_items'].' / '.$progress['total_items'].' items'
+                        ? $progress['completed_items'] . ' / ' . $progress['total_items'] . ' items'
                         : 'No lesson items yet',
                     'progress_state' => $progressState,
                     'follow_up_reason' => $reason,
@@ -733,7 +792,7 @@ class PanelController extends Controller
                 ->orderBy('course_categories.name')
                 ->limit(6)
                 ->get()
-                ->map(fn ($row): array => [
+                ->map(fn($row): array => [
                     'name' => (string) $row->name,
                     'enrollments_count' => (int) $row->enrollments_count,
                     'course_count' => (int) $row->course_count,
@@ -806,7 +865,7 @@ class PanelController extends Controller
             'rows' => $rows,
             'average_progress' => (int) round((float) $rows->avg('progress_percent')),
             'completed_certificates' => $rows
-                ->filter(fn (array $row): bool => $row['total_items'] > 0 && $row['progress_percent'] >= 100)
+                ->filter(fn(array $row): bool => $row['total_items'] > 0 && $row['progress_percent'] >= 100)
                 ->count(),
         ];
     }

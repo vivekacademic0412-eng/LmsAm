@@ -34,6 +34,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CoureManagerController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\PaymentLinkController;
+use App\Http\Controllers\PaymentVerifyController;
+use App\Livewire\Student\PaymentCheckout;
+use App\Livewire\Student\PaymentSuccess;
 use Illuminate\Http\Request;
 // Route::get('/', function () {
 //     return redirect()->route('lms.landing');
@@ -81,9 +86,9 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
     Route::put('/course-item-submissions/{submission}/review', [CourseItemSubmissionController::class, 'review'])
         ->name('course-item-submissions.review');
 
-    Route::middleware('role:superadmin,admin')->group(function (): void {
-        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-
+    Route::middleware('role:superadmin,admin,manager_hr')->group(function (): void {
+        // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users-control', [UserManagementController::class, 'show'])->name('users.index');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::put('/users/{managedUser}', [UserManagementController::class, 'update'])->name('users.update');
         Route::delete('/users/{managedUser}', [UserManagementController::class, 'destroy'])->name('users.destroy');
@@ -358,9 +363,20 @@ Route::get('thank-you/{user}', [AuthController::class, 'Thankyou'])
     ->name('landing.thankyou');
 
 
-Route::middleware(['auth', 'role:superadmin,admin',])->prefix('admin/courses')->name('admin.courses.')->group(function () {
+Route::middleware(['auth', 'role:superadmin,admin,manager_hr',])->prefix('admin/courses')->name('admin.courses.')->group(function () {
     Route::get('weeks',        [CoureManagerController::class,'weeks'])->name('weeks');
     Route::get('sessions',     [CoureManagerController::class,'sessions'])->name('sessions');
     Route::get('certificates',[ CoureManagerController::class,'certificates'])->name('certificates');
     Route::get('seats',        [CoureManagerController::class,'seats'])->name('seats');
 });
+
+
+Route::get('/auth/google', [GoogleController::class, 'redirect'])
+    ->name('google.login');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+Route::get('/test-google', function () {
+    dd(config('services.google'));
+});
+Route::get('pay/{token}', [PaymentLinkController::class,'Checkout'])->name('payment.checkout');
+Route::get('pay/{token}/success', [PaymentLinkController::class,'Success'])->name('payment.success');
+Route::post('pay/verify', PaymentVerifyController::class)->name('payment.verify');
