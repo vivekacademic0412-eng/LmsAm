@@ -98,7 +98,7 @@ class LeadRegistrationController extends Controller
 
                         $user = Lead::create([
                             'lead_type'         => 'campanion',
-                            'name'              => $validated['contact_name'],
+                            'name'              => $validated['name'],
                             'email'             => $email,
                             'phone'             => $validated['phone'],
                             'designation'       => $validated['designation'] ?? null,

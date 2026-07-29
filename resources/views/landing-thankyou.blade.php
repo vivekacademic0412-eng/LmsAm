@@ -387,14 +387,14 @@
             @isset($user->email)
                 <span class="ty-email">{{ $user->email }}</span>
             @endisset
-            has been verified successfully and your demo request is confirmed.
+            has been verified successfully and your  request is confirmed.
         </p>
 
         <div class="ty-eta">
             <div class="ty-eta-icon"><i class="fa-solid fa-clock"></i></div>
             <div class="ty-eta-text">
                 <strong>Our team will connect with you within 24 hours</strong><br>
-                to help you get started with your demo access.
+                to help you get started with your  access.
             </div>
         </div>
 
