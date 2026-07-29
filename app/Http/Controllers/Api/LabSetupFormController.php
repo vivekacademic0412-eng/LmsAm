@@ -136,6 +136,7 @@ class LabSetupFormController extends Controller
                             'designation'       => $validated['designation'] ?? null,
                             'traffic_source_id' => $trafficSource->id,
                             'status'            => 'New',
+                           'email_verified_at' => null,
                         ]);
 
                         $registrationOutcome = 'created';
@@ -209,7 +210,7 @@ class LabSetupFormController extends Controller
             }
 
             // Existing but unverified → resend verification, lab data saved.
-            if (!$user->hasVerifiedEmail()) {
+           if ($user && !$user->email_verified_at) {
                 $this->sendVerificationEmail($user, null);
 
                 return response()->json([

@@ -174,7 +174,7 @@ class User extends Authenticatable
         $this->notify(new VerifyEmailNotification());
     }
     public function paymentLinks()
-{
-    return $this->hasMany(\App\Models\Payment::class);
-}
+    {
+        return $this->hasMany(\App\Models\Payment::class);
+    }
 }

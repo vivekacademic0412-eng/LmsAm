@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Lead;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 
@@ -23,7 +23,7 @@ class VerifyEmailController extends Controller
         // The 'signed' route middleware already rejects a tampered or
         // expired URL before this method runs — this is a second,
         // explicit check on the hash itself for defense in depth.
-        $user = User::findOrFail($id);
+        $user = Lead::findOrFail($id);
 
         if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             abort(403, 'Invalid verification link.');

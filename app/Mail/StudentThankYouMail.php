@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Lead;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,7 +11,7 @@ class StudentThankYouMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public User $user;
+    public Lead $user;
     public string $verificationUrl;
     public ?string $password;
 
@@ -21,7 +21,7 @@ class StudentThankYouMail extends Mailable
      * just omit the argument when constructing the mailable — the block is
      * wrapped in @isset($password) and will simply not render.
      */
-    public function __construct(User $user, string $verificationUrl, ?string $password = null)
+    public function __construct(Lead $user, string $verificationUrl, ?string $password = null)
     {
         $this->user = $user;
         $this->verificationUrl = $verificationUrl;

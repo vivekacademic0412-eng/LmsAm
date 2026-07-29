@@ -234,14 +234,9 @@ class LeadRegistrationController extends Controller
                 // if this array is missing a field or has an unexpected
                 // null, you'll see it here before the DB call even runs.
                 Log::info('TrafficSource attributes resolved', $attributes);
-
                 $trafficSource = TrafficSource::create($attributes);
-
                 Log::info('TrafficSource created', ['id' => $trafficSource->id]);
-
                 $user = User::whereEmail($email)->first();
-
-
                 $registrationOutcome = 'existing';
                 $generatedPassword = null;
                 if (!$user) {
@@ -255,6 +250,7 @@ class LeadRegistrationController extends Controller
                             'designation'       => $validated['designation'] ?? null,
                             'traffic_source_id' => $trafficSource->id,
                             'status'            => 'New',
+                            'email_verified_at' => null,
                         ]);
 
                         $registrationOutcome = 'created';
@@ -272,7 +268,6 @@ class LeadRegistrationController extends Controller
                 }
 
                 $trafficSource->update([
-
                     'lead_id'      => $user->id,
                     'lead_type'    => 'lab',
                 ]);
@@ -298,7 +293,7 @@ class LeadRegistrationController extends Controller
                 ], 201);
             }
 
-            if (!$user->hasVerifiedEmail()) {
+           if ($user && !$user->email_verified_at) {
                 $this->sendVerificationEmail($user, null);
                 return response()->json([
                     'success' => true,
