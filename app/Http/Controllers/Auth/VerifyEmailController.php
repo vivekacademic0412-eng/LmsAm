@@ -34,8 +34,9 @@ class VerifyEmailController extends Controller
                     ->with('success', 'Your email is already verified.');
             }
 
-            return redirect()->route('landing.thankyou')
-                ->with('success', 'Your email is already verified.');
+            return redirect()->route('landing.thankyou', [
+    'user' => $user,
+])->with('success', 'Your email is already verified.');
         }
 
         // Actually verify email
@@ -54,7 +55,8 @@ class VerifyEmailController extends Controller
                 ->with('success', 'Email verified successfully! You can now log in.');
         }
 
-        return redirect()->route('landing.thankyou')
-            ->with('success', 'Thank you! Our team will contact you shortly.');
+      return redirect()->route('landing.thankyou', [
+    'user' => $user,
+])->with('success', 'Your email is already verified.');
     }
 }
