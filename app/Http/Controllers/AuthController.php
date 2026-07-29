@@ -279,7 +279,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function Thankyou(User $user)
+    public function Thankyou(Lead $user)
     {
         return view('landing-thankyou', compact('user'));
     }

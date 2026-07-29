@@ -20,33 +20,36 @@ class VerifyEmailController extends Controller
      */
     public function __invoke(Request $request, int $id, string $hash)
     {
-        // The 'signed' route middleware already rejects a tampered or
-        // expired URL before this method runs — this is a second,
-        // explicit check on the hash itself for defense in depth.
         $user = Lead::findOrFail($id);
 
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
             abort(403, 'Invalid verification link.');
         }
 
+        // Already verified
         if ($user->hasVerifiedEmail()) {
-            return redirect()->route('login')
-                ->with('success', 'Your email is already verified. Please log in.');
-        }
-        // LMS Registration
-        if ($user->registration_source === 'lms') {
-            return redirect()->route('login')
-                ->with('success', 'Email verified successfully! You can now log in.');
-        }
-        // Landing Page Registration
 
-        // This is the line that actually sets email_verified_at = now()
-        // and saves the model.
+            if ($user->registration_source === 'lms') {
+                return redirect()->route('login')
+                    ->with('success', 'Your email is already verified.');
+            }
+
+            return redirect()->route('landing.thankyou')
+                ->with('success', 'Your email is already verified.');
+        }
+
+        // Actually verify email
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-       return redirect()->route('landing.thankyou', $user)
+        // Redirect based on source
+        if ($user->registration_source === 'lms') {
+            return redirect()->route('login')
+                ->with('success', 'Email verified successfully! You can now log in.');
+        }
+
+        return redirect()->route('landing.thankyou')
             ->with('success', 'Thank you! Our team will contact you shortly.');
     }
 }
