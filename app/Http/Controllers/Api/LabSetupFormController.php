@@ -284,10 +284,10 @@ class LabSetupFormController extends Controller
      * this flow was modeled on), delete this method and use that one
      * instead so both endpoints stay in sync.
      *
-     * @param  User        $user
+     * @param  Lead        $user
      * @param  string|null $plainPassword  Included only for brand-new accounts.
      */
-    protected function sendVerificationEmail(User $user, ?string $plainPassword): void
+    protected function sendVerificationEmail(Lead $user, ?string $plainPassword): void
     {
         // Laravel's built-in "verify your email" notification.
         // If you need the plaintext password included in the email body,
