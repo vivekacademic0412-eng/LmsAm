@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\LabSetupForm;
+use App\Models\Lead;
 use App\Models\TrafficSource;
 use App\Models\User;
 use Illuminate\Database\QueryException;
@@ -118,39 +119,47 @@ class LabSetupFormController extends Controller
                 // -----------------------------------------------------
                 // Find-or-create the user tied to this submission.
                 // -----------------------------------------------------
-                $user = User::whereEmail($email)->first();
+                $user = Lead::whereEmail($email)->first();
                 $registrationOutcome = 'existing';
                 $generatedPassword = null;
-
                 if (!$user) {
-                    $generatedPassword = 'AM@2026' . $validated['contact_name'];
+
+                   
 
                     try {
-                        $user = User::create([
-                            'name'      => $validated['contact_name'],
-                            'email'     => $email,
-                            'contact'   => $validated['phone'],
-                            'password'  => Hash::make($generatedPassword),
-                            'role'      => User::ROLE_STUDENT,
-                            'is_active' => true,
+
+                        $user = Lead::create([
+                            'lead_type'         => 'lab',
+                            'name'              => $validated['contact_name'],
+                            'email'             => $email,
+                            'phone'             => $validated['phone'],
+                            'designation'       => $validated['designation'] ?? null,
+                            'traffic_source_id' => $trafficSource->id,
+                            'status'            => 'New',
                         ]);
+
                         $registrationOutcome = 'created';
                     } catch (QueryException $e) {
-                        if ((int) $e->getCode() === 23000) {
-                            Log::warning('Duplicate email race condition caught', ['email' => $email]);
-                            $user = User::whereEmail($email)->first();
+
+                        if ((int)$e->getCode() === 23000) {
+
+                            $user = Lead::whereEmail($email)->first();
+
                             $registrationOutcome = 'existing';
-                            $generatedPassword = null;
                         } else {
                             throw $e;
                         }
                     }
                 }
 
-                $trafficSource->update(['demo_user_id' => $user->id]);
+                $trafficSource->update([
+
+                    'lead_id'      => $user->id,
+                    'lead_type'    => 'lab',
+                ]);
                 Log::info('TrafficSource linked to user', [
                     'traffic_source_id' => $trafficSource->id,
-                    'user_id'           => $user->id,
+                    'lead_id'           => $user->id,
                     'outcome'           => $registrationOutcome,
                 ]);
 
@@ -161,7 +170,7 @@ class LabSetupFormController extends Controller
                 $labForm = LabSetupForm::create(array_merge(
                     $validated,
                     [
-                        'user_id'           => $user->id,
+                        'lead_id'           => $user->id,
                         'traffic_source_id' => $trafficSource->id,
                         'synced_to_lms'     => true,
                         'lms_reference_id'  => 'LMS-' . strtoupper(uniqid()),
@@ -170,7 +179,7 @@ class LabSetupFormController extends Controller
 
                 Log::info('LabSetupForm created and linked', [
                     'lab_setup_form_id' => $labForm->id,
-                    'user_id'           => $user->id,
+                    'lead_id'           => $user->id,
                     'traffic_source_id' => $trafficSource->id,
                 ]);
 

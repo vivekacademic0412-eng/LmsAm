@@ -231,4 +231,8 @@ class TrafficSource extends Model
         }
         return $this->source ?: 'Direct / Unknown';
     }
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
+    }
 }
