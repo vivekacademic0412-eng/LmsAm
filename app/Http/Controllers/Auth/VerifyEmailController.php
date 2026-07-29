@@ -27,7 +27,7 @@ class VerifyEmailController extends Controller
         }
 
         // Already verified
-        if ($user->hasVerifiedEmail()) {
+        if (!is_null($user->email_verified_at)) {
 
             if ($user->registration_source === 'lms') {
                 return redirect()->route('login')
