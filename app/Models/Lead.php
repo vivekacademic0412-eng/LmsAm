@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Notifications\VerifyEmailNotification;
 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 class Lead extends Model
 {
+     use Notifiable;
+   
     use HasFactory;
 
     protected $fillable = [
