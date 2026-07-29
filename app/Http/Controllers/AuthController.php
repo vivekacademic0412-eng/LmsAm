@@ -282,7 +282,7 @@ class AuthController extends Controller
 
     public function Thankyou(Lead $user)
     {
-        dd('okk');
+      
         return view('landing-thankyou', compact('user'));
     }
 }
