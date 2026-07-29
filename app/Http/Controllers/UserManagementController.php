@@ -16,7 +16,7 @@ class UserManagementController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('users.index');
+        return view('leads.index');
         $this->authorizeManager($request);
 
         $actor = $request->user();

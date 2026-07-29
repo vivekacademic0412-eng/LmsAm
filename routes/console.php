@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -10,5 +11,6 @@ Artisan::command('inspire', function () {
 
 Schedule::command('report:daily-students')
     ->dailyAt('09:00')
-    ->timezone('Asia/Kolkata');
- 
+    ->timezone('Asia/Kolkata')
+    ->withoutOverlapping()
+    ->onFailure(fn () => Log::error('Daily student report schedule failed to run.'));

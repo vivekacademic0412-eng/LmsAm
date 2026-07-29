@@ -209,6 +209,13 @@ class ModuleSeeder extends Seeder
                         'roles' => ['superadmin', 'admin'],
                         'children' => [
                             [
+                                'key'   => 'leads',
+                                'label' => 'Leads',
+                                'icon'  => 'ti ti-users',
+                                'route' => 'leads.index',
+                                'roles' => ['superadmin', 'admin','manager_hr'],
+                            ],
+                            [
                                 'key'   => 'enrollments',
                                 'label' => 'Enrollments',
                                 'icon'  => 'ti ti-clipboard-list',

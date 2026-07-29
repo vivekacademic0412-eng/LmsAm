@@ -27,23 +27,7 @@
                 Daily Student Registration Summary
             </h2>
 
-            <!-- Greeting -->
-            <p style="
-                margin:0 0 15px;
-                font-size:15px;
-                color:#1F2937;
-                font-weight:600;">
-                Good Morning Ma'am,
-            </p>
-
-            <p style="
-                margin:0 0 15px;
-                font-size:15px;
-                line-height:26px;
-                color:#4B5563;">
-                I hope you are doing well.
-            </p>
-
+           
             <p style="
                 margin:0 0 20px;
                 font-size:15px;
@@ -105,56 +89,8 @@
 
             </table>
 
-            <!-- Excel Details -->
-            <table width="100%" cellpadding="15" cellspacing="0"
-                style="
-                background:#FFF8F1;
-                border-left:5px solid #F58220;
-                border-radius:8px;
-                margin-top:20px;">
-
-                <tr>
-                    <td>
-
-                        <p style="
-                            margin:0 0 12px;
-                            font-size:16px;
-                            font-weight:bold;
-                            color:#0B3D91;">
-                             The Attached Excel Report Includes
-                        </p>
-
-                        <ul style="
-                            margin:0;
-                            padding-left:20px;
-                            color:#4B5563;
-                            line-height:28px;">
-
-                            <li>Student ID</li>
-                            <li>Student Name</li>
-                            <li>Email Address</li>
-                            <li>Mobile Number</li>
-                            <li>Course Name</li>
-                            <li>Registration / Traffic Source</li>
-                            <li>Payment Status</li>
-                            <li>Registration Date &amp; Time</li>
-
-                        </ul>
-
-                    </td>
-                </tr>
-
-            </table>
-
-            <p style="
-                margin-top:25px;
-                font-size:15px;
-                line-height:26px;
-                color:#4B5563;">
-                Kindly review the attached report for complete details.
-                If any additional information or analysis is required, please let us know.
-            </p>
-
+         
+           
             <!-- Footer -->
             <table width="100%" cellpadding="0" cellspacing="0"
                 style="

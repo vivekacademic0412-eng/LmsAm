@@ -88,6 +88,7 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
 
     Route::middleware('role:superadmin,admin,manager_hr')->group(function (): void {
         // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+          Route::get('/leads', [UserManagementController::class, 'index'])->name('leads.index');
         Route::get('/users-control', [UserManagementController::class, 'show'])->name('users.index');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::put('/users/{managedUser}', [UserManagementController::class, 'update'])->name('users.update');

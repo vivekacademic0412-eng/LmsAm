@@ -292,7 +292,7 @@
                                                 </td>
 
                                                 <td align="right" valign="top">
-                                                    <img src="{{ $logoUrl ?? 'https://www.academicmantraservices.com/theme/images/logo.png' }}"
+                                                    <img src="{{ $message->embed(public_path('theme/images/new-logo.png')) }}"
                                                         alt="Academic Mantra Services" width="42"
                                                         style="height:42px;width:auto;opacity:.85;">
                                                 </td>

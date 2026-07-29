@@ -29,7 +29,7 @@ class LeadRegistrationController extends Controller
         'Java · Angular · Android',
     ];
 
-    
+
     public function __invoke(Request $request)
     {
         // ---------------------------------------------------------------
@@ -102,6 +102,7 @@ class LeadRegistrationController extends Controller
                             'email'             => $email,
                             'phone'             => $validated['phone'],
                             'designation'       => $validated['designation'] ?? null,
+                            'message'       => $validated['track'] ?? null,
                             'traffic_source_id' => $trafficSource->id,
                             'status'            => 'New',
                             'email_verified_at' => null,
@@ -131,7 +132,7 @@ class LeadRegistrationController extends Controller
                     'traffic_source_id' => $trafficSource->id,
                 ]);
 
-                return ['outcome' => 'created', 'user' => $user, ];
+                return ['outcome' => 'created', 'user' => $user,];
             });
 
             $user = $result['user'];
@@ -147,7 +148,7 @@ class LeadRegistrationController extends Controller
                 ], 201);
             }
 
-           if ($user && !$user->email_verified_at) {
+            if ($user && !$user->email_verified_at) {
                 $this->sendVerificationEmail($user, null);
                 return response()->json([
                     'success' => true,

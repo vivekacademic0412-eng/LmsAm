@@ -4,91 +4,131 @@ namespace App\Console\Commands;
 
 use App\Exports\DailyStudentReportExport;
 use App\Mail\DailyStudentSummaryMail;
-use App\Models\User;
+use App\Models\Lead;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class SendDailyStudentReport extends Command
 {
-    protected $signature = 'report:daily-students';
+    /**
+     * --date lets you re-run/backfill a specific day for testing
+     * without waiting for the schedule, e.g.:
+     *   php artisan report:daily-students --date=2026-07-28
+     */
+    protected $signature = 'report:daily-students {--date= : Report date (Y-m-d), defaults to yesterday}';
 
     protected $description = 'Send Daily Student Registration Report';
 
+    protected const RECIPIENT = 'rajkeins@gmail.com';
+    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com'];
+
     public function handle()
     {
-        $today = Carbon::today();
+        // Report on the full previous day, not "today so far". Running at
+        // 9 AM against Carbon::today() only ever captured leads from
+        // midnight-9AM and permanently missed everyone who signed up later
+        // that day — this is the fix for "don't miss any lead".
+        $reportDate = $this->option('date')
+            ? Carbon::parse($this->option('date'))
+            : Carbon::yesterday();
 
-        // Get today's users with traffic source
-        $users = User::with('trafficSources')
-            ->whereDate('created_at', $today)
-            ->get();
+        $from = $reportDate->copy()->startOfDay();
+        $to   = $reportDate->copy()->endOfDay();
 
-        // Count traffic sources
-        $google = 0;
-        $website = 0;
-        $facebook = 0;
-        $other = 0;
+        try {
+            $leads = Lead::with('trafficSource') // was 'trafficSources' — didn't exist, threw
+                ->whereBetween('created_at', [$from, $to])
+                ->get();
 
-        foreach ($users as $user) {
+            $summary = $this->buildSummary($leads);
 
-            $source = strtolower(optional($user->trafficSources->first())->utm_source ?? 'other');
+            $fileName = 'daily_student_report_' . $reportDate->format('d-m-Y') . '.xlsx';
 
-            switch ($source) {
-                case 'google':
-                    $google++;
-                    break;
+            Excel::store(
+                new DailyStudentReportExport($from, $to),
+                $fileName,
+                'local'
+            );
 
-                case 'website':
-                case 'direct':
-                    $website++;
-                    break;
-
-                case 'facebook':
-                    $facebook++;
-                    break;
-
-                default:
-                    $other++;
-                    break;
+            if (! Storage::disk('local')->exists($fileName)) {
+                throw new \RuntimeException("Export file was not created: {$fileName}");
             }
+
+            $filePath = Storage::disk('local')->path($fileName);
+
+            Mail::to(self::RECIPIENT)
+                ->cc(self::CC)
+                ->send(
+                    (new DailyStudentSummaryMail($summary))->attach($filePath)
+                );
+
+            // Clean up the local copy now that it's been emailed, so these
+            // don't quietly pile up on disk.
+            Storage::disk('local')->delete($fileName);
+
+            $this->info(sprintf(
+                'Daily Student Report for %s sent successfully (%d leads).',
+                $reportDate->format('d-m-Y'),
+                $summary['total']
+            ));
+        } catch (Throwable $e) {
+            Log::error('Daily student report failed', [
+                'date'      => $reportDate->format('Y-m-d'),
+                'message'   => $e->getMessage(),
+                'exception' => $e,
+            ]);
+
+            $this->error('Daily Student Report failed: ' . $e->getMessage());
+
+            // Make a failure visible instead of the report just silently
+            // not arriving — this alone would have caught the original bug.
+            try {
+                Mail::raw(
+                    "The daily student report for {$reportDate->format('d-m-Y')} failed to generate.\n\nError: {$e->getMessage()}",
+                    fn ($message) => $message->to(self::RECIPIENT)->subject('Daily Student Report FAILED')
+                );
+            } catch (Throwable $mailException) {
+                Log::error('Failed to send daily report failure alert: ' . $mailException->getMessage());
+            }
+
+            return self::FAILURE;
         }
 
-        $summary = [
-            'google'  => $google,
-            'website' => $website,
-            'facebook' => $facebook,
-            'other'   => $other,
-            'total'   => $users->count(),
+        return self::SUCCESS;
+    }
+
+    /**
+     * Categorize by the resolved `source` column (facebook/google/direct/...
+     * set by TrafficSource::resolveSource()) rather than raw utm_source,
+     * which is only populated for tagged campaign links and left most
+     * organic traffic bucketed as "other" before.
+     */
+    protected function buildSummary(Collection $leads): array
+    {
+        $counts = [
+            'google'   => 0,
+            'website'  => 0,
+            'facebook' => 0,
+            'other'    => 0,
         ];
 
-        // Generate Excel
-        $fileName = 'daily_student_report_' . now()->format('d-m-Y') . '.xlsx';
+        foreach ($leads as $lead) {
+            $source = strtolower(optional($lead->trafficSource)->source ?? 'other');
 
-        Excel::store(
-            new DailyStudentReportExport(),
-            $fileName,
-            'local'
-        );
+            match (true) {
+                $source === 'google' => $counts['google']++,
+                in_array($source, ['website', 'direct'], true) => $counts['website']++,
+                $source === 'facebook' => $counts['facebook']++,
+                default => $counts['other']++,
+            };
+        }
 
-        $file = Storage::disk('local')->path($fileName);
-
-
-
-        // Mail::to('info.academicmantraservices@gmail.com')
-        //     ->send(
-        //         (new DailyStudentSummaryMail($summary))
-        //             ->attach($file)
-        //     );
-
-Mail::to('rajkeins@gmail.com')
-    ->cc('muktiacademicmantra@gmail.com')
-    ->send(
-        (new DailyStudentSummaryMail($summary))
-            ->attach($file)
-    );
-        $this->info('Daily Student Report sent successfully.');
+        return array_merge($counts, ['total' => $leads->count()]);
     }
 }

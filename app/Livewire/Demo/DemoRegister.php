@@ -138,11 +138,11 @@ class DemoRegister extends Component
                 'gender'    => $validated['gender'],
                 'is_active' => true,
             ]);
-if ($traffic) {
-    $traffic->update([
-        'demo_user_id' => $user->id,
-    ]);
-}
+            if ($traffic) {
+                $traffic->update([
+                    'demo_user_id' => $user->id,
+                ]);
+            }
             DB::commit();
 
             Log::info('User Registered Successfully', [
