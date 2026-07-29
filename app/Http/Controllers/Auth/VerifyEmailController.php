@@ -39,7 +39,12 @@ class VerifyEmailController extends Controller
         }
 
         // Actually verify email
-        if ($user->markEmailAsVerified()) {
+        if (is_null($user->email_verified_at)) {
+
+            $user->email_verified_at = now();
+            $user->save();
+
+            // Optional
             event(new Verified($user));
         }
 
