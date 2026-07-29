@@ -18,18 +18,10 @@ use Illuminate\Support\Str;
 use Throwable;
 
 
-class LeadRegistrationController extends Controller
+class ContactApiController extends Controller
 {
-    protected const TRACKS = [
-        'AI-Integrated Digital Marketing',
-        'SEO',
-        'Content Writing',
-        'Graphic Design',
-        'HR Operations',
-        'Java · Angular · Android',
-    ];
-
     
+
     public function __invoke(Request $request)
     {
         // ---------------------------------------------------------------
@@ -58,19 +50,18 @@ class LeadRegistrationController extends Controller
                 'name'    => ['required', 'string', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
                 'email'   => ['required', 'string', 'email:rfc,dns,spoof', 'max:150'],
                 'phone'   => ['required', 'digits:10'],
-                'track'   => ['required', 'string', 'in:' . implode(',', self::TRACKS)],
-                'source'  => ['nullable', 'string', 'max:100'],
-                'website' => ['prohibited'], // honeypot — must stay empty
+                'message'   => ['nullable'],
+             
             ], [
                 'name.regex'          => 'Please enter a valid name.',
                 'phone.digits'        => 'Enter a valid 10-digit mobile number.',
-                'website.prohibited'  => 'Invalid submission.',
+              
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Log validation failures explicitly — this is a very common
             // reason "nothing got saved": the request never made it past
             // this point, and previously you'd have no record of why.
-            Log::warning('Landing API validation failed', [
+            Log::warning('contact API validation failed', [
                 'errors' => $e->errors(),
                 'input'  => $request->all(),
             ]);
@@ -97,11 +88,11 @@ class LeadRegistrationController extends Controller
                     try {
 
                         $user = Lead::create([
-                            'lead_type'         => 'campaign',
+                            'lead_type'         => 'contact-us',
                             'name'              => $validated['name'],
                             'email'             => $email,
                             'phone'             => $validated['phone'],
-                            'designation'       => $validated['designation'] ?? null,
+                            'message'       => $validated['message'] ?? null,
                             'traffic_source_id' => $trafficSource->id,
                             'status'            => 'New',
                             'email_verified_at' => null,
