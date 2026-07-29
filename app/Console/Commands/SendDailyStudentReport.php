@@ -26,7 +26,7 @@ class SendDailyStudentReport extends Command
     protected $description = 'Send Daily Student Registration Report';
 
     protected const RECIPIENT = 'rajkeins@gmail.com';
-    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com'];
+    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com','info.academicmantraservices@gmail.com'];
 
     public function handle()
     {
