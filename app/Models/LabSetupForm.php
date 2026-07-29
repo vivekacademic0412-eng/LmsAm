@@ -10,6 +10,9 @@ class LabSetupForm extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'traffic_source_id',
+
         // 01. School Basics
         'school_name',
         'board_affiliation',
@@ -61,4 +64,14 @@ class LabSetupForm extends Model
         'sig_date'       => 'date',
         'synced_to_lms'  => 'boolean',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function trafficSource()
+    {
+        return $this->belongsTo(TrafficSource::class);
+    }
 }
