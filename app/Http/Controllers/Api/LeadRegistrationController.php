@@ -182,7 +182,7 @@ class LeadRegistrationController extends Controller
             ], 500);
         }
     }
-    protected function sendVerificationEmail(User $user, ?string $password): void
+    protected function sendVerificationEmail(Lead $user, ?string $password): void
     {
         try {
             $verificationUrl = URL::temporarySignedRoute(

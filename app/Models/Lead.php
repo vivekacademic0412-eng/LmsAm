@@ -56,4 +56,9 @@ class Lead extends Model
     {
         $this->notify(new VerifyEmailNotification());
     }
+      public function getEmailForVerification(): string
+    {
+        return $this->email;
+    }
+
 }
