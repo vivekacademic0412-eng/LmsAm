@@ -380,3 +380,4 @@ Route::get('/test-google', function () {
 Route::get('pay/{token}', [PaymentLinkController::class,'Checkout'])->name('payment.checkout');
 Route::get('pay/{token}/success', [PaymentLinkController::class,'Success'])->name('payment.success');
 Route::post('pay/verify', PaymentVerifyController::class)->name('payment.verify');
+
