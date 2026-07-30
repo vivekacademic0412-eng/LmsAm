@@ -474,6 +474,17 @@
     letter-spacing: .3px;
 }
 
+/* Type tag (self-paced / live / hybrid) */
+.course-type-tag {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--bg2);
+    color: var(--text-muted);
+    border: 1px solid var(--line);
+    display: inline-flex; align-items: center; gap: 4px;
+}
+
 /* Lock overlay */
 .course-lock-overlay {
     position: absolute; inset: 0;
@@ -507,6 +518,18 @@
     background: var(--text-muted); opacity: .4;
 }
 
+/* Curriculum snapshot (weeks / sessions) */
+.course-curriculum {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--text-muted);
+    padding: 7px 10px;
+    background: var(--bg2);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-xs);
+}
+.course-curriculum span { display: flex; align-items: center; gap: 4px; font-weight: 600; }
+.course-curriculum i { font-size: 13px; color: var(--brand-primary); }
+
 /* Progress bar */
 .course-progress-wrap { display: flex; flex-direction: column; gap: 4px; }
 .course-progress-row  { display: flex; justify-content: space-between; font-size: 11.5px; }
@@ -533,6 +556,62 @@
     margin-top: auto;
     flex-wrap: wrap;
 }
+
+/* ═══════════════════════════════════════════════
+   BATCH / SEATS / MODE PICKER
+═══════════════════════════════════════════════ */
+.batch-picker {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 10px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+}
+.batch-picker-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--text-muted);
+}
+.batch-option {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    padding: 7px 9px;
+    border-radius: var(--radius-xs);
+    border: 1.5px solid var(--line);
+    background: var(--bg-card);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all .15s;
+}
+.batch-option:hover { border-color: var(--primary); }
+.batch-option.active { border-color: var(--brand-primary); background: var(--primary-glow); }
+.batch-option:disabled, .batch-option.is-full { opacity: .5; cursor: not-allowed; }
+.batch-option-left { display: flex; flex-direction: column; gap: 2px; }
+.batch-option-code { font-size: 12px; font-weight: 700; color: var(--text); }
+.batch-option-date { font-size: 10.5px; color: var(--text-muted); }
+.batch-mode-chip {
+    font-size: 9.5px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .3px;
+    padding: 2px 7px; border-radius: 20px;
+    background: var(--primary-glow); color: var(--brand-primary);
+    flex-shrink: 0;
+}
+.seats-info { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.seats-count { font-size: 10.5px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+.seats-count.is-low { color: var(--warning); }
+.seats-count.is-full { color: var(--danger); }
+.seats-track { width: 54px; height: 4px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.seats-fill { height: 100%; background: var(--brand-primary); }
+.seats-fill.is-low { background: var(--warning); }
+.seats-fill.is-full { background: var(--danger); }
+.self-paced-note {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-muted);
+    padding: 7px 10px;
+    background: var(--bg2);
+    border-radius: var(--radius-xs);
+}
+.self-paced-note i { color: var(--success); }
 
 /* ═══════════════════════════════════════════════
    BUTTONS
@@ -692,6 +771,7 @@
 .cart-item-info { flex: 1; }
 .cart-item-name { font-size: 13px; font-weight: 600; color: var(--text-main); }
 .cart-item-price { font-size: 12px; color: var(--brand-primary); font-weight: 700; }
+.cart-item-batch { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
 .cart-item-remove { color: var(--danger); cursor: pointer; font-size: 16px; background: none; border: none; padding: 6px; }
 .cart-drawer-foot {
     padding: 18px 22px;
@@ -737,6 +817,7 @@
     .category-tabs-wrap { display: none; }
     .category-dropdown-wrap { display: block; padding: 12px 14px 0; }
 }
+
 </style>
 
 @php
@@ -755,6 +836,21 @@
 
     // Sort order for known level names; anything unrecognized sorts last, alphabetically.
     $levelPriority = ['beginner' => 1, 'intermediate' => 2, 'advanced' => 3, 'expert' => 4, 'pro' => 4];
+
+    // ASSUMPTION: Course::weeks() / Week::sessions() already exist (Enrollment::recalculateProgress
+    // already relies on them). Adjust these two closures if your relation names differ.
+    $curriculumOf = function ($course) {
+        $weeks    = $course->relationLoaded('weeks') ? $course->weeks : collect();
+        $sessions = $weeks->sum(fn ($w) => $w->relationLoaded('sessions') ? $w->sessions->count() : ($w->sessions_count ?? 0));
+        return ['weeks' => $weeks->count(), 'sessions' => $sessions];
+    };
+
+    // ASSUMPTION: Course::courseType() belongsTo CourseType{name}. Falls back to "Self-paced".
+    $typeOf = fn ($course) => $course->courseType->name ?? 'Self-paced';
+
+    // Seats/mode helpers pull live batch data straight off the component so counts never go stale.
+    $openBatchesOf = fn ($course) => $course->batches
+        ->filter(fn ($b) => in_array($b->status ?? 'upcoming', ['upcoming', 'active']));
 
     $enrolledCourses = $categories
         ->flatMap(fn ($cat) => $cat->courses)
@@ -823,8 +919,7 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════
-     NEW: CATEGORY + LEVEL OVERVIEW — orientation for every visitor,
-     especially first-time users who haven't picked a category yet.
+     CATEGORY + LEVEL OVERVIEW — orientation for every visitor
 ══════════════════════════════════════════════════════════ --}}
 <div class="section-card">
     <div class="section-card-head">
@@ -886,10 +981,14 @@
     <div class="course-grid">
         @forelse ($enrolledCourses as $course)
             @php
-                $thumb = $course->thumbnail_url ?: '';
-                $bg    = $thumb ? "url('{$thumb}')" : 'linear-gradient(135deg, #0947a8 0%, #7a5cff 100%)';
-                $progress = $course->progress ?? 0;
-                $lc = $levelColor($course->level ?? 'Beginner');
+                $thumb    = $course->thumbnail_url ?: '';
+                $bg       = $thumb ? "url('{$thumb}')" : 'linear-gradient(135deg, #0947a8 0%, #7a5cff 100%)';
+                $lc       = $levelColor($course->level ?? 'Beginner');
+                $curr     = $curriculumOf($course);
+                $type     = $typeOf($course);
+                $enrollment = $enrollments[$course->id] ?? null;
+                $progress = $enrollment->progress_percent ?? 0;
+                $batch    = $enrollment?->batch;
             @endphp
 
             <a class="course-tile"
@@ -910,12 +1009,20 @@
                 <div class="course-body">
                     <div class="course-meta">
                         <span class="course-level-tag" style="color:{{ $lc['fg'] }};background:{{ $lc['soft'] }};">{{ $course->level ?? 'Beginner' }}</span>
+                        <span class="course-type-tag"><i class="ti ti-category" style="font-size:11px"></i> {{ $type }}</span>
                         <span class="course-meta-dot" aria-hidden="true"></span>
                         <i class="ti ti-folder" aria-hidden="true" style="font-size:13px"></i>
                         {{ $course->category?->name ?? 'General' }}
-                        <span class="course-meta-dot" aria-hidden="true"></span>
-                        <i class="ti ti-clock" aria-hidden="true" style="font-size:13px"></i>
-                        {{ $course->duration ?? '—' }}
+                        @if ($batch)
+                            <span class="course-meta-dot" aria-hidden="true"></span>
+                            <i class="ti ti-users" aria-hidden="true" style="font-size:13px"></i>
+                            {{ $batch->batch_code }} · {{ ucfirst($batch->mode ?? 'Online') }}
+                        @endif
+                    </div>
+
+                    <div class="course-curriculum">
+                        <span><i class="ti ti-calendar-week"></i> {{ $curr['weeks'] }} week{{ $curr['weeks'] !== 1 ? 's' : '' }}</span>
+                        <span><i class="ti ti-playlist"></i> {{ $curr['sessions'] }} session{{ $curr['sessions'] !== 1 ? 's' : '' }}</span>
                     </div>
 
                     @if ($progress > 0)
@@ -1080,6 +1187,10 @@
                                 $subCatId   = $course->subcategory?->id ? (string) $course->subcategory->id : 'none';
                                 $price      = $course->price ?? 0;
                                 $priceLabel = $price > 0 ? '₹' . number_format($price) : 'Free';
+                                $curr       = $curriculumOf($course);
+                                $type       = $typeOf($course);
+                                $openBatches = $openBatchesOf($course);
+                                $selectedBatchId = $selectedBatch[$course->id] ?? null;
                             @endphp
 
                             @if ($enrolled)
@@ -1102,9 +1213,14 @@
                                     <div class="course-body">
                                         <div class="course-meta">
                                             <span class="course-level-tag" style="color:{{ $lc['fg'] }};background:{{ $lc['soft'] }};">{{ $levelName }}</span>
+                                            <span class="course-type-tag"><i class="ti ti-category" style="font-size:11px"></i> {{ $type }}</span>
                                             <span class="course-meta-dot" aria-hidden="true"></span>
                                             <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
                                             {{ $catLabel }}
+                                        </div>
+                                        <div class="course-curriculum">
+                                            <span><i class="ti ti-calendar-week"></i> {{ $curr['weeks'] }} wk</span>
+                                            <span><i class="ti ti-playlist"></i> {{ $curr['sessions'] }} sessions</span>
                                         </div>
                                         <div class="course-foot">
                                             <span class="btn btn-success btn-sm">
@@ -1126,7 +1242,7 @@
                                      role="article"
                                      aria-label="{{ $course->title }} — locked, price {{ $priceLabel }}, level {{ $levelName }}">
 
-                                    <a href="{{ route('student.courses.preview', $course) }}" style="text-decoration:none;color:inherit;">
+                                    <a href="{{ route('student.courses.preview', $course->id) }}" style="text-decoration:none;color:inherit;">
                                         <div class="course-thumb" style="background-image: {{ $bg }};">
                                             <div class="course-thumb-overlay" aria-hidden="true"></div>
                                             <div class="course-lock-overlay" aria-hidden="true">
@@ -1144,14 +1260,61 @@
 
                                     <div class="course-body">
                                         <div class="course-meta">
+                                            <span class="course-type-tag"><i class="ti ti-category" style="font-size:11px"></i> {{ $type }}</span>
+                                            <span class="course-meta-dot" aria-hidden="true"></span>
                                             <i class="ti ti-folder" style="font-size:13px" aria-hidden="true"></i>
                                             {{ $catLabel }}
+                                        </div>
+
+                                        <div class="course-curriculum">
+                                            <span><i class="ti ti-calendar-week"></i> {{ $curr['weeks'] }} week{{ $curr['weeks'] !== 1 ? 's' : '' }}</span>
+                                            <span><i class="ti ti-playlist"></i> {{ $curr['sessions'] }} session{{ $curr['sessions'] !== 1 ? 's' : '' }}</span>
                                             @if ($course->duration)
-                                                <span class="course-meta-dot" aria-hidden="true"></span>
-                                                <i class="ti ti-clock" style="font-size:13px" aria-hidden="true"></i>
-                                                {{ $course->duration }}
+                                                <span><i class="ti ti-clock"></i> {{ $course->duration }}</span>
                                             @endif
                                         </div>
+
+                                        {{-- Seats / mode picker, only for courses that run in batches --}}
+                                        @if ($openBatches->isNotEmpty())
+                                            <div class="batch-picker">
+                                                <span class="batch-picker-label">Pick a batch</span>
+                                                @foreach ($openBatches as $batch)
+                                                    @php
+                                                        $left = $this->seatsLeftFor($batch);
+                                                        $cap  = $batch->max_seats ?? 0;
+                                                        $pct  = $cap > 0 ? min(100, round((($cap - $left) / $cap) * 100)) : 0;
+                                                        $state = $left <= 0 ? 'is-full' : ($left <= 3 ? 'is-low' : '');
+                                                        $isActive = (int) $selectedBatchId === $batch->id;
+                                                    @endphp
+                                                    <button type="button"
+                                                            class="batch-option {{ $isActive ? 'active' : '' }} {{ $left <= 0 ? 'is-full' : '' }}"
+                                                            @if($left <= 0) disabled @endif
+                                                            wire:click="pickBatch({{ $course->id }}, {{ $batch->id }})"
+                                                            aria-label="Batch {{ $batch->batch_code }}, {{ ucfirst($batch->mode ?? 'online') }}, {{ $left }} seats left">
+                                                        <div class="batch-option-left">
+                                                            <span class="batch-option-code">{{ $batch->batch_code }}</span>
+                                                            <span class="batch-option-date">
+                                                                <i class="ti ti-calendar" style="font-size:10px"></i>
+                                                                {{ $batch->start_date?->format('d M Y') ?? 'TBA' }}
+                                                            </span>
+                                                        </div>
+                                                        <span class="batch-mode-chip">{{ $batch->mode ?? 'Online' }}</span>
+                                                        <div class="seats-info">
+                                                            <span class="seats-count {{ $state }}">
+                                                                {{ $left <= 0 ? 'Full' : $left . ' seat' . ($left !== 1 ? 's' : '') . ' left' }}
+                                                            </span>
+                                                            <div class="seats-track">
+                                                                <div class="seats-fill {{ $state }}" style="width:{{ $pct }}%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="self-paced-note">
+                                                <i class="ti ti-infinity"></i> Self-paced — start anytime, no batch required.
+                                            </div>
+                                        @endif
 
                                         <div class="course-foot">
                                             <div class="price-tag" aria-label="Price: {{ $priceLabel }}">
@@ -1185,6 +1348,8 @@
                                                 @endif
                                             </div>
                                         </div>
+
+                                        @error('cart') <small class="error-text">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                             @endif
@@ -1218,11 +1383,18 @@
 
     <div class="cart-drawer-body">
         @forelse ($this->cartCourses as $course)
+            @php
+                $batchId = $selectedBatch[$course->id] ?? null;
+                $batch   = $batchId ? $course->batches->firstWhere('id', $batchId) : null;
+            @endphp
             <div class="cart-item" wire:key="cart-item-{{ $course->id }}">
                 <div class="cart-item-thumb" style="background-image: url('{{ $course->thumbnail_url }}')"></div>
                 <div class="cart-item-info">
                     <div class="cart-item-name">{{ $course->title }}</div>
                     <div class="cart-item-price">{{ ($course->price ?? 0) > 0 ? '₹'.number_format($course->price) : 'Free' }}</div>
+                    @if ($batch)
+                        <div class="cart-item-batch">{{ $batch->batch_code }} · {{ ucfirst($batch->mode ?? 'Online') }} · {{ $batch->start_date?->format('d M Y') }}</div>
+                    @endif
                 </div>
                 <button class="cart-item-remove" type="button" wire:click="removeFromCart({{ $course->id }})" aria-label="Remove {{ $course->title }} from cart">
                     <i class="ti ti-trash"></i>
@@ -1479,6 +1651,36 @@
     });
 }
 amInitCategoryDropdown();
+</script>
+<script>
+/* ── Staggered entrance: tiles/cards fade+rise in as they enter view ── */
+function amInitEntranceAnimations() {
+    const targets = document.querySelectorAll('.course-tile, .category-overview-card');
+    if (!('IntersectionObserver' in window) || targets.length === 0) {
+        targets.forEach(el => el.classList.add('am-in'));
+        return;
+    }
+ 
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                // Small stagger within whatever batch just became visible together.
+                setTimeout(() => entry.target.classList.add('am-in'), i * 40);
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+ 
+    targets.forEach(el => io.observe(el));
+}
+ 
+/* Re-run after Livewire swaps the DOM (e.g. after addToCart/removeFromCart re-renders tiles) */
+document.addEventListener('livewire:navigated', amInitEntranceAnimations);
+Livewire.hook('morph.updated', ({ el }) => {
+    if (el.matches?.('.course-tile, .category-overview-card')) {
+        el.classList.add('am-in'); // already-visible tiles shouldn't re-hide on re-render
+    }
+});
 </script>
 @endscript
 

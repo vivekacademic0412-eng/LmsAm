@@ -24,4 +24,8 @@ class CoureManagerController extends Controller
     {
         return view('backend.admin.course.session.index');
     }
+       public function batch()
+    {
+        return view('backend.admin.course.batch.index');
+    }
 }

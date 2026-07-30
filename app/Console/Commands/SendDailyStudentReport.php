@@ -26,7 +26,7 @@ class SendDailyStudentReport extends Command
     protected $description = 'Send Daily Student Registration Report';
 
     protected const RECIPIENT = 'rajkeins@gmail.com';
-    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com','info.academicmantraservices@gmail.com'];
+    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com'];
 
     public function handle()
     {
@@ -104,31 +104,39 @@ class SendDailyStudentReport extends Command
     }
 
     /**
-     * Categorize by the resolved `source` column (facebook/google/direct/...
-     * set by TrafficSource::resolveSource()) rather than raw utm_source,
-     * which is only populated for tagged campaign links and left most
-     * organic traffic bucketed as "other" before.
+     * Built dynamically from whatever lead_type / traffic source values
+     * actually exist in the data (lab, campanion, contact-us, etc.) instead
+     * of a hardcoded google/website/facebook/other switch that didn't match
+     * any of your real lead_type values and ignored lead_type entirely.
      */
     protected function buildSummary(Collection $leads): array
     {
-        $counts = [
-            'google'   => 0,
-            'website'  => 0,
-            'facebook' => 0,
-            'other'    => 0,
+        $byType = $leads
+            ->groupBy(fn ($lead) => $lead->lead_type ?: 'Unspecified')
+            ->map->count()
+            ->sortDesc();
+
+        $bySource = $leads
+            ->groupBy(fn ($lead) => optional($lead->trafficSource)->source_label ?? 'Direct / Unknown')
+            ->map->count()
+            ->sortDesc();
+
+        $rows = $leads->map(fn ($lead) => [
+            'id'         => $lead->id,
+            'name'       => $lead->name,
+            'email'      => $lead->email,
+            'phone'      => $lead->phone,
+            'lead_type'  => $lead->lead_type ?: '—',
+            'source'     => optional($lead->trafficSource)->source_label ?? 'Direct / Unknown',
+            'status'     => $lead->status ?: '—',
+            'created_at' => $lead->created_at->format('d-m-Y h:i A'),
+        ])->values();
+
+        return [
+            'total'     => $leads->count(),
+            'by_type'   => $byType->toArray(),
+            'by_source' => $bySource->toArray(),
+            'leads'     => $rows->toArray(),
         ];
-
-        foreach ($leads as $lead) {
-            $source = strtolower(optional($lead->trafficSource)->source ?? 'other');
-
-            match (true) {
-                $source === 'google' => $counts['google']++,
-                in_array($source, ['website', 'direct'], true) => $counts['website']++,
-                $source === 'facebook' => $counts['facebook']++,
-                default => $counts['other']++,
-            };
-        }
-
-        return array_merge($counts, ['total' => $leads->count()]);
     }
 }

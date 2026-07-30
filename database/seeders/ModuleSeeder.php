@@ -90,6 +90,13 @@ class ModuleSeeder extends Seeder
                         'route' => 'student.certificates', // href="#" in blade — no route yet
                         'roles' => ['student'],
                     ],
+                    [
+                        'key'   => 'student-history',
+                        'label' => 'My History',
+                        'icon'  => 'fa-solid fa-clock-rotate-left',
+                        'route' => 'student.history',
+                        'roles' => ['student'],
+                    ],
                 ],
             ],
 
@@ -190,7 +197,13 @@ class ModuleSeeder extends Seeder
                                 'route' => 'admin.courses.seats',
                                 'roles' => ['superadmin', 'admin'],
                             ],
-
+                            [
+                                'key'   => 'batch',
+                                'label' => 'Batches',
+                                'icon'  => 'ti ti-users-group',
+                                'route' => 'admin.courses.batch',
+                                'roles' => ['superadmin', 'admin'],
+                            ],
                         ],
                     ],
                 ],
@@ -213,7 +226,7 @@ class ModuleSeeder extends Seeder
                                 'label' => 'Leads',
                                 'icon'  => 'ti ti-users',
                                 'route' => 'leads.index',
-                                'roles' => ['superadmin', 'admin','manager_hr'],
+                                'roles' => ['superadmin', 'admin', 'manager_hr'],
                             ],
                             [
                                 'key'   => 'enrollments',

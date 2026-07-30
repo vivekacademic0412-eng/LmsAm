@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Admin\Students;
 
+use App\Mail\StudentPaymentLinkMail;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -147,6 +149,15 @@ class StudentCreateModal extends Component
         $this->generated_password = $plainPassword;
         $this->generated_link = $payment->publicUrl();
 
+
+        Mail::to($student->email)->send(
+            new StudentPaymentLinkMail(
+                $student,
+                $payment,
+                $plainPassword
+            )
+        );
+        $this->showModal = false;
         // Tell the browser to fire the SweetAlert success popup with these details.
         $this->dispatch('student-created', [
             'username' => $this->generated_username,
@@ -166,9 +177,16 @@ class StudentCreateModal extends Component
     public function resetForm(): void
     {
         $this->reset([
-            'name', 'email', 'contact_no', 'category_id', 'course_id',
-            'price', 'original_price', 'generated_username',
-            'generated_password', 'generated_link',
+            'name',
+            'email',
+            'contact_no',
+            'category_id',
+            'course_id',
+            'price',
+            'original_price',
+            'generated_username',
+            'generated_password',
+            'generated_link',
         ]);
         $this->enrollment_type = 'demo';
     }

@@ -121,7 +121,7 @@ function confirmCreateStudent() {
             const data = Array.isArray(payload) ? payload[0] : payload;
 
             Swal.fire({
-                title: '✓ Student Created Successfully!',
+                title: '✓ Student account has been created successfully. A payment link and login credentials have been sent to the student email address.',
                 icon: 'success',
                 html: `
                     <div style="text-align:left; font-size:13.5px; line-height:1.9;">

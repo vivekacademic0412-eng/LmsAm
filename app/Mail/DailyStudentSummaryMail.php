@@ -10,16 +10,15 @@ class DailyStudentSummaryMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $summary;
-
-    public function __construct($summary)
+    public function __construct(public array $summary)
     {
-        $this->summary = $summary;
     }
 
     public function build()
     {
-        return $this->subject('Daily Student Registration Summary Report')
-            ->view('emails.daily-student-summary');
+        return $this
+            ->subject('Daily Student Registration Summary - ' . now()->format('d M Y'))
+            ->view('emails.daily-registration-summary')
+            ->with(['summary' => $this->summary]);
     }
 }

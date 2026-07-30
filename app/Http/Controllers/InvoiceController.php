@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Payment;
 use Barryvdh\DomPDF\Facade\Pdf;
 

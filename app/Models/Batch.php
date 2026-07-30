@@ -9,16 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Batch extends Model
 {
     protected $fillable = [
-        'course_id',
-        'trainer_id',
-        'batch_code',
-        'mode',
-        'start_date',
-        'zero_day_date',
-        'max_weeks',
-        'status',
-        'created_by',
-    ];
+       'course_id', 'trainer_id', 'batch_code', 'mode',
+       'start_date', 'zero_day_date', 'max_weeks', 'max_seats', 'status', 'created_by',
+   ];
 
     protected $casts = [
         'start_date'    => 'date',
@@ -47,6 +40,6 @@ class Batch extends Model
 
     public function enrollments(): HasMany
     {
-        return $this->hasMany(Enrollment::class);
+        return $this->hasMany(CourseEnrollment::class);
     }
 }

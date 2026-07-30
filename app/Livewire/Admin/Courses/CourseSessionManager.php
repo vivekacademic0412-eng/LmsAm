@@ -8,15 +8,16 @@ use App\Models\CourseSession;
 use App\Models\CourseSessionItem;
 use App\Models\CourseSessionSetting;
 use App\Models\CourseWeek;
-use App\Models\VideoAccessLog;
 use Cloudinary\Cloudinary;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 class CourseSessionManager extends Component
 {
     use WithFileUploads;
+
     public $categories = [];
     public $category_id = null;
     public $course_id = null;
@@ -33,6 +34,7 @@ class CourseSessionManager extends Component
     public $meet_link;
     public $meet_datetime;
     public $is_visible = true;
+    public $showSessionForm = false;
 
     // ---- session items ----
     public $active_session_id = null; // which session's item panel is open
@@ -52,10 +54,6 @@ class CourseSessionManager extends Component
     /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $video_file = null;
     public $video_uploading = false;
-
-    // logs shown for the item currently being viewed/edited
-    public $viewing_logs_for_item_id = null;
-    public $item_logs = [];
 
     public function mount(): void
     {
@@ -100,10 +98,16 @@ class CourseSessionManager extends Component
             return;
         }
 
-        $this->sessions = CourseSession::with('settings')
+        $this->sessions = CourseSession::with(['settings', 'items'])
             ->where('course_week_id', $this->week_id)
             ->orderBy('session_number')
             ->get();
+    }
+
+    public function openSessionForm(): void
+    {
+        $this->resetForm();
+        $this->showSessionForm = true;
     }
 
     public function editSession($sessionId): void
@@ -118,6 +122,7 @@ class CourseSessionManager extends Component
         $this->meet_link = optional($s)->meet_link;
         $this->meet_datetime = optional($s)->meet_datetime?->format('Y-m-d\TH:i');
         $this->is_visible = optional($s)->is_visible ?? true;
+        $this->showSessionForm = true;
     }
 
     public function resetForm(): void
@@ -129,6 +134,7 @@ class CourseSessionManager extends Component
         $this->meet_link = null;
         $this->meet_datetime = null;
         $this->is_visible = true;
+        $this->showSessionForm = false;
     }
 
     public function saveSession(): void
@@ -185,7 +191,7 @@ class CourseSessionManager extends Component
     // ---------------------------------------------------------------
 
     /**
-     * Toggle the items panel open/closed for a given session.
+     * Toggle the items panel open/closed for a given session (accordion behavior).
      */
     public function manageItems($sessionId): void
     {
@@ -236,8 +242,6 @@ class CourseSessionManager extends Component
         $this->live_at = $item->live_at?->format('Y-m-d\TH:i');
         $this->linked_from_item_id = $item->linked_from_item_id;
         $this->video_file = null; // never pre-fill a file input; existing video stays unless replaced
-        $this->viewing_logs_for_item_id = null;
-        $this->item_logs = [];
 
         $this->loadItems();
     }
@@ -257,25 +261,6 @@ class CourseSessionManager extends Component
         $this->video_uploading = false;
     }
 
-    /**
-     * Show recent access/suspicious-activity logs for an item, right in the admin table.
-     */
-    public function viewLogs($itemId): void
-    {
-        if ($this->viewing_logs_for_item_id === (int) $itemId) {
-            $this->viewing_logs_for_item_id = null;
-            $this->item_logs = [];
-            return;
-        }
-
-        $this->viewing_logs_for_item_id = (int) $itemId;
-        $this->item_logs = VideoAccessLog::with('user')
-            ->where('course_session_item_id', $itemId)
-            ->latest('created_at')
-            ->limit(100)
-            ->get();
-    }
-
     public function saveItem(): void
     {
         $isVideo = $this->resource_type === 'video';
@@ -286,11 +271,9 @@ class CourseSessionManager extends Component
             'item_title'        => 'nullable|string|max:255',
             'resource_type'     => 'nullable|string|max:100',
             'content'           => 'nullable|string',
-            // URL only applies to non-video resources now
             'resource_url'      => $isVideo ? 'nullable' : 'nullable|url',
             'is_live'           => 'boolean',
             'live_at'           => 'nullable|date',
-            // required on create for a video item; optional on edit (keep existing video if not replacing)
             'video_file'        => ($isVideo && !$this->editing_item_id)
                 ? 'required|file|mimetypes:video/mp4,video/quicktime,video/webm,video/x-msvideo|max:512000' // 500MB
                 : 'nullable|file|mimetypes:video/mp4,video/quicktime,video/webm,video/x-msvideo|max:512000',
@@ -308,38 +291,33 @@ class CourseSessionManager extends Component
         ];
 
         if ($isVideo) {
-            // never store a raw shareable URL for video items
-            $data['resource_url'] = null;
 
             if ($this->video_file) {
+
                 $this->video_uploading = true;
 
-                $cloudinary = new Cloudinary(config('services.cloudinary.url', env('CLOUDINARY_URL')));
+                // Store video in storage/app/public/course-videos
+                $path = $this->video_file->store('course-videos', 'public');
 
-                $result = $cloudinary->uploadApi()->upload(
-                    $this->video_file->getRealPath(),
-                    [
-                        'resource_type' => 'video',
-                        'type'          => 'authenticated', // private: no public URL works without a signature
-                        'folder'        => 'course-videos',
-                    ]
-                );
+                $data['resource_url'] = Storage::url($path); // /storage/course-videos/filename.mp4
+                $data['video_path'] = $path;
 
-                $data['cloudinary_public_id']       = $result['public_id'];
-                $data['cloudinary_resource_type']   = $result['resource_type'];   // 'video'
-                $data['cloudinary_format']          = $result['format'];
-                $data['cloudinary_delivery_type']   = $result['type'];            // 'authenticated'
+                // Clear Cloudinary fields
+                $data['cloudinary_public_id'] = null;
+                $data['cloudinary_resource_type'] = null;
+                $data['cloudinary_format'] = null;
+                $data['cloudinary_delivery_type'] = null;
 
                 $this->video_uploading = false;
             }
         } else {
+
             $data['resource_url'] = $this->resource_url;
         }
-
         CourseSessionItem::updateOrCreate(
             [
-                'id'                 => $this->editing_item_id,
-                'course_session_id'  => $this->active_session_id,
+                'id'                => $this->editing_item_id,
+                'course_session_id' => $this->active_session_id,
             ],
             $data
         );

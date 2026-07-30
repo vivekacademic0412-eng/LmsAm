@@ -97,7 +97,11 @@ class Course extends Model
         return asset('storage/' . ltrim($this->thumbnail, '/'));
     }
     public function settings()
-{
-    return $this->hasOne(\App\Models\CourseSettings::class);
-}
+    {
+        return $this->hasOne(\App\Models\CourseSettings::class);
+    }
+    public function batches()
+    {
+        return $this->hasMany(Batch::class);
+    }
 }

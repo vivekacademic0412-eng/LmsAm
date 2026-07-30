@@ -72,6 +72,7 @@ class CourseEnrollmentController extends Controller
 
         $enrollment->trainer_id = $data['trainer_id'] ?? null;
         $enrollment->assigned_by = $request->user()->id;
+        $enrollment->status = 'active';
         $enrollment->save();
 
         $assignmentEmailSent = $this->sendCourseAssignmentEmail(
@@ -211,10 +212,10 @@ class CourseEnrollmentController extends Controller
             'enrolledCourseIds' => $user->enrollmentsAsStudent()->pluck('course_id')->all(),
         ]);
     }
-      public function Preview(Request $request): View
+      public function Preview($id): View
     {
-       
-        return view('student.courses-preview', );
+      
+        return view('student.courses-preview',compact('id'));
     }
 
     public function history(Request $request): View
@@ -227,7 +228,7 @@ class CourseEnrollmentController extends Controller
             ->latest('id')
             ->paginate(8)
             ->withQueryString();
-
+        
         return view('student.history', [
             'enrollments' => $enrollments,
         ]);

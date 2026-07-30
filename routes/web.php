@@ -174,7 +174,8 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
         Route::get('/my-demos', [DemoTaskController::class, 'myDemos'])->name('demos');
         //    Route::get('/student/courses', CourseCatalog::class)->name('student.courses.index');
         Route::get('/student/courses/{course}/preview', [CourseEnrollmentController::class, 'Preview'])->name('student.courses.preview');
-        Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses')->middleware('onbording');
+        // ->middleware('onbording')
+        Route::get('/my-courses', [CourseEnrollmentController::class, 'myCourses'])->name('student.courses');
         Route::get('/my-courses/{course}', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.show');
         Route::get('/buy-course', [CourseEnrollmentController::class, 'showEnrolledCourse'])->name('student.courses.buy');
 
@@ -369,6 +370,7 @@ Route::middleware(['auth', 'role:superadmin,admin,manager_hr',])->prefix('admin/
     Route::get('sessions',     [CoureManagerController::class,'sessions'])->name('sessions');
     Route::get('certificates',[ CoureManagerController::class,'certificates'])->name('certificates');
     Route::get('seats',        [CoureManagerController::class,'seats'])->name('seats');
+    Route::get('batch',        [CoureManagerController::class,'batch'])->name('batch');
 });
 
 
