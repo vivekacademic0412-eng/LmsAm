@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('batch_students', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('batch_id')
-                ->constrained('batches')
-                ->cascadeOnDelete();
+            $table->integer('course_batch_id');
 
             $table->foreignId('user_id')
                 ->constrained('users')

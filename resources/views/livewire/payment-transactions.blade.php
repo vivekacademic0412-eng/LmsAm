@@ -170,7 +170,7 @@
 
 <style>
     .txn-page {
-        padding: 24px;
+        /* padding: 5px; */
         color: var(--text);
     }
 

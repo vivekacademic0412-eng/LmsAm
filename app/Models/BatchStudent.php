@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BatchStudent extends Model
 {
     protected $fillable = [
-        'batch_id',
+        'course_batch_id',
         'user_id',
         'enrollment_id',
         'joined_at',
@@ -21,7 +21,7 @@ class BatchStudent extends Model
 
     public function batch(): BelongsTo
     {
-        return $this->belongsTo(Batch::class);
+        return $this->belongsTo(CourseBatch::class,'id','course_batch_id');
     }
 
     public function student(): BelongsTo

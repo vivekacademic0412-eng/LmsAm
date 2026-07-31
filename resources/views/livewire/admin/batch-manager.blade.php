@@ -178,12 +178,12 @@
      FILTER BAR
 ══════════════════════════════════════════════ --}}
 <div class="bm-filters">
-    <select wire:model.live="filterCourseId" aria-label="Filter by course">
+    {{-- <select wire:model.live="filterCourseId" aria-label="Filter by course">
         <option value="">All courses</option>
         @foreach ($courses as $c)
             <option value="{{ $c->id }}">{{ $c->title }}</option>
         @endforeach
-    </select>
+    </select> --}}
     <select wire:model.live="filterStatus" aria-label="Filter by status">
         <option value="">All statuses</option>
         <option value="upcoming">Upcoming</option>
@@ -218,9 +218,9 @@
             <thead>
                 <tr>
                     <th>Batch</th>
-                    <th>Course</th>
+                    {{-- <th>Course</th> --}}
                     <th>Mode</th>
-                    <th>Trainer</th>
+                    {{-- <th>Trainer</th> --}}
                     <th>Starts</th>
                     <th>Weeks</th>
                     <th>Seats</th>
@@ -239,9 +239,9 @@
                     @endphp
                     <tr wire:key="batch-row-{{ $batch->id }}">
                         <td class="bm-code">{{ $batch->batch_code }}</td>
-                        <td>{{ $batch->course->title ?? '—' }}</td>
+                        {{-- <td>{{ $batch->course->title ?? '—' }}</td> --}}
                         <td><span class="bm-mode-chip">{{ $batch->mode }}</span></td>
-                        <td>{{ $batch->trainer->name ?? '—' }}</td>
+                        {{-- <td>{{ $batch->trainer->name ?? '—' }}</td> --}}
                         <td>
                             {{ $batch->start_date?->format('d M Y') ?? '—' }}
                             @if ($batch->start_time)
@@ -289,7 +289,7 @@
             </div>
 
             <div class="bm-modal-body">
-                <div class="bm-field">
+                {{-- <div class="bm-field">
                     <label for="bm_course">Course</label>
                     <select id="bm_course" wire:model="course_id">
                         <option value="">Select a course…</option>
@@ -299,7 +299,7 @@
                     </select>
                     <span class="bm-hint"><i class="ti ti-info-circle"></i> A course can have many batches — this just says which course this one belongs to.</span>
                     @error('course_id') <span class="bm-error">{{ $message }}</span> @enderror
-                </div>
+                </div> --}}
 
                 <div class="bm-field-row">
                     <div class="bm-field">
@@ -318,7 +318,7 @@
                     </div>
                 </div>
 
-                <div class="bm-field">
+                {{-- <div class="bm-field">
                     <label for="bm_trainer">Trainer</label>
                     <select id="bm_trainer" wire:model="trainer_id">
                         <option value="">Select a trainer…</option>
@@ -327,7 +327,7 @@
                         @endforeach
                     </select>
                     @error('trainer_id') <span class="bm-error">{{ $message }}</span> @enderror
-                </div>
+                </div> --}}
 
                 <div class="bm-field-row-3">
                     <div class="bm-field">
@@ -428,8 +428,8 @@
             text: data?.message ?? 'Batch saved.',
             timer: 2200,
             showConfirmButton: false,
-            toast: true,
-            position: 'top-end',
+            // toast: true,
+            // position: 'top-end',
         });
     });
 
@@ -441,8 +441,8 @@
             text: data?.message ?? 'Batch deleted.',
             timer: 2200,
             showConfirmButton: false,
-            toast: true,
-            position: 'top-end',
+            // toast: true,
+            // position: 'top-end',
         });
     });
 </script>

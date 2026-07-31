@@ -48,8 +48,8 @@ class BatchManager extends Component
             // This is the fix for the null-course_id bug: course is a required, validated
             // field on the form, saved straight onto the Batch row — never inferred from
             // a relation on a maybe-empty $this->course.
-            'course_id'     => ['required', 'exists:courses,id'],
-            'trainer_id'    => ['required', 'exists:users,id'],
+            // 'course_id'     => ['required', 'exists:courses,id'],
+            // 'trainer_id'    => ['required', 'exists:users,id'],
             'batch_code'    => [
                 'required', 'string', 'max:50',
                 'unique:batches,batch_code,' . ($this->editingId ?? 'NULL') . ',id',
@@ -89,7 +89,7 @@ class BatchManager extends Component
     {
         return Batch::query()
             ->withCount(['students as active_students_count' => fn ($q) => $q->where('status', '!=', 'cancelled')])
-            ->with(['trainer:id,name', 'course:id,title'])
+            // ->with(['trainer:id,name', 'course:id,title'])
             ->when($this->filterCourseId, fn ($q) => $q->where('course_id', $this->filterCourseId))
             ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterMode, fn ($q) => $q->where('mode', $this->filterMode))
@@ -117,8 +117,8 @@ class BatchManager extends Component
         $batch = Batch::findOrFail($batchId);
 
         $this->editingId     = $batch->id;
-        $this->course_id     = $batch->course_id;
-        $this->trainer_id    = $batch->trainer_id;
+        // $this->course_id     = $batch->course_id;
+        // $this->trainer_id    = $batch->trainer_id;
         $this->batch_code    = $batch->batch_code;
         $this->mode          = $batch->mode;
         $this->start_date    = optional($batch->start_date)->format('Y-m-d');
@@ -197,7 +197,7 @@ class BatchManager extends Component
     protected function resetForm()
     {
         $this->reset([
-            'editingId', 'course_id', 'trainer_id', 'batch_code',
+            'editingId', 'batch_code',
             'start_date', 'start_time', 'zero_day_date', 'max_weeks', 'max_seats',
         ]);
         $this->mode   = 'online';
@@ -209,8 +209,8 @@ class BatchManager extends Component
     public function render()
     {
         return view('livewire.admin.batch-manager', [
-            'courses'  => $this->courses,
-            'trainers' => $this->trainers,
+            // 'courses'  => $this->courses,
+            // 'trainers' => $this->trainers,
             'batches'  => $this->batches,
         ]);
     }

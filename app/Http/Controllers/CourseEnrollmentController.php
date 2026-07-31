@@ -33,12 +33,17 @@ class CourseEnrollmentController extends Controller
         $courseId = $request->query('course_id');
 
         $enrollmentsQuery = CourseEnrollment::with(['course.category', 'course.subcategory', 'student', 'trainer', 'assignedBy'])
-            ->when($categoryId, fn ($q) => $q->whereHas('course', fn ($cq) => $cq->where('category_id', $categoryId)))
-            ->when($subcategoryId, fn ($q) => $q->whereHas('course', fn ($cq) => $cq->where('subcategory_id', $subcategoryId)))
-            ->when($trainerId, fn ($q) => $q->where('trainer_id', $trainerId))
-            ->when($courseId, fn ($q) => $q->where('course_id', $courseId))
+            ->when($categoryId, fn($q) => $q->whereHas('course', fn($cq) => $cq->where('category_id', $categoryId)))
+            ->when($subcategoryId, fn($q) => $q->whereHas('course', fn($cq) => $cq->where('subcategory_id', $subcategoryId)))
+            ->when($trainerId, fn($q) => $q->where('trainer_id', $trainerId))
+            ->when($courseId, fn($q) => $q->where('course_id', $courseId))
             ->latest();
-
+        $stats = [
+            'total_enrollments'   => CourseEnrollment::count(),
+            'total_students'      => CourseEnrollment::distinct('student_id')->count('student_id'),
+            'trainer_assigned'    => CourseEnrollment::whereNotNull('trainer_id')->count(),
+            'trainer_unassigned'  => CourseEnrollment::whereNull('trainer_id')->count(),
+        ];
         return view('enrollments.index', [
             'enrollments' => $enrollmentsQuery->paginate(8)->withQueryString(),
             'courses' => Course::orderBy('title')->get(),
@@ -52,6 +57,7 @@ class CourseEnrollmentController extends Controller
             'activeSubcategoryId' => $subcategoryId,
             'activeTrainerId' => $trainerId,
             'activeCourseId' => $courseId,
+            'stats'=>$stats
         ]);
     }
 
@@ -113,7 +119,7 @@ class CourseEnrollmentController extends Controller
         $request->validate([
             'course_id' => [
                 Rule::unique('course_enrollments', 'course_id')
-                    ->where(fn ($query) => $query->where('student_id', $data['student_id']))
+                    ->where(fn($query) => $query->where('student_id', $data['student_id']))
                     ->ignore($enrollment->id),
             ],
         ]);
@@ -212,10 +218,10 @@ class CourseEnrollmentController extends Controller
             'enrolledCourseIds' => $user->enrollmentsAsStudent()->pluck('course_id')->all(),
         ]);
     }
-      public function Preview($id): View
+    public function Preview($id): View
     {
-      
-        return view('student.courses-preview',compact('id'));
+
+        return view('student.courses-preview', compact('id'));
     }
 
     public function history(Request $request): View
@@ -228,7 +234,7 @@ class CourseEnrollmentController extends Controller
             ->latest('id')
             ->paginate(8)
             ->withQueryString();
-        
+
         return view('student.history', [
             'enrollments' => $enrollments,
         ]);
@@ -254,7 +260,7 @@ class CourseEnrollmentController extends Controller
 
         return response($svg, 200, [
             'Content-Type' => 'image/svg+xml; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$certificate['download_svg_filename'].'"',
+            'Content-Disposition' => 'attachment; filename="' . $certificate['download_svg_filename'] . '"',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
@@ -274,7 +280,7 @@ class CourseEnrollmentController extends Controller
 
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$certificate['download_pdf_filename'].'"',
+            'Content-Disposition' => 'attachment; filename="' . $certificate['download_pdf_filename'] . '"',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
@@ -307,73 +313,73 @@ class CourseEnrollmentController extends Controller
         ])->render();
     }
 
-//    public function showEnrolledCourse(Request $request, Course $course): View
-//     {
-//         $user = $request->user();
-//         abort_unless($user?->role === User::ROLE_STUDENT, 403);
+    //    public function showEnrolledCourse(Request $request, Course $course): View
+    //     {
+    //         $user = $request->user();
+    //         abort_unless($user?->role === User::ROLE_STUDENT, 403);
 
-//         $enrollment = CourseEnrollment::with(['course.weeks.sessions.items', 'trainer', 'progressItems'])
-//             ->where('course_id', $course->id)
-//             ->where('student_id', $user->id)
-//             ->first();
+    //         $enrollment = CourseEnrollment::with(['course.weeks.sessions.items', 'trainer', 'progressItems'])
+    //             ->where('course_id', $course->id)
+    //             ->where('student_id', $user->id)
+    //             ->first();
 
-//         abort_unless($enrollment, 403, 'You can open only enrolled courses.');
+    //         abort_unless($enrollment, 403, 'You can open only enrolled courses.');
 
-//         $itemIds = CourseSessionItem::whereHas('session.week', fn ($q) => $q->where('course_id', $course->id))->pluck('id');
+    //         $itemIds = CourseSessionItem::whereHas('session.week', fn ($q) => $q->where('course_id', $course->id))->pluck('id');
 
-//         foreach ($itemIds as $itemId) {
-//             CourseProgress::firstOrCreate(
-//                 [
-//                     'course_enrollment_id' => $enrollment->id,
-//                     'course_session_item_id' => $itemId,
-//                 ],
-//                 [
-//                     'completed_at' => null,
-//                 ]
-//             );
-//         }
+    //         foreach ($itemIds as $itemId) {
+    //             CourseProgress::firstOrCreate(
+    //                 [
+    //                     'course_enrollment_id' => $enrollment->id,
+    //                     'course_session_item_id' => $itemId,
+    //                 ],
+    //                 [
+    //                     'completed_at' => null,
+    //                 ]
+    //             );
+    //         }
 
-//         $totalItems = $itemIds->count();
-//         $completedItems = $enrollment->progressItems()->whereNotNull('completed_at')->count();
-//         $enrollment = $enrollment->fresh(['course.weeks.sessions.items', 'trainer', 'progressItems']);
+    //         $totalItems = $itemIds->count();
+    //         $completedItems = $enrollment->progressItems()->whereNotNull('completed_at')->count();
+    //         $enrollment = $enrollment->fresh(['course.weeks.sessions.items', 'trainer', 'progressItems']);
 
-//         $latestSubmissions = CourseItemSubmission::query()
-//             ->where('course_enrollment_id', $enrollment->id)
-//             ->latest('submitted_at')
-//             ->get()
-//             ->groupBy('course_session_item_id')
-//             ->map->first();
+    //         $latestSubmissions = CourseItemSubmission::query()
+    //             ->where('course_enrollment_id', $enrollment->id)
+    //             ->latest('submitted_at')
+    //             ->get()
+    //             ->groupBy('course_session_item_id')
+    //             ->map->first();
 
-//         $completedItemIds = $enrollment->progressItems
-//             ->whereNotNull('completed_at')
-//             ->pluck('course_session_item_id')
-//             ->map(fn ($id) => (int) $id)
-//             ->values()
-//             ->all();
+    //         $completedItemIds = $enrollment->progressItems
+    //             ->whereNotNull('completed_at')
+    //             ->pluck('course_session_item_id')
+    //             ->map(fn ($id) => (int) $id)
+    //             ->values()
+    //             ->all();
 
-//         $nextPendingItemId = $enrollment->course->weeks
-//             ->flatMap->sessions
-//             ->flatMap->items
-//             ->pluck('id')
-//             ->map(fn ($id) => (int) $id)
-//             ->first(fn (int $itemId) => ! in_array($itemId, $completedItemIds, true));
+    //         $nextPendingItemId = $enrollment->course->weeks
+    //             ->flatMap->sessions
+    //             ->flatMap->items
+    //             ->pluck('id')
+    //             ->map(fn ($id) => (int) $id)
+    //             ->first(fn (int $itemId) => ! in_array($itemId, $completedItemIds, true));
 
-//         return view('student.course-show', [
-//             'enrollment' => $enrollment,
-//             'totalItems' => $totalItems,
-//             'completedItems' => $completedItems,
-//             'latestSubmissions' => $latestSubmissions,
-//             'completedItemIds' => $completedItemIds,
-//             'nextPendingItemId' => $nextPendingItemId,
-           
-//         ]);
-//     }
- public function showEnrolledCourse(Request $request, Course $course): View
+    //         return view('student.course-show', [
+    //             'enrollment' => $enrollment,
+    //             'totalItems' => $totalItems,
+    //             'completedItems' => $completedItems,
+    //             'latestSubmissions' => $latestSubmissions,
+    //             'completedItemIds' => $completedItemIds,
+    //             'nextPendingItemId' => $nextPendingItemId,
+
+    //         ]);
+    //     }
+    public function showEnrolledCourse(Request $request, Course $course): View
     {
-        
+
         return view('student.course-show', [
-           
-            'course'=>$course
+
+            'course' => $course
         ]);
     }
     private function authorizeManager(Request $request): void
@@ -389,8 +395,7 @@ class CourseEnrollmentController extends Controller
         ?User $actor,
         bool $isUpdated,
         bool $isReminder = false
-    ): bool
-    {
+    ): bool {
         $student = $enrollment->student;
         $course = $enrollment->course;
         $trainerName = $enrollment->trainer?->name ?? 'Not assigned yet';
@@ -400,7 +405,7 @@ class CourseEnrollmentController extends Controller
         $subject = $isReminder
             ? 'Course access reminder'
             : ($isUpdated ? 'Your course assignment has been updated' : 'A course has been assigned to you');
-        $assignedBy = $actor?->name ? 'Assigned by: '.$actor->name : null;
+        $assignedBy = $actor?->name ? 'Assigned by: ' . $actor->name : null;
 
         if (! $student || ! $course) {
             return false;
@@ -422,7 +427,7 @@ class CourseEnrollmentController extends Controller
         try {
             Mail::html($html, function ($mail) use ($student, $appName, $subject): void {
                 $mail->to($student->email, $student->name)
-                    ->subject($subject.' - '.$appName);
+                    ->subject($subject . ' - ' . $appName);
             });
 
             return true;
@@ -454,8 +459,7 @@ class CourseEnrollmentController extends Controller
                     private ?User $actor,
                     private bool $isUpdated,
                     private bool $isReminder
-                ) {
-                }
+                ) {}
 
                 public function via($notifiable): array
                 {
@@ -520,15 +524,15 @@ class CourseEnrollmentController extends Controller
     private function buildAssignmentSuccessMessage(string $baseMessage, bool $emailSent, bool $notificationSent): string
     {
         if ($emailSent && $notificationSent) {
-            return rtrim($baseMessage, '.').', course email sent, and dashboard notification delivered.';
+            return rtrim($baseMessage, '.') . ', course email sent, and dashboard notification delivered.';
         }
 
         if ($emailSent) {
-            return rtrim($baseMessage, '.').' Course email sent.';
+            return rtrim($baseMessage, '.') . ' Course email sent.';
         }
 
         if ($notificationSent) {
-            return rtrim($baseMessage, '.').' Dashboard notification sent.';
+            return rtrim($baseMessage, '.') . ' Dashboard notification sent.';
         }
 
         return $baseMessage;
@@ -558,14 +562,14 @@ class CourseEnrollmentController extends Controller
             subtitle: $isReminder
                 ? 'We are resending your course access details so you can jump back in quickly.'
                 : ($isUpdated
-                ? 'Your assigned learning details were updated. Review the latest course information below.'
-                : 'A course has been assigned to your account. You can open it from your dashboard now.'),
-            greeting: 'Hello '.$userName.',',
+                    ? 'Your assigned learning details were updated. Review the latest course information below.'
+                    : 'A course has been assigned to your account. You can open it from your dashboard now.'),
+            greeting: 'Hello ' . $userName . ',',
             intro: $isReminder
-                ? 'Here is a reminder of your course access inside '.$appName.'.'
+                ? 'Here is a reminder of your course access inside ' . $appName . '.'
                 : ($isUpdated
-                ? 'Your course assignment in '.$appName.' has been updated.'
-                : 'A new course has been assigned to you in '.$appName.'.'),
+                    ? 'Your course assignment in ' . $appName . ' has been updated.'
+                    : 'A new course has been assigned to you in ' . $appName . '.'),
             primaryBoxTitle: 'Course Details',
             primaryRows: $details,
             metaNote: $assignedBy,
@@ -575,7 +579,7 @@ class CourseEnrollmentController extends Controller
             secondaryActionLabel: 'Open My Courses',
             secondaryActionUrl: $myCoursesUrl,
             closing: 'Log in and continue your learning from the dashboard.',
-            footerText: 'This is an automated email from '.$appName.'.'
+            footerText: 'This is an automated email from ' . $appName . '.'
         );
     }
 
@@ -617,20 +621,20 @@ class CourseEnrollmentController extends Controller
         })->implode('');
 
         $metaHtml = $metaNote
-            ? '<div style="margin:0 0 14px; padding:11px 13px; border-radius:16px; background:linear-gradient(135deg, rgba(13, 93, 209, 0.08), rgba(122, 92, 255, 0.07)); border:1px solid #d8e1f4; color:#445a78; font-size:13px; line-height:1.65;">'.e($metaNote).'</div>'
+            ? '<div style="margin:0 0 14px; padding:11px 13px; border-radius:16px; background:linear-gradient(135deg, rgba(13, 93, 209, 0.08), rgba(122, 92, 255, 0.07)); border:1px solid #d8e1f4; color:#445a78; font-size:13px; line-height:1.65;">' . e($metaNote) . '</div>'
             : '';
         $warningHtml = $warningText
-            ? '<div style="margin:0 0 16px; padding:12px 14px; border-radius:16px; background:linear-gradient(135deg, #fff8ea, #ffe7b9); border:1px solid #f0d39a; color:#8b5a12; font-size:13px; line-height:1.65; box-shadow:0 10px 18px rgba(240, 179, 90, 0.14);">'.e($warningText).'</div>'
+            ? '<div style="margin:0 0 16px; padding:12px 14px; border-radius:16px; background:linear-gradient(135deg, #fff8ea, #ffe7b9); border:1px solid #f0d39a; color:#8b5a12; font-size:13px; line-height:1.65; box-shadow:0 10px 18px rgba(240, 179, 90, 0.14);">' . e($warningText) . '</div>'
             : '';
         $primaryActionHtml = ($actionLabel && $actionUrl)
-            ? '<div style="margin:0 0 10px;"><a href="'.e($actionUrl).'" style="display:inline-block; padding:11px 20px; border-radius:999px; background:linear-gradient(135deg, #0d5dd1, #7a5cff); color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:0.01em; box-shadow:0 14px 22px rgba(27, 75, 177, 0.22);">'.e($actionLabel).'</a></div>'
+            ? '<div style="margin:0 0 10px;"><a href="' . e($actionUrl) . '" style="display:inline-block; padding:11px 20px; border-radius:999px; background:linear-gradient(135deg, #0d5dd1, #7a5cff); color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:0.01em; box-shadow:0 14px 22px rgba(27, 75, 177, 0.22);">' . e($actionLabel) . '</a></div>'
             : '';
         $secondaryActionHtml = ($secondaryActionLabel && $secondaryActionUrl)
-            ? '<div style="margin:0 0 18px;"><a href="'.e($secondaryActionUrl).'" style="display:inline-block; padding:10px 16px; border-radius:999px; background:linear-gradient(135deg, #fff7e8, #fff2d5); color:#9a5b00; text-decoration:none; font-size:13px; font-weight:700; border:1px solid #f0ddb9; box-shadow:0 10px 16px rgba(240, 179, 90, 0.12);">'.e($secondaryActionLabel).'</a></div>'
+            ? '<div style="margin:0 0 18px;"><a href="' . e($secondaryActionUrl) . '" style="display:inline-block; padding:10px 16px; border-radius:999px; background:linear-gradient(135deg, #fff7e8, #fff2d5); color:#9a5b00; text-decoration:none; font-size:13px; font-weight:700; border:1px solid #f0ddb9; box-shadow:0 10px 16px rgba(240, 179, 90, 0.12);">' . e($secondaryActionLabel) . '</a></div>'
             : '';
         $logoHtml = $logoDataUri !== ''
-            ? '<div style="display:inline-flex; align-items:center; justify-content:center; padding:11px 15px; border-radius:20px; background:radial-gradient(circle at left top, rgba(240, 179, 90, 0.28), rgba(240, 179, 90, 0) 38%), rgba(255,255,255,0.98); box-shadow:0 14px 26px rgba(8, 18, 34, 0.16); border:1px solid rgba(255,255,255,0.55);"><img src="'.$logoDataUri.'" alt="'.$appName.'" style="display:block; width:170px; max-width:100%; height:auto;"></div>'
-            : '<div style="display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">'.$appName.'</div>';
+            ? '<div style="display:inline-flex; align-items:center; justify-content:center; padding:11px 15px; border-radius:20px; background:radial-gradient(circle at left top, rgba(240, 179, 90, 0.28), rgba(240, 179, 90, 0) 38%), rgba(255,255,255,0.98); box-shadow:0 14px 26px rgba(8, 18, 34, 0.16); border:1px solid rgba(255,255,255,0.55);"><img src="' . $logoDataUri . '" alt="' . $appName . '" style="display:block; width:170px; max-width:100%; height:auto;"></div>'
+            : '<div style="display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">' . $appName . '</div>';
         $brandStripHtml = '<div style="margin-top:14px;"><span style="display:inline-block; margin-right:6px; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.15); color:#ffffff; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Course Access</span><span style="display:inline-block; margin-right:6px; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(240,179,90,0.2); color:#ffe3a7; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Student Update</span><span style="display:inline-block; margin-bottom:6px; padding:6px 10px; border-radius:999px; background:rgba(122,92,255,0.18); color:#dfd6ff; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;">Academic Mantra</span></div>';
 
         return <<<HTML
@@ -715,7 +719,6 @@ HTML;
             return '';
         }
 
-        return 'data:image/webp;base64,'.base64_encode($logoContents);
+        return 'data:image/webp;base64,' . base64_encode($logoContents);
     }
-
 }

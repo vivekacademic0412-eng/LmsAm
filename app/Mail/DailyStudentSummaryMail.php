@@ -18,7 +18,7 @@ class DailyStudentSummaryMail extends Mailable
     {
         return $this
             ->subject('Daily Student Registration Summary - ' . now()->format('d M Y'))
-            ->view('emails.daily-registration-summary')
+            ->view('emails.daily-student-summary')
             ->with(['summary' => $this->summary]);
     }
 }

@@ -43,7 +43,7 @@ class PaymentTransactions extends Component
      */
     public function isAdmin(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return auth()->user()?->role === 'student';
     }
 
     public function getPaymentsProperty()
@@ -51,7 +51,7 @@ class PaymentTransactions extends Component
         $query = Payment::query()->latest('paid_at');
 
         // Role-based visibility
-        if (! $this->isAdmin()) {
+        if ($this->isAdmin()) {
             $query->where('user_id', auth()->id());
         }
 
@@ -88,7 +88,7 @@ class PaymentTransactions extends Component
     {
         $base = Payment::query();
 
-        if (! $this->isAdmin()) {
+        if ($this->isAdmin()) {
             $base->where('user_id', auth()->id());
         }
 

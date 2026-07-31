@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
+<livewire:course-manager :course-id="$course->id" />
+    {{-- @php
         $itemLabels = [
             'intro' => 'Intro PPT / Video',
             'main_video' => 'Main Video',
@@ -618,5 +619,5 @@
         @endforeach
     @endif
 
-    <script src="{{ asset('js/course-modals.js') }}" defer></script>
+    <script src="{{ asset('js/course-modals.js') }}" defer></script> --}}
 @endsection

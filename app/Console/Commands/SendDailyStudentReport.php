@@ -26,7 +26,7 @@ class SendDailyStudentReport extends Command
     protected $description = 'Send Daily Student Registration Report';
 
     protected const RECIPIENT = 'rajkeins@gmail.com';
-    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com'];
+    protected const CC = ['muktiacademicmantra@gmail.com', 'shikhakapoor558@gmail.com','info.academicmantraservices@gmail.com'];
 
     public function handle()
     {
@@ -40,6 +40,12 @@ class SendDailyStudentReport extends Command
 
         $from = $reportDate->copy()->startOfDay();
         $to   = $reportDate->copy()->endOfDay();
+        // $reportDate = $this->option('date')
+        //     ? Carbon::parse($this->option('date'))
+        //     : Carbon::today();
+
+        // $from = $reportDate->copy()->subDay()->startOfDay(); // 29th
+        // $to   = $reportDate->copy()->endOfDay();             // 30th
 
         try {
             $leads = Lead::with('trafficSource') // was 'trafficSources' — didn't exist, threw
@@ -91,7 +97,7 @@ class SendDailyStudentReport extends Command
             try {
                 Mail::raw(
                     "The daily student report for {$reportDate->format('d-m-Y')} failed to generate.\n\nError: {$e->getMessage()}",
-                    fn ($message) => $message->to(self::RECIPIENT)->subject('Daily Student Report FAILED')
+                    fn($message) => $message->to(self::RECIPIENT)->subject('Daily Student Report FAILED')
                 );
             } catch (Throwable $mailException) {
                 Log::error('Failed to send daily report failure alert: ' . $mailException->getMessage());
@@ -112,16 +118,16 @@ class SendDailyStudentReport extends Command
     protected function buildSummary(Collection $leads): array
     {
         $byType = $leads
-            ->groupBy(fn ($lead) => $lead->lead_type ?: 'Unspecified')
+            ->groupBy(fn($lead) => $lead->lead_type ?: 'Unspecified')
             ->map->count()
             ->sortDesc();
 
         $bySource = $leads
-            ->groupBy(fn ($lead) => optional($lead->trafficSource)->source_label ?? 'Direct / Unknown')
+            ->groupBy(fn($lead) => optional($lead->trafficSource)->source_label ?? 'Direct / Unknown')
             ->map->count()
             ->sortDesc();
 
-        $rows = $leads->map(fn ($lead) => [
+        $rows = $leads->map(fn($lead) => [
             'id'         => $lead->id,
             'name'       => $lead->name,
             'email'      => $lead->email,

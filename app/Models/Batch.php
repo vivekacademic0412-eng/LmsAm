@@ -9,19 +9,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Batch extends Model
 {
     protected $fillable = [
-       'course_id', 'trainer_id', 'batch_code', 'mode',
-       'start_date', 'zero_day_date', 'max_weeks', 'max_seats', 'status', 'created_by',
-   ];
+        'batch_type',
+        'batch_code',
+        'mode',
+        'start_date',
+        'zero_day_date',
+        'max_weeks',
+        'max_seats',
+        'status',
+        'created_by',
+    ];
 
     protected $casts = [
         'start_date'    => 'date',
         'zero_day_date' => 'date',
     ];
-
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
-    }
 
     public function trainer(): BelongsTo
     {
@@ -41,5 +43,16 @@ class Batch extends Model
     public function enrollments(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class);
+    }
+    public function courseBatches()
+    {
+        return $this->hasMany(CourseBatch::class);
+    }
+
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_batch')
+            ->withPivot('trainer_id', 'status')
+            ->withTimestamps();
     }
 }

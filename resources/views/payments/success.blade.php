@@ -17,7 +17,7 @@
 
     <meta name="keywords"
         content="payment confirmation, payment receipt, Academic Mantra, invoice, enrollment confirmation, student payment">
-    ">
+  
     <meta name="author" content="Academic Mantra">
     <meta name="robots" content="noindex, nofollow"><!-- private panel -->
     <meta name="theme-color" content="#0947a8">
@@ -74,7 +74,6 @@
 </head>
 
 <body>
-
     <livewire:student.payment-success :token="$token" />
 </body>
 

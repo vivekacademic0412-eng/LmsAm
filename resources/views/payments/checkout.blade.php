@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
@@ -13,11 +12,11 @@
     <!-- Primary Meta -->
     <title>Complete Your Enrollment | Academic Mantra Services</title>
 
-<meta name="description"
-    content="Complete your enrollment securely with Academic Mantra Services. Pay your course or demo fee online and start your learning journey with industry-focused training.">
+    <meta name="description"
+        content="Complete your enrollment securely with Academic Mantra Services. Pay your course or demo fee online and start your learning journey with industry-focused training.">
 
-<meta name="keywords"
-    content="Academic Mantra payment, course enrollment, online payment, student registration, demo booking, LMS, secure payment">
+    <meta name="keywords"
+        content="Academic Mantra payment, course enrollment, online payment, student registration, demo booking, LMS, secure payment">
     <meta name="author" content="Academic Mantra">
     <meta name="robots" content="noindex, nofollow"><!-- private panel -->
     <meta name="theme-color" content="#0947a8">
@@ -43,10 +42,8 @@
     <meta name="twitter:image" content="https://lms.academicmantra.com/assets/og-cover.png">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml"
-        href="{{ asset('theme/images/am35.png') }}">
-    <link rel="apple-touch-icon"
-        href="{{ asset('theme/images/am35.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('theme/images/am35.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('theme/images/am35.png') }}">
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +56,7 @@
     <!-- Icons: Tabler + Font Awesome -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
- <link rel="stylesheet" href="{{ asset('theme/css/admin.css') }}" />
+    <link rel="stylesheet" href="{{ asset('theme/css/admin.css') }}" />
     <link rel="stylesheet" href="{{ asset('theme/css/profile.css') }}">
     <link rel="stylesheet" href="{{ asset('theme/css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('theme/css/demo.css') }}">
@@ -68,16 +65,17 @@
     <link rel="stylesheet" href="{{ asset('theme/css/broadcast.css') }}">
     <link rel="stylesheet" href="{{ asset('theme/css/course-component.css') }}">
     <!-- Structured Data -->
-   
+
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     @stack('style')
 </head>
+
 <body>
-   <livewire:student.payment-checkout :token="$token" />
+    <livewire:student.payment-checkout :token="$token"/>
 </body>
- 
+
 <!-- ══════════════ FOOTER ══════════════ -->
 <footer class="footer" role="contentinfo">
     <div class="footer-left">
@@ -96,7 +94,7 @@
 
 <!-- Sidebar collapse toggle (desktop) -->
 
- @stack('script')
+@stack('script')
 @livewireScripts
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

@@ -8,10 +8,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\EnrollmentService;
 
 class PaymentVerifyController extends Controller
 {
-    public function __invoke(Request $request, RazorpayService $razorpay)
+    public function __invoke(Request $request, RazorpayService $razorpay ,EnrollmentService $enrollmentService)
     {
         $validated = $request->validate([
             'token'                => 'required|string|exists:payments,token',
@@ -63,6 +64,10 @@ class PaymentVerifyController extends Controller
         Storage::disk('public')->put($path, $pdf->output());
         $payment->update(['receipt_pdf_path' => $path]);
 
+
+
+        // Enroll the student now that payment is confirmed
+        $enrollmentService->enroll($payment->fresh(['user', 'course']));
         // TODO: enroll the student now that payment is confirmed —
         // e.g. app(EnrollmentService::class)->enroll($payment);
 

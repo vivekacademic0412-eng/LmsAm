@@ -100,8 +100,19 @@ class Course extends Model
     {
         return $this->hasOne(\App\Models\CourseSettings::class);
     }
+    // public function batches()
+    // {
+    //     return $this->hasMany(Batch::class);
+    // }
+    public function courseBatches()
+    {
+        return $this->hasMany(CourseBatch::class);
+    }
+
     public function batches()
     {
-        return $this->hasMany(Batch::class);
+        return $this->belongsToMany(Batch::class, 'course_batch')
+            ->withPivot('trainer_id', 'status')
+            ->withTimestamps();
     }
 }

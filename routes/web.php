@@ -37,6 +37,7 @@ use App\Http\Controllers\CoureManagerController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\PaymentLinkController;
 use App\Http\Controllers\PaymentVerifyController;
+use App\Http\Controllers\PolicyController;
 use App\Livewire\Student\PaymentCheckout;
 use App\Livewire\Student\PaymentSuccess;
 use Illuminate\Http\Request;
@@ -94,7 +95,7 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
         Route::put('/users/{managedUser}', [UserManagementController::class, 'update'])->name('users.update');
         Route::delete('/users/{managedUser}', [UserManagementController::class, 'destroy'])->name('users.destroy');
         Route::post('/users/{managedUser}/resend-email', [UserManagementController::class, 'resendWelcomeEmail'])->name('users.resend-email');
-
+        Route::get('/policy-manager', [PolicyController::class, 'Policy'])->name('policy.index');
         Route::get('/enrollments', [CourseEnrollmentController::class, 'index'])->name('enrollments.index');
         Route::post('/enrollments', [CourseEnrollmentController::class, 'store'])->name('enrollments.store');
         Route::put('/enrollments/{enrollment}', [CourseEnrollmentController::class, 'update'])->name('enrollments.update');

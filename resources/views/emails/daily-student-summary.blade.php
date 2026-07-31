@@ -82,7 +82,7 @@
 
             @if (!empty($summary['by_source']))
             <!-- Breakdown by Traffic Source -->
-            <h3 style="margin:25px 0 10px; color:#0B3D91; font-size:17px;">By Traffic Source</h3>
+            {{-- <h3 style="margin:25px 0 10px; color:#0B3D91; font-size:17px;">By Traffic Source</h3>
             <table width="100%" cellpadding="10" cellspacing="0"
                 style="border-collapse:collapse; border:1px solid #D9E2EC; border-radius:8px; margin-bottom:10px;">
                 <tr style="background:#F1F5FB;">
@@ -95,13 +95,13 @@
                     <td align="center" style="font-size:14px;color:#0B3D91;font-weight:600;">{{ $count }}</td>
                 </tr>
                 @endforeach
-            </table>
+            </table> --}}
             @endif
 
             @if (!empty($summary['leads']))
             <!-- Full Lead List -->
             <h3 style="margin:25px 0 10px; color:#0B3D91; font-size:17px;">Leads Registered</h3>
-            <table width="100%" cellpadding="8" cellspacing="0"
+            {{-- <table width="100%" cellpadding="8" cellspacing="0"
                 style="border-collapse:collapse; border:1px solid #D9E2EC; border-radius:8px; margin-bottom:10px;">
                 <tr style="background:#0B3D91;color:#ffffff;">
                     <th align="left" style="font-size:12px;">Name</th>
@@ -123,7 +123,7 @@
                     <td style="font-size:12px;color:#6B7280;">{{ $lead['created_at'] }}</td>
                 </tr>
                 @endforeach
-            </table>
+            </table> --}}
             @endif
 
             <!-- Footer -->

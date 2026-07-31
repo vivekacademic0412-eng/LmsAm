@@ -5,6 +5,8 @@ namespace App\Livewire\Admin\Courses;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\CourseEnrollment;
+use App\Models\CourseLevel;
+use App\Models\CourseType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -35,11 +37,17 @@ class CourseIndex extends Component
     public $title;
     public $form_category_id;
     public $form_subcategory_id;
+    public $course_level_id;
+    public $course_type_id;
     public $language;
     public $duration_hours;
     public $short_description;
     public $description;
-    public $thumbnail; // uploaded file
+    public $original_price;
+    public $price;
+    public $gst;
+    public $thumbnail;           // newly-picked file (temp upload), only set when user chooses a new image
+    public $existing_thumbnail;  // absolute URL of the current image, used to render a preview while editing
 
     public function mount(): void
     {
@@ -54,6 +62,16 @@ class CourseIndex extends Component
             ->whereNull('parent_id')
             ->orderBy('name')
             ->get(['id', 'name']);
+    }
+
+    public function getLevelsProperty()
+    {
+        return CourseLevel::orderBy('name')->get(['id', 'name']);
+    }
+
+    public function getTypesProperty()
+    {
+        return CourseType::orderBy('name')->get(['id', 'name']);
     }
 
     public function getAssignedCourseIdsProperty()
@@ -92,18 +110,28 @@ class CourseIndex extends Component
         $this->resetForm();
     }
 
-    public function saveCourse(): void
+    protected function rules(): array
     {
-        $this->validate([
+        return [
             'title'               => 'required|string|max:255',
             'form_category_id'    => 'required|exists:course_categories,id',
             'form_subcategory_id' => 'nullable|exists:course_categories,id',
+            'course_level_id'     => 'nullable|exists:course_levels,id',
+            'course_type_id'      => 'nullable|exists:course_types,id',
             'language'            => 'nullable|string|max:100',
             'duration_hours'      => 'required|integer|min:1',
             'short_description'   => 'nullable|string',
             'description'         => 'nullable|string',
+            'original_price'      => 'nullable|numeric|min:0',
+            'price'               => 'nullable|numeric|min:0',
+            'gst'                 => 'nullable|numeric|min:0',
             'thumbnail'           => 'nullable|image|max:2048',
-        ]);
+        ];
+    }
+
+    public function saveCourse(): void
+    {
+        $this->validate($this->rules());
 
         $thumbnailPath = null;
         if ($this->thumbnail) {
@@ -113,11 +141,17 @@ class CourseIndex extends Component
         Course::create([
             'category_id'        => $this->form_category_id,
             'subcategory_id'     => $this->form_subcategory_id ?: null,
+            'course_level_id'    => $this->course_level_id ?: null,
+            'course_type_id'     => $this->course_type_id ?: null,
             'title'              => $this->title,
+            'slug'                => \Illuminate\Support\Str::slug($this->title) . '-' . uniqid(),
             'language'           => $this->language,
             'duration_hours'     => $this->duration_hours,
             'short_description'  => $this->short_description,
             'description'        => $this->description,
+            'original_price'     => $this->original_price ?: 0,
+            'price'              => $this->price ?: 0,
+            'gst'                => $this->gst ?: 0,
             'thumbnail'          => $thumbnailPath,
             'created_by'         => Auth::id(),
         ]);
@@ -135,11 +169,17 @@ class CourseIndex extends Component
         $this->title = $course->title;
         $this->form_category_id = $course->category_id;
         $this->form_subcategory_id = $course->subcategory_id;
+        $this->course_level_id = $course->course_level_id;
+        $this->course_type_id = $course->course_type_id;
         $this->language = $course->language;
         $this->duration_hours = $course->duration_hours;
         $this->short_description = $course->short_description;
         $this->description = $course->description;
-        $this->thumbnail = null;
+        $this->original_price = $course->original_price;
+        $this->price = $course->price;
+        $this->gst = $course->gst;
+        $this->existing_thumbnail = $course->thumbnail_url; // for preview only
+        $this->thumbnail = null;                             // no new file picked yet
     }
 
     public function closeEditModal(): void
@@ -150,29 +190,26 @@ class CourseIndex extends Component
 
     public function updateCourse(): void
     {
-        $this->validate([
-            'title'               => 'required|string|max:255',
-            'form_category_id'    => 'required|exists:course_categories,id',
-            'form_subcategory_id' => 'nullable|exists:course_categories,id',
-            'language'            => 'nullable|string|max:100',
-            'duration_hours'      => 'required|integer|min:1',
-            'short_description'   => 'nullable|string',
-            'description'         => 'nullable|string',
-            'thumbnail'           => 'nullable|image|max:2048',
-        ]);
+        $this->validate($this->rules());
 
         $course = Course::findOrFail($this->editingCourseId);
 
         $data = [
             'category_id'        => $this->form_category_id,
             'subcategory_id'     => $this->form_subcategory_id ?: null,
+            'course_level_id'    => $this->course_level_id ?: null,
+            'course_type_id'     => $this->course_type_id ?: null,
             'title'              => $this->title,
             'language'           => $this->language,
             'duration_hours'     => $this->duration_hours,
             'short_description'  => $this->short_description,
             'description'        => $this->description,
+            'original_price'     => $this->original_price ?: 0,
+            'price'              => $this->price ?: 0,
+            'gst'                => $this->gst ?: 0,
         ];
 
+        // Only touch the thumbnail column if the user actually picked a new file.
         if ($this->thumbnail) {
             if ($course->thumbnail) {
                 Storage::disk('public')->delete($course->thumbnail);
@@ -214,8 +251,11 @@ class CourseIndex extends Component
     protected function resetForm(): void
     {
         $this->reset([
-            'title', 'form_category_id', 'form_subcategory_id', 'language',
-            'duration_hours', 'short_description', 'description', 'thumbnail',
+            'title', 'form_category_id', 'form_subcategory_id',
+            'course_level_id', 'course_type_id',
+            'language', 'duration_hours', 'short_description', 'description',
+            'original_price', 'price', 'gst',
+            'thumbnail', 'existing_thumbnail',
         ]);
     }
 
@@ -230,6 +270,8 @@ class CourseIndex extends Component
         return view('livewire.admin.courses.course-index', [
             'courses'    => $courses,
             'categories' => $this->categories,
+            'levels'     => $this->levels,
+            'types'      => $this->types,
         ]);
     }
 }
