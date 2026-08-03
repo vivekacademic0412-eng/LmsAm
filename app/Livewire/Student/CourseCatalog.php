@@ -7,6 +7,7 @@ use App\Mail\CoursePurchaseThankYou;
 use App\Models\Batch;
 use App\Models\BatchStudent;
 use App\Models\Course;
+use App\Models\CourseBatch;
 use App\Models\CourseCategory;
 use App\Models\CourseEnrollment;
 use App\Models\Enrollment;
@@ -28,6 +29,17 @@ class CourseCatalog extends Component
      */
     public $selectedBatch = [];
 
+    /**
+     * Which top-level category tab is currently open in the "Browse All Courses"
+     * section. Kept as server state (instead of pure client-side JS toggling)
+     * so it survives every Livewire re-render — previously, clicking a category
+     * appeared to "do nothing" because any wire:click elsewhere (add to cart,
+     * pick batch, etc.) caused Livewire to morph the DOM back to whatever the
+     * Blade template rendered server-side, silently resetting the tab back to
+     * the first category and wiping out the client-only selection.
+     */
+    public $activeCategoryId = null;
+
     public function mount()
     {
         $this->cartIds       = session('course_cart', []);
@@ -42,24 +54,33 @@ class CourseCatalog extends Component
         ]);
     }
 
+    /** Switch the active category tab in "Browse All Courses". */
+    public function setActiveCategory($categoryId)
+    {
+        $this->activeCategoryId = (int) $categoryId;
+    }
+
     /** Seats remaining on a batch. Public so the Blade view can show live counts. */
+
+
     public function seatsLeftFor(Batch $batch): int
     {
-        $taken = $batch->students()->where('status', '!=', 'cancelled')->count();
+        $taken = $batch->students()
+            ->where('status', '!=', 'cancelled')
+            ->count();
 
         return max(0, ($batch->max_seats ?? 0) - $taken);
     }
-
     public function pickBatch($courseId, $batchId)
     {
-        $course = Course::with('batches')->find($courseId);
+        $course = Course::with('batches.batch')->find($courseId);
         $batch  = $course?->batches->firstWhere('id', (int) $batchId);
 
         if (! $batch) {
             return;
         }
 
-        if ($this->seatsLeftFor($batch) <= 0) {
+        if ($this->seatsLeftFor($batch->batch) <= 0) {
             $this->addError('cart', 'That batch is full — pick another one.');
             return;
         }
@@ -70,14 +91,14 @@ class CourseCatalog extends Component
 
     public function addToCart($courseId)
     {
-        $course = Course::with('batches')->find($courseId);
+        $course = Course::with('batches.batch')->find($courseId);
         if (! $course) {
             return;
         }
 
         // If the course runs in batches, a seat must be selected before it can be carted.
         if ($course->batches->isNotEmpty() && empty($this->selectedBatch[$courseId])) {
-            $firstOpen = $course->batches->first(fn ($b) => $this->seatsLeftFor($b) > 0);
+            $firstOpen = $course->batches->first(fn($b) => $b->batch && $this->seatsLeftFor($b->batch) > 0);
             if (! $firstOpen) {
                 $this->addError('cart', "\"{$course->title}\" has no open batches right now.");
                 return;
@@ -90,7 +111,7 @@ class CourseCatalog extends Component
         }
 
         $this->syncSession();
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-added');
     }
 
     public function removeFromCart($courseId)
@@ -98,7 +119,7 @@ class CourseCatalog extends Component
         $this->cartIds = array_values(array_diff($this->cartIds, [$courseId]));
         unset($this->selectedBatch[$courseId]);
         $this->syncSession();
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-removed');
     }
 
     public function buyNow($courseId)
@@ -114,19 +135,19 @@ class CourseCatalog extends Component
 
     public function getCartCoursesProperty()
     {
-        return Course::with('batches')->whereIn('id', $this->cartIds)->get();
+        return Course::with('batches.batch')->whereIn('id', $this->cartIds)->get();
     }
 
     /** Sum of discounted course prices (before GST). */
     public function getCartSubtotalProperty()
     {
-        return $this->cartCourses->sum(fn ($c) => $c->price ?? 0);
+        return $this->cartCourses->sum(fn($c) => $c->price ?? 0);
     }
 
     /** Sum of GST across all cart courses (each course can have its own gst %). */
     public function getCartGstProperty()
     {
-        return round($this->cartCourses->sum(fn ($c) => ($c->price ?? 0) * (($c->gst ?? 0) / 100)), 2);
+        return round($this->cartCourses->sum(fn($c) => ($c->price ?? 0) * (($c->gst ?? 0) / 100)), 2);
     }
 
     /** What actually gets charged — subtotal + GST. */
@@ -150,8 +171,8 @@ class CourseCatalog extends Component
         foreach ($this->cartCourses as $course) {
             $batchId = $this->selectedBatch[$course->id] ?? null;
             if ($batchId) {
-                $batch = $course->batches->firstWhere('id', $batchId);
-                if (! $batch || $this->seatsLeftFor($batch) <= 0) {
+                $courseBatch = $course->batches->firstWhere('id', $batchId);
+                if (! $courseBatch || ! $courseBatch->batch || $this->seatsLeftFor($courseBatch->batch) <= 0) {
                     $this->addError('cart', "Sorry, \"{$course->title}\" just filled up — please pick another batch.");
                     return;
                 }
@@ -258,8 +279,9 @@ class CourseCatalog extends Component
                 $courseGst    = round(($course->price ?? 0) * (($course->gst ?? 0) / 100), 2);
                 $courseAmount = round(($course->price ?? 0) + $courseGst, 2);
 
-                $batchId = $this->selectedBatch[$course->id] ?? null;
-                $batch   = $batchId ? $course->batches->firstWhere('id', $batchId) : null;
+                $batchId     = $this->selectedBatch[$course->id] ?? null;
+                $courseBatch = $batchId ? $course->batches->firstWhere('id', $batchId) : null;
+                $batch       = $courseBatch?->batch;
 
                 $enrollment = CourseEnrollment::firstOrCreate(
                     ['student_id' => auth()->id(), 'course_id' => $course->id],
@@ -280,8 +302,9 @@ class CourseCatalog extends Component
 
                 if ($batch) {
                     BatchStudent::firstOrCreate(
-                        ['batch_id' => $batch->id, 'user_id' => auth()->id()],
+                        ['course_batch_id' => $courseBatch?->id, 'user_id' => auth()->id()],
                         [
+                            'batch_id' => $batch?->id,
                             'enrollment_id' => $enrollment->id,
                             'joined_at'     => now(),
                             'status'        => 'active',
@@ -324,15 +347,38 @@ class CourseCatalog extends Component
         $enrolledCourseIds = $enrollments->keys()->all();
 
         $courseWith = [
-            'category', 'subcategory', 'courseType',
+            'category',
+            'subcategory',
+            'courseType',
             'weeks.sessions',
-            'batches' => fn ($b) => $b->orderBy('start_date'),
+
+            // FIX: `course_batch` (the CourseBatch pivot model) has NO `start_date`
+            // column — that lives on `batches`. Ordering by `start_date` directly on
+            // this relation threw:
+            //   SQLSTATE[42S22]: Column not found: 1054 Unknown column 'start_date'
+            //   in 'order clause'
+            // so we join to `batches` to sort, eager-load the related Batch model,
+            // and explicitly select `course_batch.*` to avoid column name collisions
+            // (both tables have `id`, `status`, `created_at`, `updated_at`).
+            'batches' => function ($q) {
+                $q->with('batch')
+                    ->join('batches', 'batches.id', '=', 'course_batch.batch_id')
+                    ->orderBy('batches.start_date')
+                    ->select('course_batch.*');
+            },
         ];
 
         $categories = CourseCategory::with([
-            'courses' => fn ($q) => $q->with($courseWith)->orderBy('title'),
-            'children.courses' => fn ($q) => $q->with($courseWith)->orderBy('title'),
+            'courses' => fn($q) => $q->with($courseWith)->orderBy('title'),
+            'children.courses' => fn($q) => $q->with($courseWith)->orderBy('title'),
         ])->whereNull('parent_id')->orderBy('name')->get();
+
+        // Default the active tab to the first category the first time the
+        // component renders (server-side, so it's always correct — no reliance
+        // on client JS running before the first paint).
+        if ($this->activeCategoryId === null && $categories->isNotEmpty()) {
+            $this->activeCategoryId = $categories->first()->id;
+        }
 
         return view('livewire.student.course-catalog', [
             'categories'        => $categories,

@@ -111,8 +111,6 @@ class Course extends Model
 
     public function batches()
     {
-        return $this->belongsToMany(Batch::class, 'course_batch')
-            ->withPivot('trainer_id', 'status')
-            ->withTimestamps();
+        return $this->hasMany(CourseBatch::class, 'course_id');
     }
 }

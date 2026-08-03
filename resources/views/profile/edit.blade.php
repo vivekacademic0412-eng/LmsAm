@@ -441,9 +441,9 @@
 @auth
     
 
-    @if(auth()->user()->role === \App\Models\User::ROLE_STUDENT)
+    {{-- @if(auth()->user()->role === \App\Models\User::ROLE_STUDENT)
         <livewire:update-onboarding-profile />
-    @endif
+    @endif --}}
     <livewire:user.profile-studio />
 @endauth
 <style>

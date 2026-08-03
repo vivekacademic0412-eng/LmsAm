@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class AttendanceController extends Controller
+{
+    //
+    public function index(Request $request)
+    {
+        return view('student.attendance.index', );
+    }
+    public function show(){
+        return view('backend.admin.attendance.index', );
+    }
+}

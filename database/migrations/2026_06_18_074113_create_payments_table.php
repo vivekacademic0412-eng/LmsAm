@@ -18,7 +18,7 @@ return new class extends Migration
             // Student Details
             $table->string('name');
             $table->string('email');
-            $table->string('phone', 20);
+            $table->string('phone', 20)->nullable();
 
             $table->unsignedBigInteger('state_id')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();

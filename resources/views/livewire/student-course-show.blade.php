@@ -212,10 +212,27 @@
 
         .lw-frame {
             border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: #060c18; box-shadow: var(--shadow-card);
+            position: relative;
         }
         .lw-frame iframe, .lw-frame video { width: 100%; display: block; border: 0; }
         .lw-frame iframe { min-height: 680px; background: #fff; }
         .lw-frame video { aspect-ratio: 16/9; background: #000; }
+
+        /* ---------- Protected video / anti-capture deterrents ---------- */
+        .lw-video-protect { user-select: none; -webkit-user-select: none; }
+        .lw-video-protect video { pointer-events: auto; }
+        .lw-watermark {
+            position: absolute; z-index: 3; pointer-events: none; top: 10px; right: 12px;
+            font-family: var(--lw-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .03em;
+            color: rgba(255,255,255,.55); background: rgba(0,0,0,.28); padding: 4px 9px; border-radius: 6px;
+            backdrop-filter: blur(2px);
+        }
+        .lw-watermark-tid { display: block; font-size: 9px; color: rgba(255,255,255,.4); margin-top: 1px; }
+        .lw-protect-note {
+            display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted);
+            margin-top: 6px;
+        }
+        .lw-protect-note svg { width: 13px; height: 13px; flex-shrink: 0; }
 
         .lw-docx, .lw-pptx {
             width: 100%; min-height: 640px; border: 1px solid var(--line); border-radius: var(--radius-sm);
@@ -280,9 +297,53 @@
             .lw-stack { grid-auto-flow: row; overflow-x: visible; }
             .lw-dial { width: 132px; height: 132px; }
         }
+        @media (max-width: 420px) {
+            .lw-hero-actions, .lw-actions-row { flex-direction: column; align-items: stretch; }
+            .lw-btn { width: 100%; }
+            .lw-rail-stop { min-width: 104px; padding: 0 14px; }
+            .lw-dial { width: 112px; height: 112px; }
+            .lw-frame iframe { min-height: 420px; }
+        }
     </style>
 
-    <div class="lw-page" x-data="{}">
+    <div
+        class="lw-page"
+        x-data="{}"
+        x-init="
+            window.__lwProtect = window.__lwProtect || (() => {
+                const warn = (title, text) => {
+                    if (window.Swal) {
+                        Swal.fire({ icon: 'warning', title, text, timer: 2600, showConfirmButton: false, toast: true, position: 'top-end' });
+                    }
+                };
+                document.addEventListener('contextmenu', (e) => {
+                    if (e.target.closest('[data-video-protect]')) e.preventDefault();
+                });
+                document.addEventListener('keydown', (e) => {
+                    const guarded = document.querySelector('[data-video-protect]');
+                    if (!guarded) return;
+                    const key = (e.key || '').toLowerCase();
+                    if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'u', 'c'].includes(key)) {
+                        e.preventDefault();
+                        $wire.logSuspiciousActivity('save_or_print_shortcut');
+                        warn('Action blocked', 'Downloading or copying this lesson is not allowed. This attempt has been logged.');
+                    }
+                    if (key === 'printscreen') {
+                        $wire.logSuspiciousActivity('printscreen_key');
+                        warn('Heads up', 'Screenshots of this lesson are logged against your account.');
+                    }
+                });
+                document.addEventListener('visibilitychange', () => {
+                    const guarded = document.querySelector('[data-video-protect] video');
+                    if (document.hidden && guarded && !guarded.paused) {
+                        guarded.pause();
+                        $wire.logSuspiciousActivity('tab_hidden_during_playback');
+                    }
+                });
+                return true;
+            })();
+        "
+    >
 
         @if ($errors->any())
             <div class="lw-alert" role="alert">
@@ -319,7 +380,7 @@
 
                 <div class="lw-hero-actions">
                     @if ($this->nextPendingItemId)
-                        <button type="button" class="lw-btn lw-btn-primary" wire:click="continueNextPending">
+                        <button type="button" class="lw-btn lw-btn-primary" wire:click="continueNextPending" wire:loading.attr="disabled" wire:target="continueNextPending">
                             Continue next item
                         </button>
                     @endif
@@ -364,6 +425,8 @@
                     <button
                         type="button"
                         wire:click="selectWeek({{ $w->id }})"
+                        wire:loading.attr="disabled"
+                        wire:target="selectWeek"
                         class="lw-rail-stop {{ $wDone ? 'is-done' : '' }} {{ $isCurrentWeek ? 'is-current' : '' }}"
                     >
                         <span class="lw-rail-node">{{ $wDone ? '✓' : $w->week_number }}</span>
@@ -396,7 +459,7 @@
                                 $isCurrentSession = $session && (int) $session->id === (int) $s->id;
                                 $pct = $sItems->count() ? (int) round($sDone / $sItems->count() * 100) : 0;
                             @endphp
-                            <button type="button" wire:click="selectSession({{ $s->id }})"
+                            <button type="button" wire:click="selectSession({{ $s->id }})" wire:loading.attr="disabled" wire:target="selectSession"
                                 class="lw-row {{ $isCurrentSession ? 'is-active' : '' }}">
                                 <div class="lw-row-top">
                                     <strong>Session {{ $s->session_number }}: {{ $s->title }}</strong>
@@ -428,7 +491,7 @@
                                 $isCurrentItem = $item && (int) $item->id === (int) $i->id;
                                 $isQuiz = $i->item_type === CourseSessionItem::TYPE_QUIZ;
                             @endphp
-                            <button type="button" wire:click="selectItem({{ $i->id }})"
+                            <button type="button" wire:click="selectItem({{ $i->id }})" wire:loading.attr="disabled" wire:target="selectItem"
                                 class="lw-row {{ $isCurrentItem ? 'is-active' : '' }} {{ $isDone ? 'is-done' : '' }}">
                                 <div class="lw-row-top">
                                     <strong>{{ $loop->iteration }}. {{ $i->title }}</strong>
@@ -468,7 +531,7 @@
                         $submission = $this->selectedSubmission;
                     @endphp
 
-                    <section class="lw-panel lw-viewer">
+                    <section class="lw-panel lw-viewer" wire:key="item-{{ $item->id }}">
                         <div class="lw-viewer-head">
                             <div>
                                 <div class="lw-crumb">
@@ -478,12 +541,12 @@
                             </div>
                             <div class="lw-actions-row">
                                 @if ($this->selectedPreviousItem)
-                                    <button type="button" class="lw-btn lw-btn-soft" wire:click="goToPreviousItem">&larr; Previous</button>
+                                    <button type="button" class="lw-btn lw-btn-soft" wire:click="goToPreviousItem" wire:loading.attr="disabled" wire:target="goToPreviousItem">&larr; Previous</button>
                                 @endif
                                 @if ($this->selectedNextItem)
-                                    <button type="button" class="lw-btn lw-btn-solid" wire:click="goToNextItem">Next &rarr;</button>
+                                    <button type="button" class="lw-btn lw-btn-solid" wire:click="goToNextItem" wire:loading.attr="disabled" wire:target="goToNextItem">Next &rarr;</button>
                                 @elseif ($this->nextPendingItemId && ! $this->selectedIsCompleted)
-                                    <button type="button" class="lw-btn lw-btn-solid" wire:click="continueNextPending">Go to next pending</button>
+                                    <button type="button" class="lw-btn lw-btn-solid" wire:click="continueNextPending" wire:loading.attr="disabled" wire:target="continueNextPending">Go to next pending</button>
                                 @endif
                             </div>
                         </div>
@@ -540,12 +603,30 @@
                         @endif
 
                         @if ($this->selectedCanPreviewVideo)
-                            <div class="lw-frame">
-                                <video controls controlsList="nodownload noplaybackrate" preload="metadata">
+                            <div class="lw-frame lw-video-protect" data-video-protect data-tid="{{ $this->currentViewTid }}">
+                                <div class="lw-watermark">
+                                    {{ $this->watermarkLabel }}
+                                    @if ($this->currentViewTid)
+                                        <span class="lw-watermark-tid">Ref {{ Str::limit($this->currentViewTid, 12, '') }}</span>
+                                    @endif
+                                </div>
+                                <video
+                                    controls
+                                    controlsList="nodownload noplaybackrate noremoteplayback"
+                                    disablePictureInPicture
+                                    disableRemotePlayback
+                                    oncontextmenu="return false"
+                                    preload="metadata"
+                                    x-on:ended="$wire.markVideoWatched()"
+                                >
                                     <source src="{{ $this->selectedStreamUrl }}">
                                     Your browser does not support secure video playback.
                                 </video>
                             </div>
+                            <p class="lw-protect-note">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/></svg>
+                                This playback is watermarked and access-logged to your account — downloads and remote casting are disabled.
+                            </p>
                         @elseif ($this->selectedCanPreviewPdf)
                             <div class="lw-frame">
                                 <iframe src="{{ $this->selectedStreamUrl }}#toolbar=0&navpanes=0&scrollbar=1" title="{{ $item->title }}"></iframe>
@@ -701,6 +782,26 @@
             </div>
         </div>
     </div>
+
+    {{-- SweetAlert2 + Livewire event wiring (submission confirmations, validation, protection warnings) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('submission-saved', (payload) => {
+                const message = (Array.isArray(payload) ? payload[0]?.message : payload?.message) ?? 'Your progress has been saved.';
+                if (window.Swal) {
+                    Swal.fire({ icon: 'success', title: 'Saved!', text: message, timer: 2000, showConfirmButton: false, toast: true, position: 'top-end' });
+                }
+            });
+
+            Livewire.on('validation-failed', (payload) => {
+                const message = (Array.isArray(payload) ? payload[0]?.message : payload?.message) ?? 'Please check the highlighted field and try again.';
+                if (window.Swal) {
+                    Swal.fire({ icon: 'warning', title: 'Check your submission', text: message });
+                }
+            });
+        });
+    </script>
 
     @if ($this->selectedCanPreviewPptx)
         <script src="{{ asset('js/jszip.min.js') }}"></script>

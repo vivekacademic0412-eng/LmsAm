@@ -1,11 +1,10 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app')
 
 @php
     $selectedAudience = old('audience', 'all_active_users');
 @endphp
 
 @section('content')
-
 
     <div class="broadcast-shell">
         <section class="broadcast-hero">
@@ -194,4 +193,9 @@
             syncCourseField();
         });
     </script>
-@endsection
+@endsection --}}
+
+@extends('layouts.app')
+   @section('content')
+       @livewire('broadcast-notifications')
+   @endsection

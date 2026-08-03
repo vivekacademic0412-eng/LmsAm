@@ -10,4 +10,8 @@ class PolicyController extends Controller
     public function Policy(){
         return view('backend.admin.policy.index');
     }
+    public function show()
+    {
+        return view('backend.admin.policy.sections');
+    }
 }

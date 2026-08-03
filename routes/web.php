@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\NavItemController;
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BroadcastNotificationController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CourseCategoryController;
@@ -88,6 +89,8 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
         ->name('course-item-submissions.review');
 
     Route::middleware('role:superadmin,admin,manager_hr')->group(function (): void {
+          Route::get('/policy-sections', [PolicyController::class, 'show'])->name('policy.sections.index');
+          Route::get('/enrollments-attendance', [AttendanceController::class, 'show'])->name('enrollments.student.attendance');
         // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
           Route::get('/leads', [UserManagementController::class, 'index'])->name('leads.index');
         Route::get('/users-control', [UserManagementController::class, 'show'])->name('users.index');
@@ -171,7 +174,7 @@ Route::middleware(['auth', 'active', 'activity.log',])->group(function (): void 
 
     Route::middleware('role:student')->group(function (): void {
 
-
+      Route::get('/my-attendance', [AttendanceController::class, 'index'])->name('student.attendance');
         Route::get('/my-demos', [DemoTaskController::class, 'myDemos'])->name('demos');
         //    Route::get('/student/courses', CourseCatalog::class)->name('student.courses.index');
         Route::get('/student/courses/{course}/preview', [CourseEnrollmentController::class, 'Preview'])->name('student.courses.preview');

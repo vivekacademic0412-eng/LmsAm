@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BatchStudent extends Model
 {
     protected $fillable = [
+        'batch_id',
         'course_batch_id',
         'user_id',
         'enrollment_id',
@@ -21,9 +22,8 @@ class BatchStudent extends Model
 
     public function batch(): BelongsTo
     {
-        return $this->belongsTo(CourseBatch::class,'id','course_batch_id');
+        return $this->belongsTo(CourseBatch::class, 'course_batch_id'); // owner key defaults to 'id'
     }
-
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -31,6 +31,7 @@ class BatchStudent extends Model
 
     public function enrollment(): BelongsTo
     {
-        return $this->belongsTo(Enrollment::class);
+        return $this->belongsTo(CourseEnrollment::class, 'enrollment_id');
     }
+   
 }

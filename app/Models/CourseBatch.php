@@ -21,16 +21,15 @@ class CourseBatch extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function batch(): BelongsTo
+    public function batch()
     {
         return $this->belongsTo(Batch::class);
     }
-    public function student(): BelongsTo
+
+    public function students()
     {
-        return $this->belongsTo(BatchStudent::class);
+        return $this->hasMany(BatchStudent::class, 'course_batch_id');
     }
-
-
     public function trainer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'trainer_id');

@@ -171,6 +171,7 @@
                 <h2>Policy Management</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span class="policy-count-pill">{{ $policies->total() }} total</span>
+                    <a href="{{ route('policy.sections.index') }}" class="btn btn-soft" >+  Policy Sections</a>
                     <button type="button" class="btn btn-soft" wire:click="openCreateModal">+ New Policy</button>
                 </div>
             </div>

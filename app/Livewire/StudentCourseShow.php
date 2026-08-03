@@ -7,10 +7,12 @@ use App\Models\CourseEnrollment;
 use App\Models\CourseItemSubmission;
 use App\Models\CourseProgress;
 use App\Models\CourseSessionItem;
+use App\Models\CourseViewLog;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -36,6 +38,12 @@ class StudentCourseShow extends Component
     public string $answerText = '';
 
     public $submissionFile = null;
+
+    // TID of the most recent access-log row for the item currently on screen.
+    // Rendered into the watermark so leaked footage can be traced back to a view.
+    public ?string $currentViewTid = null;
+
+    public $selectedReadAloudSelectors = [];
 
     public function mount(Course $course): void
     {
@@ -81,6 +89,9 @@ class StudentCourseShow extends Component
             $session = $week?->sessions->firstWhere('id', $this->sessionId);
             $this->itemId = $next['itemId'] ?? $session?->items->first()?->id;
         }
+
+        $this->refreshReadAloudSelectors();
+        $this->logAccess('viewed', ['source' => 'mount']);
     }
 
     /* -----------------------------------------------------------------
@@ -255,40 +266,58 @@ class StudentCourseShow extends Component
         return $this->selectedHasPrivateAsset && $this->selectedFormat === 'pdf';
     }
 
+    /**
+     * Word documents render through the in-browser docx-preview/mammoth pipeline
+     * (see the docx script block at the bottom of the view) so the reader can be
+     * fed into the read-aloud widget.
+     */
     #[Computed]
     public function selectedCanPreviewDocx(): bool
     {
-        return $this->selectedHasPrivateAsset && $this->selectedFormat === 'docx';
+        return $this->selectedHasPrivateAsset && in_array($this->selectedFormat, ['doc', 'docx'], true);
     }
 
+    /**
+     * PowerPoint files render through the JSZip-based slide viewer so slide text
+     * can also be fed into the read-aloud widget.
+     */
     #[Computed]
     public function selectedCanPreviewPptx(): bool
     {
-        return $this->selectedHasPrivateAsset && $this->selectedFormat === 'pptx';
+        return $this->selectedHasPrivateAsset && in_array($this->selectedFormat, ['ppt', 'pptx'], true);
     }
 
+    /**
+     * Excel formats fall back to the secure server-rendered iframe viewer —
+     * doc/docx/ppt/pptx are handled by the richer viewers above.
+     */
     #[Computed]
     public function selectedCanPreviewOffice(): bool
     {
-        return $this->selectedHasPrivateAsset
-            && in_array($this->selectedFormat, ['doc', 'ppt', 'xls', 'xlsx'], true);
+        return $this->selectedHasPrivateAsset && in_array($this->selectedFormat, ['xls', 'xlsx'], true);
     }
 
+    /**
+     * Text fed straight to the inline Alpine read-aloud widget — no DOM scraping,
+     * so it's reliable regardless of what's rendered in the media area.
+     */
     #[Computed]
-    public function selectedReadAloudSelectors(): array
+    public function selectedReadAloudText(): string
     {
-        return array_values(array_filter([
-            $this->selectedCanPreviewDocx ? '#lesson-read-aloud-docx .docx-renderer__body' : null,
-            $this->selectedCanPreviewDocx ? '#lesson-read-aloud-docx section.docx-viewer' : null,
-            $this->selectedCanPreviewPptx ? '#lesson-read-aloud-pptx .pptx-renderer__slide-stage' : null,
-            ! empty($this->selectedItem?->content) ? '#lesson-read-aloud-notes' : null,
-        ]));
+        $parts = array_filter([
+            $this->selectedWeek ? 'Week '.$this->selectedWeek->week_number.': '.$this->selectedWeek->title : null,
+            $this->selectedSession ? 'Session '.$this->selectedSession->session_number.': '.$this->selectedSession->title : null,
+            $this->selectedItem?->title,
+            $this->selectedItem?->content,
+        ]);
+
+        return trim(implode('. ', $parts));
     }
 
     #[Computed]
     public function selectedCanUseReadAloud(): bool
     {
-        return count($this->selectedReadAloudSelectors) > 0;
+        return $this->selectedReadAloudText !== '';
     }
 
     #[Computed]
@@ -413,8 +442,8 @@ class StudentCourseShow extends Component
         return match (true) {
             $this->selectedCanPreviewVideo => 'Secure Video',
             $this->selectedCanPreviewPdf => 'Inline PDF',
-            $this->selectedCanPreviewDocx => 'Inline DOCX',
-            $this->selectedCanPreviewPptx => 'Inline PPTX',
+            $this->selectedCanPreviewDocx => 'Secure Document Viewer',
+            $this->selectedCanPreviewPptx => 'Secure Slide Viewer',
             $this->selectedCanPreviewOffice => 'Secure Office Viewer',
             (bool) $this->selectedItem?->resource_url => 'External Resource',
             $this->selectedIsTask => 'Task Workspace',
@@ -436,6 +465,14 @@ class StudentCourseShow extends Component
     }
 
     #[Computed]
+    public function watermarkLabel(): string
+    {
+        $user = Auth::user();
+
+        return trim(($user?->name ?? 'Student').' · ID '.($user?->id ?? '—'));
+    }
+
+    #[Computed]
     public function continueUrl(): ?string
     {
         return $this->nextPendingItemId ? '#learning-workspace' : null;
@@ -453,6 +490,10 @@ class StudentCourseShow extends Component
         $this->sessionId = $week?->sessions->first()?->id;
         $this->itemId = $week?->sessions->first()?->items->first()?->id;
         $this->resetErrorBag();
+        unset($this->selectedSubmission);
+
+        $this->refreshReadAloudSelectors();
+        $this->logAccess('viewed');
     }
 
     public function selectSession(int $sessionId): void
@@ -462,6 +503,10 @@ class StudentCourseShow extends Component
         $this->sessionId = $sessionId;
         $this->itemId = $session?->items->first()?->id;
         $this->resetErrorBag();
+        unset($this->selectedSubmission);
+
+        $this->refreshReadAloudSelectors();
+        $this->logAccess('viewed');
     }
 
     public function selectItem(int $itemId): void
@@ -470,6 +515,10 @@ class StudentCourseShow extends Component
         $this->answerText = '';
         $this->submissionFile = null;
         $this->resetErrorBag();
+        unset($this->selectedSubmission);
+
+        $this->refreshReadAloudSelectors();
+        $this->logAccess('viewed');
     }
 
     public function goToNextItem(): void
@@ -494,18 +543,26 @@ class StudentCourseShow extends Component
             $this->weekId = $next['weekId'];
             $this->sessionId = $next['sessionId'];
             $this->itemId = $next['itemId'];
+
+            $this->refreshReadAloudSelectors();
+            $this->logAccess('viewed');
         }
     }
 
     /* -----------------------------------------------------------------
-     |  Submissions
+     |  Submissions & progress
      |----------------------------------------------------------------- */
 
     public function submitTask(): void
     {
-        $this->validate([
-            'submissionFile' => ['required', 'file'],
-        ]);
+        try {
+            $this->validate([
+                'submissionFile' => ['required', 'file'],
+            ]);
+        } catch (ValidationException $e) {
+            $this->dispatch('validation-failed', message: $e->validator->errors()->first());
+            throw $e;
+        }
 
         CourseItemSubmission::create([
             'course_enrollment_id' => $this->enrollment->id,
@@ -519,17 +576,23 @@ class StudentCourseShow extends Component
         $this->submissionFile = null;
         unset($this->selectedSubmission, $this->completedItemIds, $this->completedMap);
 
-        $this->dispatch('submission-saved');
+        $this->dispatch('submission-saved', message: 'Your task file was submitted successfully.');
     }
 
     public function submitQuiz(): void
     {
-        $this->validate([
-            'answerText' => ['required', 'string', 'min:1'],
-        ]);
+        try {
+            $this->validate([
+                'answerText' => ['required', 'string', 'min:1'],
+            ]);
+        } catch (ValidationException $e) {
+            $this->dispatch('validation-failed', message: $e->validator->errors()->first());
+            throw $e;
+        }
 
         if (! $this->selectedItem?->is_live) {
             $this->addError('answerText', 'This quiz is not live yet.');
+            $this->dispatch('validation-failed', message: 'This quiz is not live yet.');
 
             return;
         }
@@ -545,7 +608,43 @@ class StudentCourseShow extends Component
         $this->answerText = '';
         unset($this->selectedSubmission, $this->completedItemIds, $this->completedMap);
 
-        $this->dispatch('submission-saved');
+        $this->dispatch('submission-saved', message: 'Your quiz answer was submitted successfully.');
+    }
+
+    /**
+     * Called from the video's `ended` event (bound inline via Alpine's $wire,
+     * no external script). Marks progress the same way a task/quiz submission does.
+     */
+    public function markVideoWatched(): void
+    {
+        if (! $this->selectedItem || ! $this->selectedCanPreviewVideo || $this->selectedIsCompleted) {
+            return;
+        }
+
+        $this->markItemComplete($this->selectedItem->id);
+        $this->logAccess('video_completed');
+
+        unset($this->selectedSubmission, $this->completedItemIds, $this->completedMap);
+
+        $this->dispatch('submission-saved', message: 'Video marked as watched. Progress saved.');
+    }
+
+    /**
+     * Fired from the client-side video-protection script when it notices a
+     * likely capture attempt (save/print shortcut, tab hidden mid-playback,
+     * devtools opened, PrintScreen, etc). We don't — and can't — actually
+     * block screen/video recording from the browser; this only logs the
+     * signal against the current view so a leak can be traced back to it.
+     */
+    public function logSuspiciousActivity(string $type): void
+    {
+        if (! $this->selectedItem) {
+            return;
+        }
+
+        $this->logAccess('suspicious_'.Str::limit(preg_replace('/[^a-z0-9_]+/i', '_', $type), 40, ''), [
+            'source' => 'client_protection_script',
+        ]);
     }
 
     protected function markItemComplete(int $itemId): void
@@ -558,8 +657,47 @@ class StudentCourseShow extends Component
     }
 
     /* -----------------------------------------------------------------
+     |  Access logging (anti-leak trail)
+     |----------------------------------------------------------------- */
+
+    protected function logAccess(string $event, array $meta = []): void
+    {
+        if (! $this->selectedItem) {
+            $this->currentViewTid = null;
+
+            return;
+        }
+
+        $log = CourseViewLog::create([
+            'user_id' => Auth::id(),
+            'course_id' => $this->course->id,
+            'course_session_item_id' => $this->selectedItem->id,
+            'event' => $event,
+            'ip_address' => request()->ip(),
+            'user_agent' => substr((string) request()->userAgent(), 0, 255),
+            'meta' => $meta ?: null,
+        ]);
+
+        $this->currentViewTid = $log->tid;
+    }
+
+    /* -----------------------------------------------------------------
      |  Helpers
      |----------------------------------------------------------------- */
+
+    /**
+     * Tells the Alpine read-aloud widget which on-screen elements to pull
+     * text from for the item currently selected. Kept in sync every time
+     * the selected item changes so it never reads stale content.
+     */
+    protected function refreshReadAloudSelectors(): void
+    {
+        $this->selectedReadAloudSelectors = array_values(array_filter([
+            '#lesson-read-aloud-notes',
+            $this->selectedCanPreviewDocx ? '#lesson-read-aloud-docx' : null,
+            $this->selectedCanPreviewPptx ? '#lesson-read-aloud-pptx' : null,
+        ]));
+    }
 
     protected function resolveNextPending(int $enrollmentId, Course $course): ?array
     {

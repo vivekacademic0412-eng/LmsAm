@@ -97,6 +97,13 @@ class ModuleSeeder extends Seeder
                         'route' => 'student.history',
                         'roles' => ['student'],
                     ],
+                    [
+                        'key'   => 'student-attendance',
+                        'label' => 'My Attendance',
+                        'icon'  => 'fa-solid fa-clock-rotate-left',
+                        'route' => 'student.attendance',
+                        'roles' => ['student'],
+                    ],
                 ],
             ],
 
@@ -236,6 +243,13 @@ class ModuleSeeder extends Seeder
                                 'roles' => ['superadmin', 'admin'],
                             ],
                             [
+                                'key'   => 'attendance',
+                                'label' => 'Attendance',
+                                'icon'  => 'ti ti-clipboard-list',
+                                'route' => 'enrollments.student.attendance',
+                                'roles' => ['superadmin', 'admin','manager_hr'],
+                            ],
+                            [
                                 'key'   => 'submissions',
                                 'label' => 'Submission Review',
                                 'icon'  => 'ti ti-git-pull-request',
@@ -320,6 +334,13 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-lock-access',
                                 'route' => 'admin.permissions.index',
                                 'roles' => ['superadmin', 'admin'],
+                            ],
+                             [
+                                'key'   => 'policy',
+                                'label' => 'Policy',
+                                'icon'  => 'ti ti-lock-access',
+                                'route' => 'policy.index',
+                                'roles' => ['superadmin', 'admin','hr_manager'],
                             ],
 
                         ],
