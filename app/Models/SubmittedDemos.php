@@ -24,7 +24,7 @@ class SubmittedDemos extends Model
 
     public function course()
     {
-        return $this->belongsTo(Course::class,'course_id','id');
+        return $this->belongsTo(CourseCategory::class,'course_id','id');
     }
 
     public function user()
@@ -33,6 +33,6 @@ class SubmittedDemos extends Model
     }
      public function isCompleted(): bool
     {
-        return $this->status === 'completed';
+        return $this->status === 'approved' || $this->status === 'completed';
     }
 }

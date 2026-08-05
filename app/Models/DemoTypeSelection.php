@@ -19,11 +19,16 @@ class DemoTypeSelection extends Model
         'demo_user_id',
         'payment_id',
         'is_confirm ',
-        'status'
+        'status',
+        'mail_sent_count',
+        'mail_sent_at'
     ];
+// PaymentType model
 
+    protected $table = 'demo_type_selections';
     protected $casts = [
         'amount' => 'decimal:2',
+         'mail_sent_at' => 'datetime',
     ];
 
     public function trafficSource()

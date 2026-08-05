@@ -18,10 +18,53 @@ class AsideNav extends Component
     {
         $this->user = Auth::user();
 
-        // Already filtered to only what this role can_view — nothing further to check in the view.
-        $this->categories = $this->user
-            ? Module::treeForRole($this->user->role)
-            : collect();
+        $this->categories = collect();
+
+        if ($this->user) {
+
+            $categories = Module::treeForRole($this->user->role);
+
+            // Check if student has any enrolled course
+            $isEnrolled = $this->user->role === 'student'
+                ? $this->user->enrollments()->exists()
+                : false;
+
+            $this->categories = $categories->map(function ($category) use ($isEnrolled) {
+
+                $modules = $category->modules->map(function ($module) use ($isEnrolled) {
+
+                    $children = $module->children->filter(function ($module) use ($isEnrolled) {
+
+                      
+
+                        return match ($module->condition ?? 'always') {
+                            'always'       => true,
+                            'enrolled'     => $isEnrolled,
+                            'not_enrolled' => !$isEnrolled,
+                            default        => true,
+                        };
+                    });
+
+                    $module->setRelation('children', $children);
+
+                    return $module;
+                })->filter(function ($module) use ($isEnrolled) {
+
+                  
+
+                    return match ($module->condition ?? 'always') {
+                        'always'       => true,
+                        'enrolled'     => $isEnrolled,
+                        'not_enrolled' => !$isEnrolled,
+                        default        => true,
+                    };
+                });
+
+                $category->setRelation('modules', $modules);
+
+                return $category;
+            })->filter(fn($category) => $category->modules->isNotEmpty());
+        }
 
         $this->avatarUrl = $this->user?->avatar
             ? asset('storage/' . $this->user->avatar)
@@ -29,9 +72,9 @@ class AsideNav extends Component
 
         $this->initials = $this->user
             ? collect(preg_split('/\s+/', trim($this->user->name)))
-                ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))
-                ->take(2)
-                ->implode('')
+            ->map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1)))
+            ->take(2)
+            ->implode('')
             : '';
 
         $this->roleLabels = [
@@ -41,10 +84,8 @@ class AsideNav extends Component
             'it'         => 'IT',
             'trainer'    => 'Trainer',
             'student'    => 'Student',
-            'demo'       => 'Demo User',
         ];
     }
-
     public function render()
     {
         return view('components.aside-nav');

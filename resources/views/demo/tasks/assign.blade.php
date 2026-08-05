@@ -93,7 +93,7 @@
             </div>
         </section>
 
-        <section class="demo-card">
+        <section class="card">
             <h3>Assign Demo Task</h3>
             @if ($tasks->isEmpty() || $demoUsers->isEmpty())
                 <p class="muted">Create a demo task and ensure demo users exist before assigning.</p>

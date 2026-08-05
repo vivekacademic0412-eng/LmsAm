@@ -177,4 +177,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Payment::class);
     }
+    public function enrollments()
+    {
+        return $this->hasMany(CourseEnrollment::class, 'student_id', 'id');
+    }
 }

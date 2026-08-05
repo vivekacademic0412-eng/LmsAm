@@ -1,11 +1,57 @@
 {{-- FILE: resources/views/demo/lms/step3.blade.php --}}
 @extends('demo.layout')
+<style>
+    .task-card {
+        background: var(--bg-card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-card);
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+
+    .task-header h4 {
+        margin: 0;
+        color: var(--brand-primary);
+        font-weight: 700;
+    }
+
+    .task-header a {
+        color: var(--text-main);
+    }
+
+    .task-header a:hover {
+        color: var(--brand-primary);
+    }
+
+    .task-body {
+        padding: 20px;
+        background: var(--bg-card2);
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        line-height: 1.8;
+    }
+
+    .task-header small {
+        color: var(--text-muted);
+    }
+</style>
 @section('title', 'Create Your Demo')
-@section('bitmoji-message', '🧠 Now it\'s YOUR turn! Don\'t worry — just explain what you understood in your own words.
+@section('bitmoji-message',
+    '🧠 Now it\'s YOUR turn! Don\'t worry — just explain what you understood in your own words.
     You\'ve got this!')
 
 @section('content')
-  <div class="stepper">@include('demo.stepper')</div>
+    <div class="stepper">@include('demo.stepper')</div>
     <div class="explore-banner">
         <div class="banner-icon">🗺️</div>
         <div class="banner-text">
@@ -25,41 +71,69 @@
     <div class="card">
 
         {{-- ── Instruction Steps ── --}}
-        <div class="section-title"><i class="fas fa-list-check" style="color:var(--brand-primary)"></i> What You Need To Do
+        <div class="section-title">
+            <i class="fas fa-list-check" style="color:var(--brand-primary)"></i>
+            Task Submission Process
         </div>
+
         <div class="mini-steps">
+
             <div class="mini-step">
                 <div class="mini-step-num">1</div>
                 <div class="mini-step-text">
-                    <strong>Pick your topic below</strong>
-                    <span>Choose a topic from {{ session('lms_course_label', 'your selected course') }} to demo</span>
+                    <strong>Read the Assigned Task Carefully</strong>
+                    <span>First, open the assigned task above and read all the instructions before starting your
+                        work.</span>
                 </div>
             </div>
+
             <div class="mini-step">
                 <div class="mini-step-num">2</div>
                 <div class="mini-step-text">
-                    <strong>Record your video (1–5 minutes)</strong>
-                    <span>Use screen recorder, phone camera, or the tool below — whatever works for you</span>
+                    <strong>Complete the Task</strong>
+                    <span>Create the project exactly as instructed using HTML, CSS, JavaScript, Core PHP, or MySQL
+                        (according to the task).</span>
                 </div>
             </div>
+
             <div class="mini-step">
                 <div class="mini-step-num">3</div>
                 <div class="mini-step-text">
-                    <strong>Write a short description</strong>
-                    <span>2–3 lines explaining what you demonstrated in your video</span>
+                    <strong>Create a ZIP File</strong>
+                    <span>After completing your project, place all project files in one folder and compress it into a ZIP
+                        file.</span>
                 </div>
             </div>
+
             <div class="mini-step">
                 <div class="mini-step-num">4</div>
                 <div class="mini-step-text">
-                    <strong>Upload &amp; submit</strong>
-                    <span>Hit submit and we'll review your demo and move you forward!</span>
+                    <strong>Enter Submission Details</strong>
+                    <span>Enter a suitable Project Title and a short description (2–3 lines) explaining what you have
+                        completed.</span>
                 </div>
             </div>
-        </div>
 
+            <div class="mini-step">
+                <div class="mini-step-num">5</div>
+                <div class="mini-step-text">
+                    <strong>Upload ZIP File</strong>
+                    <span>Select your project ZIP file and verify that the correct file has been chosen.</span>
+                </div>
+            </div>
+
+            <div class="mini-step">
+                <div class="mini-step-num">6</div>
+                <div class="mini-step-text">
+                    <strong>Submit Your Task</strong>
+                    <span>Click the <strong>Submit Task</strong> button. Your submission will be sent for review by the
+                        trainer.</span>
+                </div>
+            </div>
+
+        </div>
         {{-- ── Recommended Tool ── --}}
-        <div class="section-title"><i class="fas fa-tools" style="color:var(--brand-primary)"></i> Recommended Recording
+        {{-- <div class="section-title"><i class="fas fa-tools" style="color:var(--brand-primary)"></i> Recommended Recording
             Tool</div>
         <div class="tool-card">
             <div class="tool-icon">🎬</div>
@@ -70,7 +144,7 @@
             <a href="https://screenapp.io" target="_blank" class="btn-tool">
                 <i class="fas fa-external-link-alt"></i> Open Tool
             </a>
-        </div>
+        </div> --}}
 
         {{-- ✅ Show a banner if this learner already has a submission for this course --}}
         @if ($existingDemo)
@@ -80,14 +154,69 @@
                 Re-submitting below will <strong>replace</strong> your previous video and description.
             </div>
         @endif
+        @if ($task)
 
+            <div class="task-card">
+
+                <div class="task-header">
+
+                    <div class="w-100">
+
+                        <a class="text-decoration-none d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <h4 class="mb-1">
+                                    <i class="fas fa-tasks"></i>
+                                    {{ $task->title }}
+                                </h4>
+
+                                <small class="text-muted">
+                                    Assigned on {{ optional($assignment->assigned_at)->format('d M Y, h:i A') }}
+                                </small>
+                            </div>
+
+                            <i class="fas fa-chevron-down"></i>
+
+                        </a>
+
+                    </div>
+
+                    <span class="badge bg-warning text-dark ms-3">
+                        Pending
+                    </span>
+
+                </div>
+
+                <div class="collapse mt-3" id="taskDescription">
+
+                    <div class="task-body">
+
+                        {!! nl2br(e($task->description)) !!}
+
+                        @if ($task->resource_url)
+                            <div class="mt-3">
+                                <a href="{{ $task->resource_url }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-link"></i>
+                                    Open Resource
+                                </a>
+                            </div>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
         <form action="{{ route('lms.step3.store') }}" method="POST" enctype="multipart/form-data" id="createForm">
             @csrf
 
             {{-- ── Topic Field — pre-filled from old() OR existing DB record ── --}}
             <div class="form-group">
                 <label><i class="fas fa-lightbulb" style="color:var(--brand-primary);margin-right:5px"></i> Demo
-                    Topic</label>
+                    Task</label>
+                <input type="hidden" name="demo_task_assignment_id" value="{{ $assignment->id??''}}">
                 <input type="text" name="demo_topic" id="demoTopic" class="form-control"
                     placeholder="e.g. How to create a landing page in HTML..."
                     value="{{ old('demo_topic', $existingDemo->demo_topic ?? '') }}">
@@ -95,7 +224,7 @@
                     <p class="field-tip" style="color:var(--brand-secondary)"><i class="fas fa-exclamation-circle"></i>
                         {{ $message }}</p>
                 @enderror
-                <div class="topic-suggestions">
+                {{-- <div class="topic-suggestions">
                     @php
                         $courseId = session('lms_course_id');
                         $topics = \App\Models\Course::where('category_id', $courseId)->pluck('title')->toArray();
@@ -103,7 +232,7 @@
                     @foreach ($topics as $t)
                         <div class="topic-pill" onclick="setTopic(this)">{{ $t }}</div>
                     @endforeach
-                </div>
+                </div> --}}
             </div>
 
             {{-- ── Description Field — pre-filled ── --}}
@@ -122,6 +251,55 @@
 
             {{-- ── Video Upload — shows the existing uploaded filename if present ── --}}
             <div class="form-group">
+                <label>
+                    <i class="fas fa-file-archive" style="color:var(--brand-primary);margin-right:5px"></i>
+                    Upload Project ZIP File
+                </label>
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" name="demo_video" id="videoFile" accept=".zip">
+
+                    <div class="upload-icon"></div>
+
+                    <div class="upload-title">
+                        Drop your ZIP file here or
+                        <span style="color:var(--brand-primary)">browse</span>
+                    </div>
+
+                    <div class="upload-sub">
+                        Upload your complete project in a ZIP file.
+                    </div>
+
+                    <div class="upload-formats">
+                        <span class="fmt-tag">ZIP</span>
+                        <span class="fmt-tag">Max 100 MB</span>
+                    </div>
+                </div>
+
+                <div class="upload-preview {{ $existingDemo && $existingDemo->demo_video ? 'visible' : '' }}"
+                    id="uploadPreview">
+
+                    <i class="fas fa-check-circle"></i>
+
+                    <div>
+                        <strong id="uploadFilename">
+                            {{ $existingDemo && $existingDemo->demo_video ? basename($existingDemo->demo_video) : 'No file selected' }}
+                        </strong>
+
+                        <span style="display:block;font-size:13px;color:var(--text-muted)">
+                            {{ $existingDemo && $existingDemo->demo_video ? 'Previously uploaded — choose a new ZIP file to replace it.' : '' }}
+                        </span>
+                    </div>
+                </div>
+
+                @error('demo_video')
+                    <p class="field-tip text-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+            {{-- <div class="form-group">
                 <label><i class="fas fa-video" style="color:var(--brand-primary);margin-right:5px"></i> Upload Your Demo
                     Video</label>
                 <div class="upload-zone" id="uploadZone">
@@ -139,7 +317,7 @@
                     </div>
                 </div>
 
-                {{-- ✅ Pre-existing video preview (server-rendered, before any new file is chosen) --}}
+               
                 <div class="upload-preview {{ $existingDemo && $existingDemo->demo_video ? 'visible' : '' }}"
                     id="uploadPreview">
                     <i class="fas fa-check-circle"></i>
@@ -158,15 +336,16 @@
                         {{ $message }}</p>
                 @enderror
 
-                {{-- ✅ If they already have a video saved, don't force a re-upload --}}
+               
                 @if ($existingDemo && $existingDemo->demo_video)
                     <input type="hidden" name="has_existing_video" value="1">
                 @endif
-            </div>
+            </div> --}}
 
             <div class="tip-box">
-                <strong>🤖 Guide Tip:</strong> Don't overthink it! Even a 1-minute video explaining the concept in your own
-                words is perfect. We're evaluating understanding, not production quality.
+                <strong>🎯 Important:</strong>
+                Complete the assigned task first, then compress your project folder into a <strong>.zip</strong> file.
+                Upload the ZIP file along with a short description of your work and click <strong>Submit Task</strong>.
             </div>
 
             <div class="btn-group">
@@ -304,7 +483,7 @@
             if (!topic) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Missing Topic',
+                    title: 'Missing Title',
                     text: 'Please enter a topic for your demo.',
                     confirmButtonColor: '#0947a8'
                 });
@@ -322,8 +501,8 @@
             if (!fileChosen && !hasExistingVideo) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Video Required',
-                    text: 'Please upload your demo video before submitting.',
+                    title: 'Zip Required',
+                    text: 'Please upload your demo zip before submitting.',
                     confirmButtonColor: '#0947a8'
                 });
                 return;

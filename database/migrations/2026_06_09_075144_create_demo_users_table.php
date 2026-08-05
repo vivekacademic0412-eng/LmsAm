@@ -23,17 +23,17 @@ return new class extends Migration
 
             $table->string('phone', 20);
 
-            $table->foreignId('education_level_id')
+            $table->foreignId('education_level_id')->nullable()
                 ->constrained('education_levels')
                 ->cascadeOnDelete();
 
-            $table->foreignId('interest_area_id')
+            $table->foreignId('interest_area_id')->nullable()
                 ->constrained('course_categories')
                 ->cascadeOnDelete();
 
-            $table->foreignId('preferred_course_id')
+            $table->foreignId('preferred_course_id')->nullable()
                 ->constrained('courses')
-                 ->nullable();
+                ->nullOnDelete();
 
 
             $table->string('ip_address', 45)

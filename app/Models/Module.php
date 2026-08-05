@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Module extends Model
 {
     protected $fillable = [
-        'category_id', 'parent_id', 'module_key', 'label', 'icon', 'route', 'sort_order', 'status',
+        'category_id', 'parent_id', 'module_key', 'label', 'icon', 'route', 'sort_order', 'status','condition'
     ];
 
     protected $casts = ['status' => 'boolean'];

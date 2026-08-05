@@ -15,6 +15,8 @@ use App\Models\DemoUser;
 use App\Models\SubmittedDemos;
 use App\Models\Course;
 use App\Models\DemoAccessToken;
+use App\Models\DemoTaskAssignment;
+use App\Models\DemoTaskSubmission;
 use App\Models\HeroSection;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -106,7 +108,7 @@ class LmsController extends Controller
     }
 
 
- 
+
 
 
     // ──────────────────────────────────────────
@@ -235,13 +237,28 @@ class LmsController extends Controller
             $existingDemo = SubmittedDemos::where('demo_user_id', $userId)
                 ->where('course_id', $courseId)
                 ->first();
+            $assignment = DemoTaskAssignment::with('demoTask')
+                ->where('user_id', auth()->id())
+                ->latest('assigned_at')
+                ->first();
 
+            $existingSubmission = null;
+
+            if ($assignment) {
+                $existingSubmission = DemoTaskSubmission::where('demo_task_assignment_id', $assignment->id)->latest()->first();
+            }
+            // dd($taskAssignment);
             return view('demo.lms.step3', [
                 // ✅ FIXED: was 4 — this is step 3, not step 4.
                 'currentStep'  => 3,
                 'course'       => $course,
                 'existingDemo' => $existingDemo,
-            ]);
+                'task' => $assignment?->demoTask,
+
+            ], compact(
+                'assignment',
+                'existingSubmission'
+            ));
         } catch (Exception $e) {
             Log::error(__METHOD__, [
                 'message' => $e->getMessage(),
@@ -269,7 +286,7 @@ class LmsController extends Controller
             $validated = $request->validate([
                 'demo_topic'       => 'required|string|max:200',
                 'demo_description' => 'required|string|min:30|max:600',
-                'demo_video'       => 'required|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/webm|max:512000',
+                'demo_video'       => 'required|file|mimes:zip|max:102400'
             ], [
                 'demo_topic.required'        => 'Please enter a topic for your demo.',
                 'demo_topic.max'             => 'Your topic is too long — keep it under 200 characters.',
@@ -286,6 +303,9 @@ class LmsController extends Controller
 
             $userId   = session('demo_user_id');
             $courseId = session('lms_course_id');
+            $assignment = DemoTaskAssignment::findOrFail(
+                $request->demo_task_assignment_id
+            );
 
             $existing = SubmittedDemos::where('demo_user_id', $userId)
                 ->where('course_id', $courseId)
@@ -294,11 +314,26 @@ class LmsController extends Controller
             if ($existing && $existing->demo_video) {
                 Storage::disk('public')->delete($existing->demo_video);
             }
-
+            $file = $request->file('demo_video');
             $videoPath = $request->file('demo_video')->store('lms-demos', 'public');
 
             session(['lms_demo_topic' => $videoPath]);
+            DemoTaskSubmission::updateOrCreate(
 
+                [
+                    'demo_task_assignment_id' => $assignment->id,
+                ],
+
+                [
+                    'answer_text' => $request->demo_description,
+                    'file_path' => $videoPath,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_mime' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'submitted_at' => now(),
+                ]
+
+            );
             $demo = SubmittedDemos::updateOrCreate(
                 [
                     'demo_user_id' => $userId,
@@ -410,7 +445,8 @@ class LmsController extends Controller
     public function step5()
     {
         // Look up the category id from the slug stored in session
-        $category = CourseCategory::where('slug', session('lms_interest'))->first();
+        $demoUser = DemoUser::where('user_id', auth()->id())->first();
+        $category = CourseCategory::where('slug', $demoUser->interest_area_id)->first();
 
         $courses = Course::with('category')
             ->when($category, fn($q) => $q->where('category_id', $category->id))
@@ -434,6 +470,7 @@ class LmsController extends Controller
     {
         // Look up the category id from the slug stored in session
         $category = CourseCategory::where('slug', session('lms_interest'))->first();
+        $demoUser = DemoUser::where('user_id', auth()->id())->first();
         $courseId = session('lms_course_id');
         $course = Course::where('id', $courseId)
             ->first();
@@ -442,24 +479,27 @@ class LmsController extends Controller
             ->latest()
             ->take(10)
             ->get();
-        $demo = SubmittedDemos::where('demo_user_id', auth()->user()->id)
-            ->where('course_id', $courseId)
+        $demo = SubmittedDemos::where('user_id', auth()->user()->id)
+            // ->where('course_id', $demoUser->interest_area_id)//category_id course
             ->first();
-        
+
+        $isApproved = $demo && $demo->status === 'approved';
         return view('demo.lms.step6', [
             'currentStep' => 6,
             'course'     => $course,   // comma, not semicolon
             'reviews'     => $reviews,
             'demo' => $demo,
+
         ]);
     }
     public function Download()
     {
-        $courseId = session('lms_course_id');
+        $demoUser = DemoUser::where('user_id', auth()->id())->first();
+        $category = CourseCategory::where('slug', $demoUser->interest_area_id)->first();
 
-        $course = Course::findOrFail($courseId);
+        $course = CourseCategory::findOrFail($demoUser->interest_area_id);
 
-        $pdf = Pdf::loadView('demo.lms.certificate', [
+        $pdf = Pdf::loadView('certificates.demo-pdf', [
             'course' => $course,
             'user'   => auth()->user(),
         ]);

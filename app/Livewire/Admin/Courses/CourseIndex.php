@@ -13,6 +13,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use App\Services\CrashCourseSyncService;
 
 #[Layout('layouts.app')]
 class CourseIndex extends Component
@@ -81,8 +82,14 @@ class CourseIndex extends Component
         return CourseEnrollment::where('trainer_id', Auth::id())->pluck('course_id')->all();
     }
 
-    public function updatingCategoryId(): void { $this->resetPage(); }
-    public function updatingSubcategoryId(): void { $this->resetPage(); }
+    public function updatingCategoryId(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingSubcategoryId(): void
+    {
+        $this->resetPage();
+    }
 
     public function toggleFilterPanel(): void
     {
@@ -138,7 +145,7 @@ class CourseIndex extends Component
             $thumbnailPath = $this->thumbnail->store('course-thumbnails', 'public');
         }
 
-        Course::create([
+         $course=Course::create([
             'category_id'        => $this->form_category_id,
             'subcategory_id'     => $this->form_subcategory_id ?: null,
             'course_level_id'    => $this->course_level_id ?: null,
@@ -155,7 +162,7 @@ class CourseIndex extends Component
             'thumbnail'          => $thumbnailPath,
             'created_by'         => Auth::id(),
         ]);
-
+        app(CrashCourseSyncService::class)->syncFromParent($course->fresh(['category', 'courseType', 'courseLevel', 'settings']));
         session()->flash('success', 'Course created successfully.');
         $this->closeCreateModal();
     }
@@ -218,8 +225,9 @@ class CourseIndex extends Component
         }
 
         $course->update($data);
-
+        app(CrashCourseSyncService::class)->syncFromParent($course->fresh(['category', 'courseType', 'courseLevel', 'settings']));
         session()->flash('success', 'Course updated successfully.');
+
         $this->closeEditModal();
     }
 
@@ -251,19 +259,28 @@ class CourseIndex extends Component
     protected function resetForm(): void
     {
         $this->reset([
-            'title', 'form_category_id', 'form_subcategory_id',
-            'course_level_id', 'course_type_id',
-            'language', 'duration_hours', 'short_description', 'description',
-            'original_price', 'price', 'gst',
-            'thumbnail', 'existing_thumbnail',
+            'title',
+            'form_category_id',
+            'form_subcategory_id',
+            'course_level_id',
+            'course_type_id',
+            'language',
+            'duration_hours',
+            'short_description',
+            'description',
+            'original_price',
+            'price',
+            'gst',
+            'thumbnail',
+            'existing_thumbnail',
         ]);
     }
 
     public function render()
     {
         $courses = Course::with(['category', 'subcategory', 'creator'])
-            ->when($this->category_id, fn ($q) => $q->where('category_id', $this->category_id))
-            ->when($this->subcategory_id, fn ($q) => $q->where('subcategory_id', $this->subcategory_id))
+            ->when($this->category_id, fn($q) => $q->where('category_id', $this->category_id))
+            ->when($this->subcategory_id, fn($q) => $q->where('subcategory_id', $this->subcategory_id))
             ->latest()
             ->paginate(20);
 

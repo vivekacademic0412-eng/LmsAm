@@ -539,7 +539,7 @@
                         </p>
 
 
-                        <a href="{{ route('course.show', ['slug' => $category->id]) }}">
+                        <a href="https://www.academicmantraservices.com/">
                             Explore Courses →
                         </a>
 

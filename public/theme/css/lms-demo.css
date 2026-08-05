@@ -403,12 +403,12 @@ body {
 
 /* ── Cards ── */
 .card {
-    background: var(--bg-card);
+    /* background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius); */
     padding: 36px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); */
 }
 
 @keyframes slideUp {
@@ -1784,8 +1784,7 @@ textarea.form-control {
 
 /* ── Steps Guide ── */
 .mini-steps {
-    display: flex;
-    flex-direction: column;
+   display: inline-flex;
     gap: 12px;
     margin-bottom: 24px;
 }

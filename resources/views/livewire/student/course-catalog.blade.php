@@ -1761,9 +1761,7 @@
                 </div>
             </div>
 
-            <button class="theme-toggle" onclick="toggleAmTheme()" aria-label="Toggle dark mode">
-                <i class="ti ti-moon" id="amThemeIcon"></i>
-            </button>
+           
         </div>
     </div>
 
@@ -2484,18 +2482,7 @@
                 document.getElementById('amCartBackdrop').classList.remove('open');
             };
 
-            /* ── Dark / light mode ─────────────────────────────────── */
-            function amApplyTheme(theme) {
-                document.documentElement.setAttribute('data-theme', theme);
-                const icon = document.getElementById('amThemeIcon');
-                if (icon) icon.className = theme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
-                localStorage.setItem('am-theme', theme);
-            }
-            window.toggleAmTheme = function() {
-                const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-                amApplyTheme(current === 'dark' ? 'light' : 'dark');
-            };
-            amApplyTheme(localStorage.getItem('am-theme') || 'light');
+            
 
             /* ── Razorpay checkout ─────────────────────────────────── */
             $wire.on('razorpay-checkout-open', (payload) => {

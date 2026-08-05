@@ -91,9 +91,9 @@
        background: linear-gradient(135deg, rgb(18 21 149 / 14%), rgb(18 18 205 / 75%));
     }
 
-    .d-promo--upsell {
+    /* .d-promo--upsell {
         background: linear-gradient(135deg, rgba(234,179,8,0.14), rgba(20,20,30,0.4));
-    }
+    } */
 
     .d-promo-glow {
         position: absolute;
@@ -125,9 +125,9 @@
     }
 
     .d-promo-badge--gold {
-        color: #fcd34d;
-        background: rgba(234,179,8,0.16);
-    }
+    color: #1d214f;
+    background: rgb(109 114 224);
+}
 
     .d-promo-title {
         margin: 0 0 8px;

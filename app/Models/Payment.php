@@ -39,6 +39,8 @@ class Payment extends Model
         'created_by',
         'receipt_pdf_path',
         'link_expires_at',
+       
+      
     ];
 
     protected $casts = [

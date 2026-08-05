@@ -99,7 +99,7 @@ body{
     <p>For successfully completing</p>
 
     <div class="course-name">
-        {{ $course->title }}
+        {{ $course->name }}
     </div>
 
     <table class="footer-table">

@@ -26,7 +26,7 @@ class CoursePreview extends Component
             'subcategory',
             'courseType',
             'weeks.sessions.items',
-            'batches' => fn($b) => $b->orderBy('start_date'),
+            'batches.batch' => fn($b) => $b->orderBy('start_date'),
         ])->first();
 
 

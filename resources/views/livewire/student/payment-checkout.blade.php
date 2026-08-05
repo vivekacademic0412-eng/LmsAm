@@ -11,7 +11,13 @@
                 </div>
             </div>
         </div>
-
+<div id="verify-overlay" class="cc-modal-overlay" style="display:none;">
+    <div class="cc-modal" style="max-width:320px; padding:32px 24px; text-align:center;">
+        <div class="cc-spinner" style="margin:0 auto 16px;"></div>
+        <div style="font-weight:600; font-size:15px;">Verifying your payment…</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-top:6px;">Please don't close this window.</div>
+    </div>
+</div>
         @if ($payment->status === 'success')
             <div class="cc-alert cc-alert-success">✓ This payment has already been completed. Thank you!</div>
             <a href="{{ route('payment.success', $payment->token) }}" class="cc-btn cc-btn-primary"
@@ -63,12 +69,27 @@
             </p>
         @endif
     </div>
-</div>
 
+{{-- ═══════════ Verifying overlay (add inside the outer wrap, right after the header) ═══════════ --}}
+
+</div>
 @if ($payment->status !== 'success' && !($payment->link_expires_at && $payment->link_expires_at->isPast()))
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.getElementById('rzp-pay-btn').addEventListener('click', function() {
+        const verifyOverlay = document.getElementById('verify-overlay');
+        const payBtn = document.getElementById('rzp-pay-btn');
+
+        function showVerifying() {
+            verifyOverlay.style.display = 'flex';
+        }
+        function hideVerifying() {
+            verifyOverlay.style.display = 'none';
+        }
+
+        payBtn.addEventListener('click', function() {
+            payBtn.disabled = true;
+
             var options = {
                 key: "{{ $razorpayKey }}",
                 order_id: "{{ $razorpayOrderId }}",
@@ -82,6 +103,12 @@
                     contact: "{{ $payment->phone }}"
                 },
                 handler: function(response) {
+                    // Razorpay's own modal has already shown its brief
+                    // "Payment Successful" animation and closed itself —
+                    // this fires right after. Show our own verifying state
+                    // immediately so there's no dead gap before the API call.
+                    showVerifying();
+
                     fetch("{{ route('payment.verify') }}", {
                             method: "POST",
                             headers: {
@@ -97,23 +124,77 @@
                         })
                         .then(res => res.json())
                         .then(data => {
+                            hideVerifying();
+
                             if (data.success) {
-                                // Reload the page so Livewire gets the updated payment status
-                                window.location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Verified!',
+                                    text: 'Redirecting you to your receipt…',
+                                    timer: 1600,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false
+                                }).then(() => {
+                                    window.location.href = data.redirect_url;
+                                });
                             } else {
-                                alert(data.message || "Payment verification failed.");
+                                payBtn.disabled = false;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Verification Failed',
+                                    text: data.message || 'We could not verify your payment. Please try again or contact support.',
+                                });
                             }
                         })
                         .catch(() => {
-                            alert("Unable to verify payment. Please try again.");
+                            hideVerifying();
+                            payBtn.disabled = false;
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Something went wrong',
+                                text: 'Unable to verify payment. Please check your connection and try again.',
+                            });
                         });
+                },
+                modal: {
+                    // Runs if the user closes Razorpay's modal without paying
+                    ondismiss: function() {
+                        payBtn.disabled = false;
+                    }
                 },
                 theme: {
                     color: "#0947a8"
                 }
             };
+
             var rzp = new Razorpay(options);
+
+            // Runs if the payment itself fails (card declined, etc.) —
+            // your original code had no handling for this at all.
+            rzp.on('payment.failed', function(response) {
+                payBtn.disabled = false;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: response.error?.description || 'Your payment could not be completed. Please try again.',
+                });
+            });
+
             rzp.open();
         });
     </script>
+
+    <style>
+        .cc-spinner {
+            width: 34px;
+            height: 34px;
+            border: 3px solid var(--line, #e2e8f0);
+            border-top-color: var(--brand-primary, #0947a8);
+            border-radius: 50%;
+            animation: cc-spin 0.7s linear infinite;
+        }
+        @keyframes cc-spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 @endif

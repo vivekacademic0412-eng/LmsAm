@@ -36,7 +36,7 @@ class DemoTaskController extends Controller
     {
         $this->authorizeAdmin($request);
 
-        $demoUsers = User::where('role', User::ROLE_DEMO)->orderBy('name')->get();
+        $demoUsers = User::where('role', User::ROLE_STUDENT)->orderBy('name')->get();
 
         $tasks = DemoTask::withCount('assignments')->latest('id')->get();
 
@@ -135,7 +135,7 @@ class DemoTaskController extends Controller
 
         $data = $request->validate([
             'demo_task_id' => ['required', 'integer', 'exists:demo_tasks,id'],
-            'user_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', User::ROLE_DEMO)],
+            'user_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', User::ROLE_STUDENT)],
         ]);
 
         $demoTask = DemoTask::findOrFail($data['demo_task_id']);

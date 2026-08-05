@@ -27,7 +27,7 @@
             </div>
             <div class="dd-row">
                 <span>Course</span>
-                <strong>{{ $demo->course->title ?? '—' }}</strong>
+                <strong>{{ $demo->course->name ?? '—' }}</strong>
             </div>
             <div class="dd-row">
                 <span>Demo Date</span>

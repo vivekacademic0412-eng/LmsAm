@@ -40,7 +40,7 @@
 
     {{-- Tabs --}}
     <div class="mc-tabs" role="tablist">
-        @foreach (['all' => 'All', 'course' => 'Course', 'week' => 'Week', 'level' => 'Level', 'demo' => 'Demo'] as $key => $label)
+        @foreach (['all' => 'All', 'course' => 'Course', 'week' => 'Week', 'level' => 'Level', ] as $key => $label)
             <button
                 type="button"
                 role="tab"
@@ -103,6 +103,7 @@
             </div>
         @endforelse
     </div>
+    <livewire:user-demo-detail/>
 </div>
 <style>
     /* ═══════════════════════════════════════════════

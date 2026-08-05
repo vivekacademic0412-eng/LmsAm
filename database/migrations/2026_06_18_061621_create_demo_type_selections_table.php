@@ -28,6 +28,7 @@ return new class extends Migration
             // Links forward once the user proceeds (nullable until then)
             $table->unsignedBigInteger('demo_user_id')->nullable()->index();
             $table->unsignedBigInteger('payment_id')->nullable()->index();
+            
  
             $table->timestamps();
  

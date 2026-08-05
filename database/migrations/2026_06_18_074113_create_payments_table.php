@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
 
             $table->id();
-         $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             // Student Details
             $table->string('name');
             $table->string('email');
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string('payment_id')->nullable();
             $table->string('transaction_id')->nullable();
             $table->string('invoice_no')->nullable();
-
+        
             $table->enum('status', [
                 'pending',
                 'success',

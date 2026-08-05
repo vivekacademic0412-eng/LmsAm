@@ -483,7 +483,14 @@
 </div>
 
 {{-- ── Batches & seats (only relevant before enrolling) ── --}}
-@if (! $isEnrolled && $openBatches->isNotEmpty())
+@if (! $isEnrolled && $course->batches->isNotEmpty())
+
+    @php
+$openBatches = $course->batches?->filter(function ($batch) {
+    return in_array($batch->status, ['upcoming', 'active']);
+});
+
+@endphp
     <div class="cp-card">
         <div class="cp-card-head">
             <div class="cp-card-head-left"><i class="ti ti-calendar-event"></i> Batches &amp; Seats</div>
@@ -493,6 +500,7 @@
             <div class="cp-batch-list">
                 @foreach ($openBatches as $batch)
                     @php
+                    $batch=$batch->batch;
                         $left  = $this->seatsLeftFor($batch);
                         $cap   = $batch->max_seats ?? 0;
                         $pct   = $cap > 0 ? min(100, round((($cap - $left) / $cap) * 100)) : 0;

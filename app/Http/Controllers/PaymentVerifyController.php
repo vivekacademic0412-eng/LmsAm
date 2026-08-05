@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Services\RazorpayService;
+use App\Services\EnrollmentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Services\EnrollmentService;
 
 class PaymentVerifyController extends Controller
 {
-    public function __invoke(Request $request, RazorpayService $razorpay ,EnrollmentService $enrollmentService)
+    public function __invoke(Request $request, RazorpayService $razorpay, EnrollmentService $enrollmentService)
     {
         $validated = $request->validate([
             'token'                => 'required|string|exists:payments,token',
@@ -44,32 +46,63 @@ class PaymentVerifyController extends Controller
             return response()->json(['success' => false, 'message' => 'Signature verification failed'], 422);
         }
 
-        // ── Update the SAME payment row (your existing table) ──
-        $payment->update([
-            'status'               => Payment::STATUS_SUCCESS,
-            'paid_amount'          => $payment->amount,
-            'payment_id'           => $validated['razorpay_payment_id'],
-            'order_id'             => $validated['razorpay_order_id'],
-            'transaction_id'       => $validated['razorpay_payment_id'],
-            'razorpay_order_id'    => $validated['razorpay_order_id'],
-            'razorpay_payment_id'  => $validated['razorpay_payment_id'],
-            'invoice_no'           => $payment->invoice_no ?? ('INV-' . now()->format('Ym') . '-' . strtoupper(Str::random(6))),
-            'paid_at'              => now(),
-        ]);
+        try {
+            $payment = DB::transaction(function () use ($payment, $validated, $enrollmentService) {
 
-        // ── Generate PDF receipt ──
-        $pdf = Pdf::loadView('pdf.transaction-receipt', ['payment' => $payment->fresh(['user', 'category', 'course'])]);
+                // ── Update the SAME payment row (your existing table) ──
+                $payment->update([
+                    'status'               => Payment::STATUS_SUCCESS,
+                    'paid_amount'          => $payment->amount,
+                    'payment_id'           => $validated['razorpay_payment_id'],
+                    'order_id'             => $validated['razorpay_order_id'],
+                    'transaction_id'       => $validated['razorpay_payment_id'],
+                    'razorpay_order_id'    => $validated['razorpay_order_id'],
+                    'razorpay_payment_id'  => $validated['razorpay_payment_id'],
+                    'invoice_no'           => $payment->invoice_no
+                        ?? ('INV-' . now()->format('Ym') . '-' . strtoupper(Str::random(6))),
+                    'paid_at'              => now(),
+                ]);
 
-        $path = "receipts/{$payment->invoice_no}.pdf";
-        Storage::disk('public')->put($path, $pdf->output());
-        $payment->update(['receipt_pdf_path' => $path]);
+                // ── Enroll / register based on payment type ──
+                // Runs inside the same transaction: if this throws, the
+                // status/invoice_no update above rolls back too, so the
+                // payment stays retryable instead of being stuck "success"
+                // with no matching enrollment.
+                if ($payment->type === 'demo') {
+                    $enrollmentService->enrollDemo($payment->fresh(['user', 'category']));
+                } else {
+                    $enrollmentService->enroll($payment->fresh(['user', 'course']));
+                }
 
+                return $payment->fresh(['user', 'category', 'course']);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Payment verify: enrollment/update failed', [
+                'payment_token' => $payment->token,
+                'error'         => $e->getMessage(),
+            ]);
 
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment was verified but we could not complete your enrollment. Please contact support with your reference: ' . $payment->token,
+            ], 500);
+        }
 
-        // Enroll the student now that payment is confirmed
-        $enrollmentService->enroll($payment->fresh(['user', 'course']));
-        // TODO: enroll the student now that payment is confirmed —
-        // e.g. app(EnrollmentService::class)->enroll($payment);
+        // ── Generate PDF receipt (outside the transaction — file storage
+        //    isn't transactional, and it's safe to retry/overwrite) ──
+        try {
+            $pdf = Pdf::loadView('pdf.transaction-receipt', ['payment' => $payment]);
+            $path = "receipts/{$payment->invoice_no}.pdf";
+            Storage::disk('public')->put($path, $pdf->output());
+            $payment->update(['receipt_pdf_path' => $path]);
+        } catch (\Throwable $e) {
+            // Don't fail the whole verification over a receipt PDF —
+            // payment + enrollment already succeeded and were committed.
+            Log::error('Payment verify: receipt PDF generation failed', [
+                'payment_token' => $payment->token,
+                'error'         => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success'      => true,

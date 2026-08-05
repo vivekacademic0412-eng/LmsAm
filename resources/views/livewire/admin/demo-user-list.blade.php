@@ -1,11 +1,9 @@
 <div>
     <style>
         /* =========================================================
-   Demo Users Admin Dashboard
-   Built entirely on the app's existing design tokens
-   (--primary-dark, --card, --line, --radius, --shadow-card, …)
-   so it inherits light/dark theming automatically via
-   [data-theme="dark"] with no duplicated color logic.
+   Demo Users Admin Dashboard — v2
+   Built on the app's existing design tokens
+   (--primary-dark, --bg-card, --line, --radius, --shadow-card, …)
 ========================================================= */
 
 /* =========================================================
@@ -63,35 +61,12 @@
     font-size: 18px;
 }
 
-.d-stat:nth-child(2) .d-stat-icon {
-    background: color-mix(in srgb, var(--success) 14%, transparent);
-    color: var(--success);
-}
-.d-stat:nth-child(3) .d-stat-icon {
-    background: color-mix(in srgb, var(--info) 14%, transparent);
-    color: var(--info);
-}
-.d-stat:nth-child(4) .d-stat-icon {
-    background: color-mix(in srgb, var(--accent) 20%, transparent);
-    color: var(--accent);
-}
+.d-stat:nth-child(2) .d-stat-icon { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
+.d-stat:nth-child(3) .d-stat-icon { background: color-mix(in srgb, var(--info) 14%, transparent); color: var(--info); }
+.d-stat:nth-child(4) .d-stat-icon { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
 
-.d-stat .stat-value {
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1.1;
-    color: var(--text);
-    letter-spacing: -0.02em;
-}
-
-.d-stat .stat-label {
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    margin-top: 2px;
-}
+.d-stat .stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--text); letter-spacing: -0.02em; }
+.d-stat .stat-label { font-size: 12.5px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
 
 @media (max-width: 992px) { .d-stats-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .d-stats-grid { grid-template-columns: 1fr; } }
@@ -100,19 +75,8 @@
    FILTER BAR
 ========================================================= */
 
-.filter-card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    box-shadow: var(--shadow-sm);
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 12px;
-}
+.filter-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm); }
+.filter-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; }
 
 @media (max-width: 900px) { .filter-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .filter-grid { grid-template-columns: 1fr; } }
@@ -142,9 +106,7 @@ select.theme-form-control {
 }
 
 .theme-form-control::placeholder { color: var(--text-muted); }
-
 .theme-form-control:hover { border-color: var(--input-focus); }
-
 .theme-form-control:focus {
     outline: none;
     border-color: var(--input-focus);
@@ -156,22 +118,9 @@ select.theme-form-control {
    CARD / TABLE
 ========================================================= */
 
-.card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
-}
-
+.card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-card); overflow: hidden; }
 .table-responsive { overflow-x: auto; }
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
-    color: var(--text);
-}
+.table { width: 100%; border-collapse: collapse; font-size: 13.5px; color: var(--text); }
 
 .table thead th {
     background: var(--bg-card2);
@@ -186,40 +135,44 @@ select.theme-form-control {
     white-space: nowrap;
 }
 
-.table tbody td {
-    padding: 14px;
-    border-bottom: 1px solid var(--line);
-    vertical-align: middle;
-}
-
+.table tbody td { padding: 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .table tbody tr:last-child td { border-bottom: none; }
 .table tbody tr { transition: background .12s ease; }
 .table tbody tr:hover { background: var(--bg-card2); }
 .table tbody td strong { color: var(--text); font-weight: 600; }
-
-.table small.text-muted,
-.table .text-muted {
-    color: var(--text-muted) !important;
-    font-size: 12px;
-}
+.table small.text-muted, .table .text-muted { color: var(--text-muted) !important; font-size: 12px; }
 
 /* =========================================================
-   BADGES — soft tint derived from the same status color
-   used everywhere else, so light/dark stay in sync
+   USER CELL — avatar chip + name/contact stack
 ========================================================= */
 
-.badge {
-    display: inline-flex;
+.user-cell { display: flex; align-items: center; gap: 10px; }
+
+.user-avatar {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: .01em;
-    padding: 4px 9px;
-    border-radius: 999px;
-    line-height: 1.4;
-    white-space: nowrap;
+    justify-content: center;
+    background: color-mix(in srgb, var(--primary-dark) 14%, transparent);
+    color: var(--primary-dark);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
 }
+
+.user-meta { min-width: 0; }
+.user-meta strong { display: block; }
+.user-meta small { display: block; }
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; letter-spacing: .01em; padding: 4px 9px; border-radius: 999px; line-height: 1.4; white-space: nowrap; }
 
 .badge.bg-primary   { background: color-mix(in srgb, var(--primary-dark) 14%, transparent); color: var(--primary-dark); }
 .badge.bg-success   { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
@@ -231,79 +184,111 @@ select.theme-form-control {
 
 .badge.bg-success-subtle   { background: color-mix(in srgb, var(--success) 12%, transparent); }
 .badge.text-success        { color: var(--success) !important; }
-
 .badge.bg-warning-subtle   { background: color-mix(in srgb, var(--warning) 14%, transparent); }
 .badge.text-warning        { color: var(--warning) !important; }
-
 .badge.bg-secondary-subtle { background: color-mix(in srgb, var(--text-muted) 12%, transparent); }
 .badge.text-secondary      { color: var(--text-muted) !important; }
+
+/* =========================================================
+   DEMO LINK CHIP — the new bit
+========================================================= */
+
+.link-cell { min-width: 200px; }
+
+.link-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 6px 8px 6px 10px;
+    max-width: 220px;
+}
+
+.link-chip code {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.link-copy-btn {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--primary-dark);
+    cursor: pointer;
+    font-size: 12px;
+    transition: background .15s ease;
+}
+
+.link-copy-btn:hover { background: color-mix(in srgb, var(--primary-dark) 14%, transparent); }
+.link-copy-btn.copied { color: var(--success); }
+
+.link-meta-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.link-empty { font-size: 12px; color: var(--text-muted); font-style: italic; }
 
 /* =========================================================
    BUTTONS
 ========================================================= */
 
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-xs);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: background .15s ease, box-shadow .15s ease, transform .05s ease, filter .15s ease;
-}
-
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: var(--radius-xs); font-size: 13px; font-weight: 600; padding: 8px 15px; cursor: pointer; transition: background .15s ease, box-shadow .15s ease, transform .05s ease, filter .15s ease; }
 .btn:active { transform: translateY(1px); }
-
 .btn-sm { padding: 7px 13px; font-size: 12.5px; }
 
-.btn-success {
-    background: var(--success);
-    color: #fff;
-    box-shadow: 0 1px 2px color-mix(in srgb, var(--success) 40%, transparent);
-}
+.btn-success { background: var(--success); color: #fff; box-shadow: 0 1px 2px color-mix(in srgb, var(--success) 40%, transparent); }
 .btn-success:hover { filter: brightness(0.92); }
 
-/* Primary "email" action — the page's one deliberate flourish:
-   a soft directional gradient + glow that reads as "this sends something". */
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-dark), color-mix(in srgb, var(--primary-dark) 70%, var(--accent2)));
     color: #fff;
     box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-dark) 35%, transparent);
 }
-.btn-primary:hover {
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-dark) 45%, transparent);
-    filter: brightness(1.05);
-}
+.btn-primary:hover { box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-dark) 45%, transparent); filter: brightness(1.05); }
 .btn-primary i { font-size: 12px; }
 
-.btn-secondary {
-    background: color-mix(in srgb, var(--text-muted) 14%, transparent);
-    color: var(--text-muted);
-}
+.btn-secondary { background: color-mix(in srgb, var(--text-muted) 14%, transparent); color: var(--text-muted); }
 
-.btn:disabled,
-.btn-secondary:disabled {
-    cursor: not-allowed;
-    opacity: .65;
-    filter: none;
-    box-shadow: none;
+.btn:disabled, .btn-secondary:disabled { cursor: not-allowed; opacity: .65; filter: none; box-shadow: none; }
+
+/* Icon-only action button (Regenerate) */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    background: color-mix(in srgb, var(--info) 12%, transparent);
+    color: var(--info);
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .15s ease, transform .5s ease;
 }
+.btn-icon:hover { background: color-mix(in srgb, var(--info) 20%, transparent); }
+.btn-icon:active i { transform: rotate(180deg); }
+.btn-icon:disabled { opacity: .5; cursor: not-allowed; }
+
+.action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
 /* =========================================================
    EMPTY STATE
 ========================================================= */
 
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-muted);
-}
-
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); }
 .empty-state .empty-icon { font-size: 40px; margin-bottom: 6px; filter: grayscale(.3); }
 .empty-state h5 { color: var(--text); font-weight: 600; font-size: 15px; margin: 0; }
 .empty-state p { font-size: 13px; margin: 0; }
@@ -323,16 +308,12 @@ select.theme-form-control {
 .py-5 { padding-top: 48px; padding-bottom: 48px; }
 .text-center { text-align: center; }
 
-/* Keyboard accessibility */
-.btn:focus-visible,
-.theme-form-control:focus-visible {
+.btn:focus-visible, .theme-form-control:focus-visible, .btn-icon:focus-visible, .link-copy-btn:focus-visible {
     outline: 2px solid var(--input-focus);
     outline-offset: 2px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .d-stat, .btn, .table tbody tr { transition: none; }
-}
+@media (prefers-reduced-motion: reduce) { .d-stat, .btn, .table tbody tr, .btn-icon { transition: none; } }
     </style>
 
 
@@ -340,31 +321,34 @@ select.theme-form-control {
     TOP STATS
 ======================== --}}
     <div class="d-stats-grid mb-4">
-
         <div class="d-stat">
             <div class="d-stat-icon"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-value">{{ $totalUsers }}</div>
-            <div class="stat-label">Total Users</div>
+            <div>
+                <div class="stat-value">{{ $totalUsers }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
         </div>
-
         <div class="d-stat">
             <div class="d-stat-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="stat-value">{{ $completedUsers }}</div>
-            <div class="stat-label">Completed Users</div>
+            <div>
+                <div class="stat-value">{{ $completedUsers }}</div>
+                <div class="stat-label">Completed Users</div>
+            </div>
         </div>
-
         <div class="d-stat">
             <div class="d-stat-icon"><i class="fa-solid fa-video"></i></div>
-            <div class="stat-value">{{ $totalDemos }}</div>
-            <div class="stat-label">Demo Uploads</div>
+            <div>
+                <div class="stat-value">{{ $totalDemos }}</div>
+                <div class="stat-label">Demo Uploads</div>
+            </div>
         </div>
-
         <div class="d-stat">
             <div class="d-stat-icon"><i class="fa-solid fa-book-open"></i></div>
-            <div class="stat-value">{{ $totalCourses }}</div>
-            <div class="stat-label">Courses</div>
+            <div>
+                <div class="stat-value">{{ $totalCourses }}</div>
+                <div class="stat-label">Courses</div>
+            </div>
         </div>
-
     </div>
 
     {{-- =======================
@@ -372,12 +356,10 @@ select.theme-form-control {
 ======================== --}}
     <div class="filter-card mb-4">
         <div class="filter-grid">
-
             <div>
                 <input type="text" wire:model.live.debounce.500ms="search" class="theme-form-control form-control"
                     placeholder="🔍 Search Name, Email, Phone">
             </div>
-
             <div>
                 <select wire:model.live="educationLevel" class="theme-form-control form-control">
                     <option value="">All Education Levels</option>
@@ -386,7 +368,6 @@ select.theme-form-control {
                     @endforeach
                 </select>
             </div>
-
             <div>
                 <select wire:model.live="courseFilter" class="theme-form-control form-control">
                     <option value="">All Courses</option>
@@ -395,7 +376,6 @@ select.theme-form-control {
                     @endforeach
                 </select>
             </div>
-
             <div>
                 <select wire:model.live="progressFilter" class="theme-form-control form-control">
                     <option value="">All Progress</option>
@@ -405,7 +385,6 @@ select.theme-form-control {
                     <option value="100">Completed</option>
                 </select>
             </div>
-
         </div>
     </div>
 
@@ -415,7 +394,6 @@ select.theme-form-control {
     <section class="card">
         <div class="table-responsive">
             <table class="table align-middle">
-
                 <thead>
                     <tr>
                         <th>#</th>
@@ -423,21 +401,21 @@ select.theme-form-control {
                         <th>Course / Education</th>
                         <th style="min-width:230px;">Payment Details</th>
                         <th>Demo Status</th>
+                        <th class="link-cell">Demo Link</th>
                         <th>Source</th>
                         <th>Created</th>
-                        <th width="220">Action</th>
+                        <th width="200">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
                     @forelse($demoUsers as $index => $demo)
                         @php
                             $selection     = $demo->paymentType;
                             $payment       = $selection?->payment;
                             $paymentType   = $selection?->demo_type;
                             $paymentStatus = $selection?->status;
-                            $isConfirm     = $selection?->is_confirm;
+                            $isConfirm     = $selection?->status=='completed' ? 2 : ($selection?->status=='pending' ? 1 : 0);
 
                             $source      = $selection?->trafficSource?->source;
                             $landingPage = $selection?->trafficSource?->landing_page;
@@ -452,7 +430,17 @@ select.theme-form-control {
                             $isFree = $paymentType === 'free';
                             $isPaymentConfirmed = $paymentStatus === 'completed';
                             $canActivate = !$isCompleted && $isConfirm != 2 && ($isFree || $isPaymentConfirmed);
-                            $canSendMail = !$isCompleted && $isConfirm == 2;
+                            $canSendMail = !$isCompleted;
+                            $isActivated = $isConfirm == 2;
+
+                            $latestToken = $latestTokens->get($demo->id);
+                            $tokenUrl = $latestToken ? route('demo.secure.login', $latestToken->token) : null;
+                            $tokenExpired = $latestToken?->expires_at && $latestToken->expires_at->isPast();
+
+                            $initials = collect(preg_split('/\s+/', trim($demo->full_name ?? $demo->name ?? '')))
+                                ->map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1)))
+                                ->take(2)
+                                ->implode('');
                         @endphp
 
                         <tr>
@@ -460,9 +448,14 @@ select.theme-form-control {
 
                             {{-- USER --}}
                             <td>
-                                <strong>{{ $demo->full_name ?? $demo->name }}</strong><br>
-                                <small class="text-muted">{{ $demo->email_phone ?? $demo->email }}</small><br>
-                                <small class="text-muted">IP: {{ $selection?->trafficSource?->user_ip ?? '-' }}</small>
+                                <div class="user-cell">
+                                    <div class="user-avatar">{{ $initials ?: '?' }}</div>
+                                    <div class="user-meta">
+                                        <strong>{{ $demo->full_name ?? $demo->name }}</strong>
+                                        <small class="text-muted">{{ $demo->email_phone ?? $demo->email }}</small>
+                                        <small class="text-muted">IP: {{ $selection?->trafficSource?->user_ip ?? '-' }}</small>
+                                    </div>
+                                </div>
                             </td>
 
                             {{-- COURSE / EDUCATION --}}
@@ -474,8 +467,6 @@ select.theme-form-control {
                             {{-- PAYMENT DETAILS BLOCK --}}
                             <td>
                                 <div class="d-flex flex-column gap-1">
-
-                                    {{-- Demo type badge --}}
                                     @if ($paymentType == 'free')
                                         <span class="badge bg-success align-self-start">Free Demo</span>
                                     @elseif($paymentType == 'paid_qr')
@@ -488,7 +479,6 @@ select.theme-form-control {
                                         <span class="badge bg-secondary align-self-start">N/A</span>
                                     @endif
 
-                                    {{-- Payment confirmation badge --}}
                                     @if ($isFree)
                                         <small class="text-muted">No payment required</small>
                                     @elseif ($isPaymentConfirmed)
@@ -505,7 +495,6 @@ select.theme-form-control {
                                         </span>
                                     @endif
 
-                                    {{-- Raw payment details, if a payment record exists --}}
                                     @if ($payment)
                                         <small class="text-muted">
                                             ₹{{ number_format($payment->paid_amount ?? $payment->amount, 2) }}
@@ -520,7 +509,6 @@ select.theme-form-control {
                                             </small>
                                         @endif
                                     @endif
-
                                 </div>
                             </td>
 
@@ -530,26 +518,47 @@ select.theme-form-control {
                                     <span class="badge bg-dark">
                                         <i class="fa-solid fa-flag-checkered"></i> Completed
                                     </span>
-                                @elseif ($isConfirm == 2 && $selection?->mail_sent_at)
-                                    <span class="badge bg-info text-dark">
-                                        <i class="fa-solid fa-paper-plane"></i> Link Sent
-                                    </span>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ $selection->mail_sent_at->diffForHumans() }}
-                                    </small>
-                                @elseif ($isConfirm == 2)
+                               @elseif ($isActivated && $selection?->mail_sent_at)
+    <span class="badge bg-info text-dark">
+        <i class="fa-solid fa-paper-plane"></i> Link Sent
+    </span>
+    <br>
+    <small class="text-muted">
+        {{ \Carbon\Carbon::parse($selection->mail_sent_at)->diffForHumans() }}
+    </small>
+
+                                @elseif ($isActivated)
                                     <span class="badge bg-primary">
                                         <i class="fa-solid fa-unlock"></i> Activated
                                     </span>
                                 @elseif ($isFree || $isPaymentConfirmed)
-                                    <span class="badge bg-warning text-dark">
-                                        Ready to Activate
-                                    </span>
+                                    <span class="badge bg-warning text-dark">Ready to Activate</span>
                                 @else
-                                    <span class="badge bg-secondary">
-                                        Awaiting Payment
-                                    </span>
+                                    <span class="badge bg-secondary">Awaiting Payment</span>
+                                @endif
+                            </td>
+
+                            {{-- DEMO LINK --}}
+                            <td class="link-cell">
+                                @if ($tokenUrl)
+                                    <div class="link-chip">
+                                        <code title="{{ $tokenUrl }}">{{ $tokenUrl }}</code>
+                                        <button type="button" class="link-copy-btn" title="Copy link"
+                                            onclick="copyDemoLink(this, '{{ $tokenUrl }}')">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="link-meta-row">
+                                        @if ($latestToken->used)
+                                            <span class="badge bg-secondary-subtle text-secondary">Used</span>
+                                        @elseif ($tokenExpired)
+                                            <span class="badge bg-warning-subtle text-warning">Expired</span>
+                                        @else
+                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="link-empty">No link generated yet</span>
                                 @endif
                             </td>
 
@@ -569,44 +578,62 @@ select.theme-form-control {
 
                             {{-- ACTION --}}
                             <td>
-                                <div class="d-flex gap-2 flex-wrap">
-
+                                <div class="action-group">
                                     @if ($isCompleted)
                                         <span class="text-muted small">No action — demo completed</span>
                                     @else
-
-                                        @if ($canActivate)
-                                            <button wire:click="activateUser({{ $demo->id }})"
-                                                wire:confirm="Payment looks confirmed for this user. Activate demo access?"
-                                                class="btn btn-success btn-sm">
-                                                Activate
-                                            </button>
-                                        @elseif ($isConfirm != 2)
-                                            <button class="btn btn-secondary btn-sm" disabled
-                                                title="Payment not confirmed yet">
-                                                Activate
-                                            </button>
+                                        @if (!$isFree)
+                                            @if ($canActivate)
+                                                <button wire:click="activateUser({{ $demo->id }})"
+                                                    wire:confirm="Payment looks confirmed for this user. Activate demo access?"
+                                                    class="btn btn-success btn-sm" title="Activate">
+                                                    Activate
+                                                </button>
+                                            @elseif (!$isActivated)
+                                                <button class="btn btn-secondary btn-sm" disabled
+                                                    title="Payment not confirmed yet">
+                                                    Activate
+                                                </button>
+                                            @endif
                                         @endif
+                                        @if($isFree || $isPaymentConfirmed)
+                                             <button wire:click="sendLoginMail({{ $demo->id }})"
+                                                wire:confirm="Send a fresh one-time demo link? Any earlier unused link for this user will stop working."
+                                                class="btn btn-primary btn-sm" title="Email the demo link"
+                                               >
+                                                {{ $selection?->mail_sent_at ? 'Resend' : 'Send Mail' }}
+                                            </button>
 
+                                            <button wire:click="regenerateLink({{$demo->id }})"
+                                                wire:confirm="Generate a new link for this user? Any earlier unused link will stop working."
+                                                class="btn-icon" title="Regenerate link (copies to clipboard, no email sent)"
+                                               >
+                                                <i class="fa-solid fa-rotate"></i>
+                                            </button>
+                                        @else
                                         @if ($canSendMail)
                                             <button wire:click="sendLoginMail({{ $demo->id }})"
                                                 wire:confirm="Send a fresh one-time demo link? Any earlier unused link for this user will stop working."
-                                                class="btn btn-primary btn-sm">
-                                                {{ $selection?->mail_sent_at ? 'Resend Mail' : 'Send Mail' }}
+                                                class="btn btn-primary btn-sm" title="Email the demo link"
+                                                @if(!$isActivated) disabled @endif>
+                                                {{ $selection?->mail_sent_at ? 'Resend' : 'Send Mail' }}
+                                            </button>
+
+                                            <button wire:click="regenerateLink({{$demo->id }})"
+                                                wire:confirm="Generate a new link for this user? Any earlier unused link will stop working."
+                                                class="btn-icon" title="Regenerate link (copies to clipboard, no email sent)"
+                                                @if(!$isActivated) disabled @endif>
+                                                <i class="fa-solid fa-rotate"></i>
                                             </button>
                                         @endif
-
+                                            @endif
                                     @endif
-
                                 </div>
                             </td>
-
                         </tr>
-
                     @empty
-
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="empty-state">
                                     <div class="empty-icon">📭</div>
                                     <h5>No Demo Users Found</h5>
@@ -614,11 +641,8 @@ select.theme-form-control {
                                 </div>
                             </td>
                         </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
         </div>
     </section>
@@ -629,7 +653,6 @@ select.theme-form-control {
     <div class="mt-4">
         {{ $demoUsers->links('pagination.custom') }}
     </div>
-
 </div>
 
 <script>
@@ -656,5 +679,48 @@ document.addEventListener('livewire:init', () => {
         });
     });
 
+    // Fired by regenerateLink() on the server — auto-copy the fresh link.
+    Livewire.on('link-generated', (event) => {
+        copyToClipboard(event.url);
+    });
+
 });
+
+/**
+ * Copy a demo link from the table's copy icon button. Gives that
+ * specific button a brief "copied" state so the admin gets feedback
+ * right where they clicked, without a popup for something this small.
+ */
+function copyDemoLink(button, url) {
+    copyToClipboard(url).then(() => {
+        const icon = button.querySelector('i');
+        button.classList.add('copied');
+        icon.classList.remove('fa-copy');
+        icon.classList.add('fa-check');
+
+        setTimeout(() => {
+            button.classList.remove('copied');
+            icon.classList.remove('fa-check');
+            icon.classList.add('fa-copy');
+        }, 1500);
+    });
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    // Fallback for non-HTTPS/local environments
+    return new Promise((resolve) => {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        resolve();
+    });
+}
 </script>

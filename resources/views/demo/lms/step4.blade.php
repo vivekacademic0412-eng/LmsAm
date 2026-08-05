@@ -11,7 +11,7 @@
 
     <canvas id="confettiCanvas"></canvas>
   <div class="stepper">@include('demo.stepper')</div>
-    <div class="card">
+    <div class="card ">
 
         {{-- ── Success Hero ── --}}
         <div style="text-align:center; padding:32px 0 20px">

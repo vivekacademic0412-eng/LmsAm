@@ -253,9 +253,9 @@
 --}}
 @php
     $rv = [
-        'full_name'        => old('full_name',        $existingDemoUser?->full_name          ?? ''),
-        'email'            => old('email',             $existingDemoUser?->email              ?? ''),
-        'contact'          => old('contact',           $existingDemoUser?->phone              ?? ''),
+        'full_name'        => old('full_name',        $existingDemoUser?->full_name          ?? auth()->user()?->name ?? ''),
+        'email'            => old('email',             $existingDemoUser?->email              ?? auth()->user()?->email ?? ''),
+        'contact'          => old('contact',           $existingDemoUser?->phone              ?? auth()->user()?->contact ?? ''),
         'education_level'  => old('education_level',   $existingDemoUser?->education_level_id ?? ''),
         'interest_area'    => old('interest_area',     $existingDemoUser?->interest_area_id   ?? session('lms_interest', '')),
         'avatar'           => old('avatar',             $existingDemoUser?->avatar             ?? ''),

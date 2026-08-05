@@ -53,56 +53,72 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-layout-dashboard',
                         'route' => 'dashboard',
                         'roles' => ['superadmin', 'admin', 'manager_hr', 'it', 'trainer', 'student', 'demo'],
+                         'condition' => 'always',
                     ],
                 ],
             ],
 
             // ── Student only ─────────────────────────────
+           
             [
-                'category' => 'Learning',
-                'icon'     => 'fas fa-graduation-cap',
-                'modules'  => [
+                'category' => 'My Learning',
+                'icon' => 'fas fa-user-graduate',
+                'modules' => [
                     [
-                        'key'   => 'student-courses',
-                        'label' => 'Explore Courses',
-                        'icon'  => 'ti ti-books',
-                        'route' => 'student.courses',
-                        'roles' => ['student'],
-                    ],
-                    [
-                        'key'   => 'lms-choose-type',
+                        'key' => 'lms-choose-type',
                         'label' => 'Book Demo Session',
-                        'icon'  => 'ti ti-history',
+                        'icon' => 'ti ti-calendar',
                         'route' => 'lms.choose-type',
                         'roles' => ['student'],
+                        'condition' =>'not_enrolled',
                     ],
                     [
-                        'key'   => 'student-payments',
-                        'label' => 'Payments Transactions',
-                        'icon'  => 'ti ti-currency-rupee',
-                        'route' => 'payments.index',
+                        'key' => 'student-courses',
+                        'label' => 'Explore Courses',
+                        'icon' => 'ti ti-books',
+                        'route' => 'student.courses',
                         'roles' => ['student'],
+                        'condition' => 'always',
                     ],
                     [
-                        'key'   => 'student-certificates',
-                        'label' => 'Certificates',
-                        'icon'  => 'fa-solid fa-certificate',
-                        'route' => 'student.certificates', // href="#" in blade — no route yet
+                        'key' => 'student-enrollments',
+                        'label' => 'My Enrolled Courses',
+                        'icon' => 'ti ti-book',
+                        'route' => 'student.enrollments',
                         'roles' => ['student'],
+                        'condition' => 'enrolled',
                     ],
                     [
-                        'key'   => 'student-history',
-                        'label' => 'My History',
-                        'icon'  => 'fa-solid fa-clock-rotate-left',
-                        'route' => 'student.history',
-                        'roles' => ['student'],
-                    ],
-                    [
-                        'key'   => 'student-attendance',
+                        'key' => 'student-attendance',
                         'label' => 'My Attendance',
-                        'icon'  => 'fa-solid fa-clock-rotate-left',
+                        'icon' => 'fa-solid fa-calendar-check',
                         'route' => 'student.attendance',
                         'roles' => ['student'],
+                        'condition' => 'enrolled',
+                    ],
+                    [
+                        'key' => 'student-certificates',
+                        'label' => 'Certificates',
+                        'icon' => 'fa-solid fa-certificate',
+                        'route' => 'student.certificates',
+                        'roles' => ['student'],
+                        'condition' => 'always',
+                    ],
+                    [
+                        'key' => 'student-payments',
+                        'label' => 'Payment Transactions',
+                        'icon' => 'ti ti-currency-rupee',
+                        'route' => 'payments.index',
+                        'roles' => ['student'],
+                        'condition' => 'always',
+                    ],
+                    [
+                        'key' => 'student-history',
+                        'label' => 'My History',
+                        'icon' => 'fa-solid fa-clock-rotate-left',
+                        'route' => 'student.history',
+                        'roles' => ['student'],
+                        'condition' => 'enrolled',
                     ],
                 ],
             ],
@@ -118,6 +134,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-briefcase',
                         'route' => 'panel.manager_hr',
                         'roles' => ['manager_hr'],
+                       'condition' => 'always',
                     ],
                 ],
             ],
@@ -133,6 +150,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-server',
                         'route' => 'panel.it',
                         'roles' => ['it'],
+                         'condition' => 'always',
                     ],
                 ],
             ],
@@ -143,7 +161,7 @@ class ModuleSeeder extends Seeder
                 'icon'     => 'fas fa-book',
                 'modules'  => [
                     [
-                        'key'   => 'courses',
+                        'key'   => 'Courses',
                         'label' => 'Courses',
                         'icon'  => 'ti ti-school',
                         'route' => null,
@@ -156,6 +174,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-folder',
                                 'route' => 'course-categories.index',
                                 'roles' => ['superadmin', 'admin', 'manager_hr', 'it'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -164,6 +183,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-books',
                                 'route' => 'courses.index',
                                 'roles' => ['superadmin', 'admin', 'manager_hr', 'it'],
+                                'condition' => 'always',
                             ],
 
                             [
@@ -172,6 +192,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-calendar-week',
                                 'route' => 'admin.courses.weeks',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -180,6 +201,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-video',
                                 'route' => 'admin.courses.sessions',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -188,6 +210,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-certificate',
                                 'route' => 'admin.courses.certificates',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -196,6 +219,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-check',
                                 'route' => 'admin.certificates',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'course-seats',
@@ -203,6 +227,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-users',
                                 'route' => 'admin.courses.seats',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
                             [
                                 'key'   => 'batch',
@@ -210,6 +235,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-users-group',
                                 'route' => 'admin.courses.batch',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
                         ],
                     ],
@@ -234,6 +260,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-users',
                                 'route' => 'leads.index',
                                 'roles' => ['superadmin', 'admin', 'manager_hr'],
+                                'condition' => 'always',
                             ],
                             [
                                 'key'   => 'enrollments',
@@ -241,13 +268,15 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-clipboard-list',
                                 'route' => 'enrollments.index',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
                             [
                                 'key'   => 'attendance',
                                 'label' => 'Attendance',
                                 'icon'  => 'ti ti-clipboard-list',
                                 'route' => 'enrollments.student.attendance',
-                                'roles' => ['superadmin', 'admin','manager_hr'],
+                                'roles' => ['superadmin', 'admin', 'manager_hr'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'submissions',
@@ -255,6 +284,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-git-pull-request',
                                 'route' => 'submissions.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'admin-payments',
@@ -262,6 +292,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-currency-rupee',
                                 'route' => 'payments.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                         ],
                     ],
@@ -286,6 +317,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-activity',
                                 'route' => 'activity-logs.index',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
 
                             [
@@ -294,6 +326,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-shield-check',
                                 'route' => 'users.index',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
 
                             [
@@ -302,6 +335,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-speakerphone',
                                 'route' => 'broadcast-notifications.index',
                                 'roles' => ['superadmin', 'admin'],
+                                'condition' => 'always',
                             ],
 
                             [
@@ -310,6 +344,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-file-text',
                                 'route' => 'admin.brocheres',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -318,6 +353,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-menu-2',
                                 'route' => 'admin.nav-items.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -326,6 +362,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-layout-grid',
                                 'route' => 'admin.nav-items.modules',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
 
                             [
@@ -334,13 +371,15 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-lock-access',
                                 'route' => 'admin.permissions.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
-                             [
+                            [
                                 'key'   => 'policy',
                                 'label' => 'Policy',
                                 'icon'  => 'ti ti-lock-access',
                                 'route' => 'policy.index',
-                                'roles' => ['superadmin', 'admin','hr_manager'],
+                                'roles' => ['superadmin', 'admin', 'hr_manager'],
+                                 'condition' => 'always',
                             ],
 
                         ],
@@ -365,6 +404,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-plus-circle',
                                 'route' => 'demo-tasks.create-page',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-tasks-assign',
@@ -372,6 +412,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-user-check',
                                 'route' => 'demo-tasks.assign-page',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-feature-video',
@@ -379,6 +420,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-video',
                                 'route' => 'demo-feature-video.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-hero',
@@ -386,6 +428,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-video',
                                 'route' => 'admin.demo-hero',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-review-videos',
@@ -393,6 +436,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-star',
                                 'route' => 'demo-review-videos.index',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                         ],
                     ],
@@ -410,6 +454,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-users',
                                 'route' => 'admin.demo-students',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-submission-stage',
@@ -417,6 +462,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-git-merge',
                                 'route' => 'admin.demo-submission-stage',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                             [
                                 'key'   => 'demo-feedbacks',
@@ -424,6 +470,7 @@ class ModuleSeeder extends Seeder
                                 'icon'  => 'ti ti-message-dots',
                                 'route' => 'admin.feedbacks',
                                 'roles' => ['superadmin', 'admin'],
+                                 'condition' => 'always',
                             ],
                         ],
                     ],
@@ -441,6 +488,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-git-pull-request',
                         'route' => 'trainer.submissions',
                         'roles' => ['trainer'],
+                         'condition' => 'always',
                     ],
                     [
                         'key'   => 'trainer-courses',
@@ -448,6 +496,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-books',
                         'route' => 'trainer.courses',
                         'roles' => ['trainer'],
+                         'condition' => 'always',
                     ],
                     [
                         'key'   => 'trainer-assigned-students',
@@ -455,6 +504,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-users',
                         'route' => 'trainer.assigned-students',
                         'roles' => ['trainer'],
+                         'condition' => 'always',
                     ],
                     [
                         'key'   => 'trainer-progress',
@@ -462,6 +512,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-chart-line',
                         'route' => 'trainer.progress',
                         'roles' => ['trainer'],
+                         'condition' => 'always',
                     ],
                 ],
             ],
@@ -477,6 +528,7 @@ class ModuleSeeder extends Seeder
                         'icon'  => 'ti ti-user-circle',
                         'route' => 'profile.edit',
                         'roles' => ['superadmin', 'admin', 'manager_hr', 'it', 'trainer', 'student', 'demo'],
+                         'condition' => 'always',
                     ],
                 ],
             ],
@@ -504,6 +556,7 @@ class ModuleSeeder extends Seeder
                     'route'       => $moduleData['route'] ?? null,
                     'sort_order'  => $moduleIndex + 1,
                     'status'      => true,
+                    'condition'   => $moduleData['condition'] ?? 'always', // ← add this
                 ]);
 
                 $this->syncPermissions($module, $roles, $moduleData['roles'] ?? $roles);
@@ -521,6 +574,7 @@ class ModuleSeeder extends Seeder
                             'route'       => $childData['route'] ?? null,
                             'sort_order'  => $childIndex + 1,
                             'status'      => true,
+                            'condition'   => $childData['condition'] ?? 'always',
                         ]);
 
                         $this->syncPermissions($child, $roles, $childData['roles'] ?? $roles);

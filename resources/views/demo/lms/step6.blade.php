@@ -7,7 +7,7 @@
 
 @section('content')
 @php
-    $status     = $demo->status ?? 'pending';   // pending | approved | rejected
+    $status     = $demo->status ;   // pending | approved | rejected
     $isApproved = $status === 'approved';
     $isRejected = $status === 'rejected';
 @endphp
@@ -202,12 +202,12 @@
 
                     <div class="cert-body2">
                         Has completed
-                        <span class="cert-blank2">{{ $demo->duration ?? '3 months' }}</span>
+                        <span class="cert-blank2">{{ $demo->duration ?? ' ' }}</span>
                         hours/months/years with us.
                         We thank you for showing your trust and being a valued member
                         while showing exemplary performance. He/She has acquired
                         experience in the
-                        <span class="cert-blank2">{{ $demo->course->title ?? ($course->title ?? 'Department') }}</span>
+                        <span class="cert-blank2">{{ $category->name ?? ($category->name ?? 'Department') }}</span>
                         Department.
                     </div>
 
@@ -257,7 +257,7 @@
                 <ul>
                     <li><strong>Name:</strong> {{ auth()->user()->name }}</li>
                     <li><strong>Email:</strong> {{ auth()->user()->email }}</li>
-                    <li><strong>Course:</strong> {{ $demo->course->title ?? ($course->title ?? '—') }}</li>
+                    <li><strong>Course:</strong> {{ $course ->name ?? ($course->name ?? '—') }}</li>
                     <li>
                         <strong>Status:</strong>
                         <div class="status-line {{ $isApproved ? 'ok' : ($isRejected ? 'bad' : 'pending') }}">

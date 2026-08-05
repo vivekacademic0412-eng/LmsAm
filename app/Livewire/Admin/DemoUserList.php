@@ -70,8 +70,7 @@ class DemoUserList extends Component
 
     /**
      * Activate a demo user — but ONLY if their payment is actually confirmed
-     * (or the demo type is free). This is the gate that used to be missing:
-     * previously any row could be force-activated regardless of payment status.
+     * (or the demo type is free).
      */
     public function activateUser($userId)
     {
@@ -89,7 +88,7 @@ class DemoUserList extends Component
             return;
         }
 
-        if ($selection->is_confirm == 2) {
+        if ($selection->status == 'completed') {
             $this->dispatch('error', message: 'This user is already activated.');
             return;
         }
@@ -105,27 +104,35 @@ class DemoUserList extends Component
             return;
         }
 
-        $selection->update(['is_confirm' => 2]);
+        $selection->update(['status' => 'completed','is_confirm' => 2]);
 
-        $this->dispatch('success', message: 'User activated successfully. You can now send the demo link.');
+        $this->dispatch('success', message: 'User activated successfully. You can now send or generate the demo link.');
     }
 
     /**
-     * Send a one-time secure demo login link.
-     * Rules enforced here to stop spam / re-use:
-     *  - User must be activated (payment confirmed) first.
-     *  - Demo must not already be completed.
-     *  - Any previous unused tokens for this user are invalidated first,
-     *    so only ONE valid link can exist for a user at any time.
-     *  - A short cooldown prevents accidental double-sends from double clicks.
+     * Send a one-time secure demo login link via email.
+     * Invalidates any previous unused token first, so only ONE valid
+     * link can exist for a user at any time. A short cooldown prevents
+     * accidental double-sends from double clicks.
      */
     public function sendLoginMail($userId)
     {
         $user = User::with(['demo.submittedDemos', 'paymentType'])->findOrFail($userId);
         $selection = $user->paymentType;
+        if (!$selection) {
+            $this->dispatch('error', message: 'Payment information not found.');
+            return;
+        }
 
-        if (!$selection || $selection->is_confirm != 2) {
-            $this->dispatch('error', message: 'Activate this user (confirm payment) before sending the demo link.');
+        // Only paid users require payment confirmation
+        if (
+            $selection->demo_type !== 'free' &&
+            $selection->status != 'completed'
+        ) {
+            $this->dispatch(
+                'error',
+                message: 'Activate this user (confirm payment) before sending the demo link.'
+            );
             return;
         }
 
@@ -145,8 +152,52 @@ class DemoUserList extends Component
             return;
         }
 
-        // Invalidate any previously issued, still-unused tokens for this user.
-        // This guarantees a single valid link exists per user at a time.
+        $url = $this->issueFreshToken($user);
+
+        Mail::to($user->email)->send(new DemoLoginCredentialsMail($user, $url));
+
+        $selection->update([
+            'mail_sent_at'     => now(),
+            'mail_sent_count'  => ($selection->mail_sent_count ?? 0) + 1,
+        ]);
+
+        $this->dispatch('success', message: 'Secure demo link sent successfully.');
+    }
+
+    /**
+     * Generate a fresh demo link WITHOUT emailing it — for admins who want
+     * to copy/share it manually (WhatsApp, in person, etc). Invalidates
+     * any previously issued unused token, same as sendLoginMail.
+     */
+    public function regenerateLink($userId)
+    {
+
+        $user = User::with(['demo.submittedDemos', 'paymentType'])->findOrFail($userId);
+        $selection = $user->paymentType;
+
+        if (!$selection || $selection->status != 'completed') {
+            $this->dispatch('error', message: 'Activate this user (confirm payment) before generating a link.');
+            return;
+        }
+
+        if ($this->demoIsCompleted($user)) {
+            $this->dispatch('error', message: 'This demo is already completed. No further link can be generated.');
+            return;
+        }
+
+        $url = $this->issueFreshToken($user);
+
+        $this->dispatch('link-generated', url: $url);
+        $this->dispatch('success', message: 'New demo link generated and copied to clipboard.');
+    }
+
+    /**
+     * Invalidate any unused token for this user and issue + return a
+     * fresh one. Shared by sendLoginMail() and regenerateLink() so both
+     * paths guarantee only one valid link exists per user at a time.
+     */
+    protected function issueFreshToken(User $user): string
+    {
         DemoAccessToken::where('user_id', $user->id)
             ->where('used', false)
             ->update(['used' => true, 'used_at' => now()]);
@@ -160,22 +211,12 @@ class DemoUserList extends Component
             'used'       => false,
         ]);
 
-        $url = route('demo.secure.login', $token);
-
-        Mail::to($user->email)->send(new DemoLoginCredentialsMail($user, $url));
-
-        $selection->update([
-            'mail_sent_at'     => now(),
-            'mail_sent_count'  => ($selection->mail_sent_count ?? 0) + 1,
-        ]);
-
-        $this->dispatch('success', message: 'Secure demo link sent successfully.');
+        return route('demo.secure.login', $token);
     }
 
     /**
      * Consider a demo "completed" if the linked DemoUser record shows 100%
-     * progress OR has at least one submitted demo. Adjust to match your
-     * actual completion signal if different.
+     * progress OR has at least one submitted demo.
      */
     protected function demoIsCompleted(User $user): bool
     {
@@ -206,9 +247,8 @@ class DemoUserList extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('full_name', 'like', '%' . $this->search . '%')
-                    ->orWhere('email_phone', 'like', '%' . $this->search . '%')
-                    ->orWhere('ip_address', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('contact', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -235,8 +275,19 @@ class DemoUserList extends Component
 
         $query->orderBy($this->sortField, $this->sortDirection);
 
+        $demoUsers = $query->paginate($this->perPage);
+
+        // Most recent token per user, for the users on this page only —
+        // avoids an N+1 by batching into a single query, then grouping.
+        $latestTokens = DemoAccessToken::whereIn('user_id', $demoUsers->pluck('id'))
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($tokens) => $tokens->first());
+
         return view('livewire.admin.demo-user-list', [
-            'demoUsers' => $query->paginate($this->perPage),
+            'demoUsers' => $demoUsers,
+            'latestTokens' => $latestTokens,
             'educationLevels' => EducationLevel::orderBy('sort_order')->get(),
             'courses' => Course::orderBy('title')->get(),
             'totalUsers' => DemoUser::count(),

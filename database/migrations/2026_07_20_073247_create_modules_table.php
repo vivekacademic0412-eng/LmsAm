@@ -31,6 +31,9 @@ return new class extends Migration
             $table->string('icon')->nullable();
 
             $table->string('route')->nullable();
+             
+
+            $table->string('condition')->default('always');
 
             $table->integer('sort_order')->default(0);
 

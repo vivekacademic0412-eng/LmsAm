@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             EducationLevelSeeder::class,
             HeroSectionSeeder::class,
             // WeekelyLevelSeeder::class,
+            DemoTaskSeeder::class,
         ]);
         $password = Hash::make('password');
         $faker = fake();
