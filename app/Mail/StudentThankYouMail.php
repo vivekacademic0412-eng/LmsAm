@@ -35,7 +35,7 @@ class StudentThankYouMail extends Mailable
             // that doesn't exist in your resources/views/emails folder. The
             // actual file is 'emails.student-thank-you' — that mismatch alone
             // would throw a "View not found" error and silently fail to send.
-            ->view('emails.student-thank-you')
+            ->view('emails.student-welcome-verify')
             ->with([
                 'user' => $this->user,
                 'verificationUrl' => $this->verificationUrl,

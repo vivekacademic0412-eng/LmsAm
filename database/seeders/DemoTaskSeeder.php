@@ -21,16 +21,12 @@ class DemoTaskSeeder extends Seeder
             'description' => <<<TEXT
 Objective:
 Create a simple Student Registration Form using only HTML.
-
 ----------------------------------------
 Requirements
 ----------------------------------------
-
 Create a file named:
 index.html
-
 Design a Student Registration Form with the following fields:
-
 • Student Name
 • Father's Name
 • Email Address
@@ -41,11 +37,9 @@ Design a Student Registration Form with the following fields:
 • Address (Textarea)
 • Submit Button
 • Reset Button
-
 ----------------------------------------
 Instructions
 ----------------------------------------
-
 1. Use only HTML.
 2. Use proper labels for every field.
 3. Use appropriate input types.
@@ -53,26 +47,20 @@ Instructions
 5. Use radio buttons for Gender.
 6. Use a textarea for Address.
 7. All fields should be required.
-
 ----------------------------------------
 Learning Outcomes
 ----------------------------------------
-
 • HTML Forms
 • Input Types
 • Labels
 • Select
 • Textarea
 • Buttons
-
 ----------------------------------------
 Submission
-
 Upload:
-
 1. index.html
 2. Screenshot of your form
-
 Best of Luck!
 TEXT,
             'created_by' => $admin?->id,
