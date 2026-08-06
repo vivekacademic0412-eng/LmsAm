@@ -365,7 +365,7 @@
             </table>
         </div>
         <div class="dta-pagination">
-            {{ $assignments->links() }}
+            {{ $assignments->links('pagination.custom') }}
         </div>
     </section>
 
