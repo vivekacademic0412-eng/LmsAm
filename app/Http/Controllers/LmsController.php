@@ -471,8 +471,7 @@ class LmsController extends Controller
         // Look up the category id from the slug stored in session
         $category = CourseCategory::where('slug', session('lms_interest'))->first();
         $demoUser = DemoUser::where('user_id', auth()->id())->first();
-        $paymentType= User::with('paymentType')->first();
-        $payemnt=$paymentType?->paymentType?->demo_type;
+       
         $courseId = session('lms_course_id');
         $course = Course::where('id', $courseId)
             ->first();
@@ -484,7 +483,7 @@ class LmsController extends Controller
         $demo = SubmittedDemos::where('user_id', auth()->user()->id)
             // ->where('course_id', $demoUser->interest_area_id)//category_id course
             ->first();
-
+      $paymentType = auth()->user()?->paymentType?->demo_type; // free / paid
         $isApproved = $demo && $demo->status === 'approved';
         return view('demo.lms.step6', [
             'currentStep' => 6,

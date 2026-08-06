@@ -505,7 +505,7 @@
                     @if ($isApproved)
 
                         @if ($paymentType == 'free')
-                            <a href="{{ route('demo.payment') }}" class="btn-main">
+                            <a href="#" class="btn-main">
                                 <i class="fas fa-credit-card"></i>
                                 Pay ₹999 & Download Certificate
                             </a>
