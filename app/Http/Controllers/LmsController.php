@@ -484,7 +484,7 @@ class LmsController extends Controller
             // ->where('course_id', $demoUser->interest_area_id)//category_id course
             ->first();
         $paymentType = auth()->user()?->paymentType?->demo_type; // free / paid
-        dd($paymentType);
+       
         $isApproved = $demo && $demo->status === 'approved';
         return view('demo.lms.step6', [
             'currentStep' => 6,

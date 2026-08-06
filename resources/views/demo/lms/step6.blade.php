@@ -367,7 +367,7 @@
             <p>
                 @if ($isApproved)
 
-                    @if ($paymentType == 'free')
+                    @if ($paymentType === 'free')
                         Congratulations! 🎉 Your submission has been approved.
 
                         To download your certificate, please upgrade to the Paid Demo by completing the ₹999 payment. Once
@@ -504,7 +504,7 @@
 
                     @if ($isApproved)
 
-                        @if ($paymentType == 'free')
+                        @if ($paymentType === 'free')
                             <a href="#" class="btn-main">
                                 <i class="fas fa-credit-card"></i>
                                 Pay ₹999 & Download Certificate
