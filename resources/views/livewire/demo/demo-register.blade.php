@@ -11,24 +11,24 @@
     {{-- ── Form ── --}}
     <form wire:submit.prevent="register" class="dreg-form" novalidate>
         @if (session()->has('success'))
-    <div class="dreg-success-box">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-            <path d="M20 6L9 17l-5-5"/>
-        </svg>
+            <div class="dreg-success-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M20 6L9 17l-5-5" />
+                </svg>
 
-        <div>
-            <strong>Registration Successful!</strong><br>
-            {{ session('success') }}
-        </div>
-    </div>
-@endif
+                <div>
+                    <strong>Registration Successful!</strong><br>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
 
-@if (session()->has('error'))
-    <div class="dreg-error-box">
-        {{ session('error') }}
-    </div>
-@endif
+        @if (session()->has('error'))
+            <div class="dreg-error-box">
+                {{ session('error') }}
+            </div>
+        @endif
         <div class="dreg-row">
 
             <div class="dreg-field @error('first_name') dreg-field--error @enderror">
@@ -187,7 +187,7 @@
                     stroke-width="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-               Register
+                Register
             </span>
             <span wire:loading class="dreg-loading">
                 <svg class="dreg-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -197,51 +197,76 @@
                 Creating Account…
             </span>
         </button>
+        <div class="mt-3">
+            <div class="dreg-field @error('resendEmail') dreg-field--error @enderror">
+                <label class="dreg-label" for="dreg-resend-email">Already registered? Resend verification</label>
+                <input id="dreg-resend-email" type="email" wire:model="resendEmail" class="dreg-input"
+                    placeholder="you@example.com" autocomplete="off" />
+                @error('resendEmail')
+                    <span class="dreg-error">{{ $message }}</span>
+                @enderror
+            </div>
 
+            <button type="button" wire:click="resendVerification" wire:loading.attr="disabled"
+                class="btn btn-primary mt-2">
+                <span wire:loading.remove wire:target="resendVerification">Resend Verification Email</span>
+                <span wire:loading wire:target="resendVerification">Sending...</span>
+            </button>
+        </div>
     </form>
 
 
     {{-- ── SweetAlert2 trigger ── --}}
     @push('scripts')
         <script>
-         
-document.addEventListener('livewire:init', () => {
+            document.addEventListener('livewire:init', () => {
 
-    // Generic SweetAlert
-    Livewire.on('swal', (event) => {
+                // Generic SweetAlert
+                Livewire.on('swal', (event) => {
 
-        const data = Array.isArray(event) ? event[0] : event;
+                    const data = Array.isArray(event) ? event[0] : event;
 
-        Swal.fire({
-            icon: data.icon,
-            title: data.title,
-            text: data.text,
-            confirmButtonColor: '#0947a8'
-        });
+                    Swal.fire({
+                        icon: data.icon,
+                        title: data.title,
+                        text: data.text,
+                        confirmButtonColor: '#0947a8'
+                    });
 
-    });
+                });
 
-    // Registration Success
-    Livewire.on('registration-success', (event) => {
+                // Registration Success
+                Livewire.on('registration-success', (event) => {
 
-        const data = Array.isArray(event) ? event[0] : event;
+                    const data = Array.isArray(event) ? event[0] : event;
 
-        Swal.fire({
-            icon: 'success',
-            title: `Welcome, ${data.name}!`,
-            html: `
+                    Swal.fire({
+                        icon: 'success',
+                        title: `Welcome, ${data.name}!`,
+                        html: `
                 <strong>Your account has been created successfully.</strong><br><br>
                 Please check your email and verify your account before logging in.
             `,
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#0947a8',
-            allowOutsideClick: false
-        });
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#0947a8',
+                        allowOutsideClick: false
+                    });
 
-    });
+                });
 
-});
-
+            });
+        </script>
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('swal', (event) => {
+                    Swal.fire({
+                        icon: event[0].icon,
+                        title: event[0].title,
+                        text: event[0].text ?? '',
+                        confirmButtonColor: '#3085d6',
+                    });
+                });
+            });
         </script>
     @endpush
 

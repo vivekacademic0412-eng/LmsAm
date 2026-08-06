@@ -285,4 +285,9 @@ class AuthController extends Controller
       
         return view('landing-thankyou', compact('user'));
     }
+      public function ThankyouUser(User $user)
+    {
+      
+        return view('landing-thankyou', compact('user'));
+    }
 }

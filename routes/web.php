@@ -39,6 +39,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\PaymentLinkController;
 use App\Http\Controllers\PaymentVerifyController;
 use App\Http\Controllers\PolicyController;
+use App\Http\Controllers\RegisterEmailVerificationController;
 use App\Livewire\Student\PaymentCheckout;
 use App\Livewire\Student\PaymentSuccess;
 use Illuminate\Http\Request;
@@ -346,6 +347,9 @@ Route::middleware('guest')->group(function () {
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
+    Route::get('/email/verify-register/{id}/{hash}', RegisterEmailVerificationController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify.register');
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -367,6 +371,8 @@ Route::middleware(['auth'])->prefix('onboarding')->name('onboarding.')->group(fu
 });
 Route::get('thank-you/{user}', [AuthController::class, 'Thankyou'])
     ->name('landing.thankyou');
+Route::get('thank-you/{user}', [AuthController::class, 'ThankyouUser'])
+    ->name('landing.thankyou-user');
 
 
 Route::middleware(['auth', 'role:superadmin,admin,manager_hr',])->prefix('admin/courses')->name('admin.courses.')->group(function () {

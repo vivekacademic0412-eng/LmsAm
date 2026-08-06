@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Demo;
 
+use App\Mail\NewStudentRegisteredMail;
 use App\Mail\StudentThankYouMail;
 use App\Models\TrafficSource;
 use App\Models\User;
@@ -82,7 +83,7 @@ class DemoRegister extends Component
     private function buildVerificationUrl(User $user): string
     {
         return URL::temporarySignedRoute(
-            'verification.verify',
+            'verification.verify.register',
             now()->addMinutes(60),
             [
                 'id'   => $user->getKey(),
@@ -177,7 +178,7 @@ class DemoRegister extends Component
             $verificationUrl = $this->buildVerificationUrl($user);
 
             Mail::to($user->email)->send(
-                new StudentThankYouMail($user, $verificationUrl)
+                new NewStudentRegisteredMail($user, $verificationUrl)
             );
 
             Log::info('Verification email sent.', [
@@ -225,56 +226,79 @@ class DemoRegister extends Component
      * Resends the same combined welcome/verification email.
      * Rate-limited to 1 send per 60 seconds per user to prevent abuse.
      */
-    // public function resendVerification()
-    // {
-    //     if (! $this->registeredUserId) {
-    //         return;
-    //     }
+    public string $resendEmail = '';
 
-    //     $key = 'resend-verification:' . $this->registeredUserId;
+   
+    public function resendVerification()
+    {
+        $this->validate([
+            'resendEmail' => ['required', 'email'],
+        ], [], ['resendEmail' => 'email']);
 
-    //     if (RateLimiter::tooManyAttempts($key, 1)) {
-    //         $this->resendCooldown = RateLimiter::availableIn($key);
-    //         $this->resendMessage  = 'Please wait before requesting another email.';
-    //         $this->resendSent     = false;
-    //         return;
-    //     }
+        $user = User::where('email', $this->resendEmail)->first();
 
-    //     $user = User::find($this->registeredUserId);
+        if (! $user) {
+            $this->dispatch('swal', [
+                'icon'  => 'error',
+                'title' => 'No account found with that email address.',
+            ]);
+            return;
+        }
 
-    //     if (! $user) {
-    //         $this->resendMessage = 'We could not find your account. Please refresh and try again.';
-    //         return;
-    //     }
+        if ($user->hasVerifiedEmail()) {
+            $this->dispatch('swal', [
+                'icon'  => 'info',
+                'title' => 'Your email is already verified.',
+                'text'  => 'You can log in now.',
+            ]);
+            return;
+        }
 
-    //     if ($user->hasVerifiedEmail()) {
-    //         $this->resendMessage = 'Your email is already verified — you can log in now.';
-    //         $this->resendSent    = true;
-    //         return;
-    //     }
+        $key = 'resend-verification:' . $user->id;
 
-    //     try {
-    //         $verificationUrl = $this->buildVerificationUrl($user);
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            $this->resendCooldown = RateLimiter::availableIn($key);
 
-    //         Mail::to($user->email)->send(
-    //             new StudentWelcomeVerifyMail($user, $verificationUrl)
-    //         );
+            $this->dispatch('swal', [
+                'icon'  => 'warning',
+                'title' => 'Please wait!',
+                'text'  => "Please wait {$this->resendCooldown}s before requesting another email.",
+            ]);
+            return;
+        }
 
-    //         RateLimiter::hit($key, 60);
+        try {
+            $verificationUrl = $this->buildVerificationUrl($user);
 
-    //         $this->resendSent     = true;
-    //         $this->resendCooldown = 60;
-    //         $this->resendMessage  = 'Verification email resent! Please check your inbox.';
-    //     } catch (\Throwable $e) {
-    //         Log::error('Resend verification email failed', [
-    //             'user_id' => $user->id,
-    //             'message' => $e->getMessage(),
-    //         ]);
+            Mail::to($user->email)->send(
+                new NewStudentRegisteredMail($user, $verificationUrl)
+            );
 
-    //         $this->resendMessage = 'Something went wrong sending the email. Please try again shortly.';
-    //     }
-    // }
+            RateLimiter::hit($key, 60);
 
+            $this->resendSent     = true;
+            $this->resendCooldown = 60;
+
+            $this->dispatch('swal', [
+                'icon'  => 'success',
+                'title' => 'Verification Email Sent!',
+                'text'  => 'Please check your inbox.',
+            ]);
+
+            Log::info('Verification email resent.', ['user_id' => $user->id]);
+        } catch (\Throwable $e) {
+            Log::error('Resend verification email failed', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            $this->dispatch('swal', [
+                'icon'  => 'error',
+                'title' => 'Oops!',
+                'text'  => 'Something went wrong sending the email. Please try again shortly.',
+            ]);
+        }
+    }
     public function updated($property)
     {
         $this->validateOnly($property);
