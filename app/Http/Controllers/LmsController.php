@@ -471,6 +471,8 @@ class LmsController extends Controller
         // Look up the category id from the slug stored in session
         $category = CourseCategory::where('slug', session('lms_interest'))->first();
         $demoUser = DemoUser::where('user_id', auth()->id())->first();
+        $paymentType= User::with('paymentType')->first();
+        $payemnt=$paymentType?->paymentType?->demo_type;
         $courseId = session('lms_course_id');
         $course = Course::where('id', $courseId)
             ->first();
@@ -489,6 +491,8 @@ class LmsController extends Controller
             'course'     => $course,   // comma, not semicolon
             'reviews'     => $reviews,
             'demo' => $demo,
+            'paymentType' => $paymentType,
+           
 
         ]);
     }
