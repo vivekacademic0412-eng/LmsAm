@@ -7,7 +7,22 @@
            and Flexbox, built on the app's existing theme tokens
            (--bg, --bg-card, --brand-primary, --text, etc.)
         ===================================================== */
+.video-preview {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
 
+.video-preview video {
+    width: 100%;
+    max-width: 360px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #000;
+    aspect-ratio: 16 / 9;
+}
         .reel-admin {
             position: relative;
             z-index: 1;
@@ -40,7 +55,7 @@
         }
 
         [data-theme="dark"] .sprockets {
-            background-image: radial-gradient(circle at 10px 7px, rgba(0,0,0,.55) 3.5px, transparent 4px);
+            background-image: radial-gradient(circle at 10px 7px, rgba(0, 0, 0, .55) 3.5px, transparent 4px);
         }
 
         /* ── Hero ── */
@@ -169,9 +184,17 @@
             color: #fff;
         }
 
-        .reel-stat-icon.g { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); }
-        .reel-stat-icon.success { background: var(--success); }
-        .reel-stat-icon.warning { background: var(--warning); }
+        .reel-stat-icon.g {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+        }
+
+        .reel-stat-icon.success {
+            background: var(--success);
+        }
+
+        .reel-stat-icon.warning {
+            background: var(--warning);
+        }
 
         /* ── Filters ── */
         .filter-card {
@@ -213,7 +236,9 @@
             font-family: inherit;
         }
 
-        .form-select option:disabled { color: var(--text-muted); }
+        .form-select option:disabled {
+            color: var(--text-muted);
+        }
 
         .form-control:focus,
         .form-select:focus {
@@ -224,7 +249,9 @@
             box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
-        .form-control::placeholder { color: var(--text-muted); }
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
 
         .field-note {
             color: var(--text-muted);
@@ -408,9 +435,21 @@
             cursor: pointer;
         }
 
-        .icon-btn.edit { background: var(--warning); color: #fff; }
-        .icon-btn.delete { background: var(--danger); color: #fff; }
-        .icon-btn:hover { transform: translateY(-1px); opacity: .92; color: #fff; }
+        .icon-btn.edit {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        .icon-btn.delete {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-1px);
+            opacity: .92;
+            color: #fff;
+        }
 
         /* ── Empty state ── */
         .empty-frame {
@@ -449,7 +488,10 @@
             border-top: 1px solid var(--border);
         }
 
-        .pg-info { color: var(--text-muted); font-size: .82rem; }
+        .pg-info {
+            color: var(--text-muted);
+            font-size: .82rem;
+        }
 
         .pg-controls {
             display: flex;
@@ -480,9 +522,21 @@
             color: var(--brand-primary);
         }
 
-        .pg-btn.active { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
-        .pg-btn:disabled { opacity: .4; cursor: not-allowed; }
-        .pg-dots { color: var(--text-muted); padding: 0 4px; }
+        .pg-btn.active {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #fff;
+        }
+
+        .pg-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .pg-dots {
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
 
         /* ── Modal ── */
         .reel-modal-backdrop {
@@ -542,7 +596,10 @@
             cursor: pointer;
         }
 
-        .reel-modal-close:hover { background: var(--danger); color: #fff; }
+        .reel-modal-close:hover {
+            background: var(--danger);
+            color: #fff;
+        }
 
         .reel-modal-body {
             padding: 24px;
@@ -556,10 +613,14 @@
             gap: 18px;
         }
 
-        .form-grid .span-2 { grid-column: 1 / -1; }
+        .form-grid .span-2 {
+            grid-column: 1 / -1;
+        }
 
         @media (max-width: 640px) {
-            .form-grid { grid-template-columns: 1fr; }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .reel-modal-footer {
@@ -581,7 +642,10 @@
             transition: border-color .2s ease, background .2s ease;
         }
 
-        .upload-box:hover { border-color: var(--brand-primary); background: var(--primary-glow); }
+        .upload-box:hover {
+            border-color: var(--brand-primary);
+            background: var(--primary-glow);
+        }
 
         .upload-input {
             position: absolute;
@@ -591,9 +655,24 @@
             overflow: hidden;
         }
 
-        .upload-icon { font-size: 30px; color: var(--brand-primary); margin-bottom: 10px; }
-        .upload-content h5 { color: var(--text); font-size: .95rem; font-weight: 600; margin: 0 0 4px; }
-        .upload-content p { color: var(--text-muted); font-size: .82rem; margin: 0 0 6px; }
+        .upload-icon {
+            font-size: 30px;
+            color: var(--brand-primary);
+            margin-bottom: 10px;
+        }
+
+        .upload-content h5 {
+            color: var(--text);
+            font-size: .95rem;
+            font-weight: 600;
+            margin: 0 0 4px;
+        }
+
+        .upload-content p {
+            color: var(--text-muted);
+            font-size: .82rem;
+            margin: 0 0 6px;
+        }
 
         .upload-note {
             display: inline-block;
@@ -615,11 +694,27 @@
             text-align: left;
         }
 
-        .selected-file i { color: var(--success); font-size: 18px; flex-shrink: 0; }
-        .selected-file strong { display: block; color: var(--text); font-size: .82rem; word-break: break-all; }
-        .selected-file small { color: var(--text-muted); font-size: .74rem; }
+        .selected-file i {
+            color: var(--success);
+            font-size: 18px;
+            flex-shrink: 0;
+        }
 
-        .upload-progress { margin-top: 12px; }
+        .selected-file strong {
+            display: block;
+            color: var(--text);
+            font-size: .82rem;
+            word-break: break-all;
+        }
+
+        .selected-file small {
+            color: var(--text-muted);
+            font-size: .74rem;
+        }
+
+        .upload-progress {
+            margin-top: 12px;
+        }
 
         .progress-track {
             height: 10px;
@@ -652,28 +747,97 @@
             flex: 1;
         }
 
-        .theme-submit-btn { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: #fff; }
-        .btn-success { background: var(--success); color: #fff; }
-        .btn-secondary { background: var(--bg2); color: var(--text); border: 1px solid var(--border); }
+        .theme-submit-btn {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: #fff;
+        }
 
-        .theme-submit-btn:hover, .btn-success:hover { transform: translateY(-1px); opacity: .92; color: #fff; }
-        .btn-secondary:hover { transform: translateY(-1px); color: var(--text); }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
 
-        .theme-submit-btn:disabled, .btn-success:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: var(--bg2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
 
-        @keyframes reelFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes reelSlideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .theme-submit-btn:hover,
+        .btn-success:hover {
+            transform: translateY(-1px);
+            opacity: .92;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            color: var(--text);
+        }
+
+        .theme-submit-btn:disabled,
+        .btn-success:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes reelFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes reelSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ── Mobile ── */
         @media (max-width: 768px) {
-            .reel-hero-inner { padding: 20px; }
-            .theme-add-btn { justify-content: center; width: 100%; }
-            .reel-hero-title { font-size: 1.4rem; }
-            .reel-stat { padding: 16px; }
-            .filter-card, .reel-section { padding: 16px; }
-            .reel-pagination { justify-content: center; text-align: center; }
+            .reel-hero-inner {
+                padding: 20px;
+            }
 
-            .reel-modal-backdrop { padding: 0; align-items: flex-end; }
+            .theme-add-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .reel-hero-title {
+                font-size: 1.4rem;
+            }
+
+            .reel-stat {
+                padding: 16px;
+            }
+
+            .filter-card,
+            .reel-section {
+                padding: 16px;
+            }
+
+            .reel-pagination {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .reel-modal-backdrop {
+                padding: 0;
+                align-items: flex-end;
+            }
+
             .reel-modal {
                 max-width: 100%;
                 border-radius: var(--radius) var(--radius) 0 0;
@@ -681,18 +845,36 @@
                 display: flex;
                 flex-direction: column;
             }
-            .reel-modal-body { max-height: none; flex: 1; }
+
+            .reel-modal-body {
+                max-height: none;
+                flex: 1;
+            }
         }
 
         @media (max-width: 480px) {
-            .reel-modal-footer { flex-direction: column; }
+            .reel-modal-footer {
+                flex-direction: column;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .frame, .reel-stat, .theme-add-btn, .pg-btn, .icon-btn, .theme-submit-btn, .btn-success, .btn-secondary {
+
+            .frame,
+            .reel-stat,
+            .theme-add-btn,
+            .pg-btn,
+            .icon-btn,
+            .theme-submit-btn,
+            .btn-success,
+            .btn-secondary {
                 transition: none;
             }
-            .reel-modal-backdrop, .reel-modal { animation: none; }
+
+            .reel-modal-backdrop,
+            .reel-modal {
+                animation: none;
+            }
         }
 
         /* Visible keyboard focus */
@@ -797,7 +979,8 @@
 
                         <div class="frame-body">
                             <div class="frame-tags">
-                                <span class="timecode reel-mono">POS·{{ str_pad($video->position, 2, '0', STR_PAD_LEFT) }}</span>
+                                <span
+                                    class="timecode reel-mono">POS·{{ str_pad($video->position, 2, '0', STR_PAD_LEFT) }}</span>
                                 <span class="subject-tag">{{ $video->category?->name ?? 'No subject' }}</span>
                             </div>
 
@@ -845,14 +1028,13 @@
 
                         @php
                             $current = $videos->currentPage();
-                            $last    = $videos->lastPage();
-                            $window  = 1;
+                            $last = $videos->lastPage();
+                            $window = 1;
                         @endphp
 
                         @for ($page = 1; $page <= $last; $page++)
                             @if ($page === 1 || $page === $last || ($page >= $current - $window && $page <= $current + $window))
-                                <button type="button"
-                                    class="pg-btn {{ $page === $current ? 'active' : '' }}"
+                                <button type="button" class="pg-btn {{ $page === $current ? 'active' : '' }}"
                                     wire:click="gotoPage({{ $page }})">
                                     {{ $page }}
                                 </button>
@@ -862,7 +1044,7 @@
                         @endfor
 
                         <button type="button" class="pg-btn" wire:click="nextPage" wire:loading.attr="disabled"
-                            @if (! $videos->hasMorePages()) disabled @endif>
+                            @if (!$videos->hasMorePages()) disabled @endif>
                             <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
@@ -883,7 +1065,8 @@
                                 <i class="fa-solid fa-upload"></i> Upload video
                             @endif
                         </h4>
-                        <button type="button" wire:click="closeModal" class="reel-modal-close" aria-label="Close">&times;</button>
+                        <button type="button" wire:click="closeModal" class="reel-modal-close"
+                            aria-label="Close">&times;</button>
                     </div>
 
                     <form wire:submit="{{ $isEdit ? 'update' : 'save' }}">
@@ -898,26 +1081,38 @@
                                             <option value="{{ $category->id }}"
                                                 @if (in_array($category->id, $usedCategoryIds)) disabled @endif>
                                                 {{ $category->name }}
-                                                @if (in_array($category->id, $usedCategoryIds)) (already has a video) @endif
+                                                @if (in_array($category->id, $usedCategoryIds))
+                                                    (already has a video)
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
                                     <div class="field-note">Only one feature video is allowed per subject.</div>
-                                    @error('category_id') <span class="field-error">{{ $message }}</span> @enderror
+                                    @error('category_id')
+                                        <span class="field-error">{{ $message }}</span>
+                                    @enderror
                                 </div>
 
                                 <div>
                                     <label class="form-label">Position</label>
-                                    <input type="number" wire:model.live="position" class="form-control" placeholder="e.g. {{ $nextPosition }}">
-                                    <div class="field-note">Must be unique — video 1 shows first, video 2 shows second.</div>
-                                    @error('position') <span class="field-error">{{ $message }}</span> @enderror
+                                    <input type="number" wire:model.live="position" class="form-control"
+                                        placeholder="e.g. {{ $nextPosition }}">
+                                    <div class="field-note">Must be unique — video 1 shows first, video 2 shows second.
+                                    </div>
+                                    @error('position')
+                                        <span class="field-error">{{ $message }}</span>
+                                    @enderror
                                 </div>
 
                                 <div class="span-2">
-                                    <label class="form-label">Video file @unless($isEdit) <span style="color:var(--danger)">*</span> @endunless</label>
+                                    <label class="form-label">Video file @unless ($isEdit)
+                                            <span style="color:var(--danger)">*</span>
+                                        @endunless
+                                    </label>
 
                                     <label class="upload-box">
-                                        <input type="file" wire:model="video_file" accept="video/*" class="upload-input">
+                                        <input type="file" wire:model="video_file" accept="video/*"
+                                            class="upload-input">
                                         <div class="upload-content">
                                             <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                                             <h5>{{ $isEdit ? 'Replace video (optional)' : 'Upload video' }}</h5>
@@ -925,18 +1120,25 @@
                                             <span class="upload-note">MP4 · MOV · AVI · MKV · WEBM</span>
 
                                             @if ($video_file)
-                                                <div class="selected-file">
-                                                    <i class="fa-solid fa-circle-check"></i>
-                                                    <div>
-                                                        <strong>{{ $video_file->getClientOriginalName() }}</strong>
-                                                        <small>{{ round($video_file->getSize() / 1024 / 1024, 2) }} MB</small>
+                                                <div class="video-preview">
+                                                    <video src="{{ $video_file->temporaryUrl() }}" controls
+                                                        preload="metadata"></video>
+                                                    <div class="selected-file">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                        <div>
+                                                            <strong>{{ $video_file->getClientOriginalName() }}</strong>
+                                                            <small>{{ round($video_file->getSize() / 1024 / 1024, 2) }}
+                                                                MB</small>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             @endif
                                         </div>
                                     </label>
 
-                                    @error('video_file') <span class="field-error">{{ $message }}</span> @enderror
+                                    @error('video_file')
+                                        <span class="field-error">{{ $message }}</span>
+                                    @enderror
 
                                     <div wire:loading wire:target="video_file" class="upload-progress">
                                         <div class="progress-track">
@@ -948,21 +1150,28 @@
 
                                 <div class="span-2">
                                     <label class="form-label">Title</label>
-                                    <input type="text" wire:model.live="title" class="form-control" placeholder="Short, descriptive title">
-                                    @error('title') <span class="field-error">{{ $message }}</span> @enderror
+                                    <input type="text" wire:model.live="title" class="form-control"
+                                        placeholder="Short, descriptive title">
+                                    @error('title')
+                                        <span class="field-error">{{ $message }}</span>
+                                    @enderror
                                 </div>
 
                                 <div class="span-2">
                                     <label class="form-label">Description</label>
-                                    <textarea rows="4" wire:model.live="description" class="form-control" placeholder="What does this video show?"></textarea>
-                                    @error('description') <span class="field-error">{{ $message }}</span> @enderror
+                                    <textarea rows="4" wire:model.live="description" class="form-control"
+                                        placeholder="What does this video show?"></textarea>
+                                    @error('description')
+                                        <span class="field-error">{{ $message }}</span>
+                                    @enderror
                                 </div>
 
                             </div>
                         </div>
 
                         <div class="reel-modal-footer">
-                            <button type="submit" class="{{ $isEdit ? 'btn-success' : 'theme-submit-btn' }}" wire:loading.attr="disabled" wire:target="save,update">
+                            <button type="submit" class="{{ $isEdit ? 'btn-success' : 'theme-submit-btn' }}"
+                                wire:loading.attr="disabled" wire:target="save,update">
                                 <span wire:loading.remove wire:target="save,update">
                                     <i class="fa-solid {{ $isEdit ? 'fa-save' : 'fa-cloud-upload' }}"></i>
                                     {{ $isEdit ? 'Update video' : 'Save video' }}
@@ -983,7 +1192,7 @@
     {{-- Sweet Alert --}}
     @script
         <script>
-            window.confirmDelete = function (id) {
+            window.confirmDelete = function(id) {
                 Swal.fire({
                     title: 'Delete video?',
                     text: 'This action cannot be undone.',

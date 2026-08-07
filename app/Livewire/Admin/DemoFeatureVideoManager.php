@@ -83,8 +83,8 @@ class DemoFeatureVideoManager extends Component
                 'max:2000',
             ],
             'video_file' => $this->isEdit
-                ? 'nullable|mimes:mp4,mov,avi,mkv,webm|max:2048000'
-                : 'required|mimes:mp4,mov,avi,mkv,webm|max:2048000',
+                ? 'nullable|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm|max:2048000'
+                : 'required|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm|max:2048000',
         ];
     }
 
