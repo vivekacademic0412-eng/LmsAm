@@ -1,0 +1,211 @@
+<!-- Displays the main heading in the center of the page -->
+<h1 align="center">Student Registration Form</h1>
+
+<!-- Starts the form -->
+<!-- action="#" means data will not be sent anywhere -->
+<!-- method="post" sends form data securely -->
+<form action="#" method="post">
+
+    <!-- Creates a table to arrange the form fields -->
+    <!-- align="center" places the table in the center -->
+    <!-- cellpadding="8" adds space inside each table cell -->
+    <table align="center" cellpadding="8">
+
+        <!-- Starts a new table row -->
+        <tr>
+
+            <!-- First table column for label -->
+            <td>
+
+                <!-- Label for Student Name input -->
+                <!-- for="studentName" connects this label to the input -->
+                <label for="studentName">Student Name:</label>
+
+            </td>
+
+            <!-- Second table column for input -->
+            <td>
+
+                <!-- Text input for student name -->
+                <!-- id identifies the input -->
+                <!-- name is used when form data is submitted -->
+                <!-- required makes this field mandatory -->
+                <input type="text" id="studentName" name="studentName" required>
+
+            </td>
+        </tr>
+
+        <!-- Father's Name Row -->
+        <tr>
+            <td>
+                <label for="fatherName">Father's Name:</label>
+            </td>
+            <td>
+
+                <!-- Text input for father's name -->
+                <input type="text" id="fatherName" name="fatherName" required>
+
+            </td>
+        </tr>
+
+        <!-- Email Row -->
+        <tr>
+            <td>
+
+                <!-- Label for email input -->
+                <label for="email">Email Address:</label>
+
+            </td>
+            <td>
+
+                <!-- Email input validates email format automatically -->
+                <input type="email" id="email" name="email" required>
+
+            </td>
+        </tr>
+
+        <!-- Mobile Number Row -->
+        <tr>
+            <td>
+                <label for="mobile">Mobile Number:</label>
+            </td>
+            <td>
+
+                <!-- Telephone input -->
+                <!-- pattern="[0-9]{10}" allows exactly 10 digits -->
+                <!-- maxlength="10" prevents entering more than 10 digits -->
+                <input type="tel"
+                       id="mobile"
+                       name="mobile"
+                       pattern="[0-9]{10}"
+                       maxlength="10"
+                       required>
+
+            </td>
+        </tr>
+
+        <!-- Gender Row -->
+        <tr>
+            <td>
+
+                <!-- Simple label for radio buttons -->
+                <label>Gender:</label>
+
+            </td>
+            <td>
+
+                <!-- Male Radio Button -->
+                <!-- Radio buttons allow only one option -->
+                <input type="radio"
+                       id="male"
+                       name="gender"
+                       value="Male"
+                       required>
+
+                <!-- Label for Male -->
+                <label for="male">Male</label>
+
+                <!-- Female Radio Button -->
+                <input type="radio"
+                       id="female"
+                       name="gender"
+                       value="Female"
+                       required>
+
+                <!-- Label for Female -->
+                <label for="female">Female</label>
+
+            </td>
+        </tr>
+
+        <!-- Date of Birth Row -->
+        <tr>
+            <td>
+
+                <!-- Label for date picker -->
+                <label for="dob">Date of Birth:</label>
+
+            </td>
+            <td>
+
+                <!-- Date input opens calendar -->
+                <input type="date"
+                       id="dob"
+                       name="dob"
+                       required>
+
+            </td>
+        </tr>
+
+        <!-- Course Row -->
+        <tr>
+            <td>
+
+                <!-- Label for dropdown -->
+                <label for="course">Course:</label>
+
+            </td>
+            <td>
+
+                <!-- Dropdown list -->
+                <select id="course"
+                        name="course"
+                        required>
+
+                    <!-- Default option -->
+                    <option value="">-- Select Course --</option>
+
+                    <!-- Course options -->
+                    <option value="HTML">HTML</option>
+                    <option value="CSS">CSS</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="PHP">PHP</option>
+                    <option value="Laravel">Laravel</option>
+                    <option value="Python">Python</option>
+
+                </select>
+
+            </td>
+        </tr>
+
+        <!-- Address Row -->
+        <tr>
+            <td>
+
+                <!-- Label for textarea -->
+                <label for="address">Address:</label>
+
+            </td>
+            <td>
+
+                <!-- Textarea allows multiple lines -->
+                <!-- rows="4" sets height -->
+                <!-- cols="30" sets width -->
+                <textarea id="address"
+                          name="address"
+                          rows="4"
+                          cols="30"
+                          required></textarea>
+
+            </td>
+        </tr>
+
+        <!-- Buttons Row -->
+        <tr>
+
+            <!-- colspan="2" merges two columns into one -->
+            <!-- align="center" centers the buttons -->
+            <td colspan="2" align="center">
+
+                <!-- Submit button sends form data -->
+                <input type="submit" value="Submit">
+
+                <!-- Reset button clears all form fields -->
+                <input type="reset" value="Reset">
+
+            </td>
+        </tr>
+
+    </table>
+
+</form>

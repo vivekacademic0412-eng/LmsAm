@@ -34,6 +34,13 @@ class DashboardController extends Controller
         if ($user->role === User::ROLE_MANAGER_HR) {
             return redirect()->route('panel.manager_hr');
         }
+         if ($user->role === User::ROLE_ADMIN || $user->role === User::ROLE_SUPERADMIN) {
+            return view('panels.admin_dashboard');
+        }
+         if ($user->role === User::ROLE_ADMIN || $user->role === User::ROLE_STUDENT) {
+            return view('panels.student_dashboard');
+        }
+       
         $stats = [
             'users' => User::count(),
             'categories' => CourseCategory::count(),
